@@ -8,6 +8,7 @@ Interactive configuration guides for deploying Microsoft Global Secure Access al
 |--------|-------|-----------|
 | Zscaler | [Source](Zscaler/gsa-zscaler-coexistence.html) | [🔗 Open Guide](https://jeevanbisht.github.io/GSASidebySide/Zscaler/gsa-zscaler-coexistence.html) |
 | Cisco Umbrella | [Source](CiscoUmbrella/gsa-cisco-coexistence.html) | [🔗 Open Guide](https://jeevanbisht.github.io/GSASidebySide/CiscoUmbrella/gsa-cisco-coexistence.html) |
+| Palo Alto Prisma Access | [Source](PaloAlto/gsa-paloalto-coexistence.html) | [🔗 Open Guide](https://jeevanbisht.github.io/GSASidebySide/PaloAlto/gsa-paloalto-coexistence.html) |
 
 ## Features
 
@@ -25,3 +26,4 @@ See [agents.md](agents.md) for the full playbook to create guides for additional
 
 - [Microsoft: GSA + Zscaler Coexistence](https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-zscaler-coexistence)
 - [Microsoft: GSA + Cisco Coexistence](https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-cisco-coexistence)
+- [Microsoft: GSA + Palo Alto Coexistence](https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-palo-alto-coexistence)
