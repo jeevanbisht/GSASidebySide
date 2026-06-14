@@ -7,7 +7,7 @@ Interactive configuration guides for deploying Microsoft Global Secure Access al
 | Vendor | Guide | Live Page |
 |--------|-------|-----------|
 | Zscaler | [Source](Zscaler/gsa-zscaler-coexistence.html) | [🔗 Open Guide](https://jeevanbisht.github.io/GSASidebySide/Zscaler/gsa-zscaler-coexistence.html) |
-| Cisco Umbrella | [Source](Cisco/gsa-cisco-coexistence.html) | [🔗 Open Guide](https://jeevanbisht.github.io/GSASidebySide/Cisco/gsa-cisco-coexistence.html) |
+| Cisco Umbrella | [Source](CiscoUmbrella/gsa-cisco-coexistence.html) | [🔗 Open Guide](https://jeevanbisht.github.io/GSASidebySide/CiscoUmbrella/gsa-cisco-coexistence.html) |
 
 ## Features
 
