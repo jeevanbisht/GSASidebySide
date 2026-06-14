@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Global Secure Access + Zscaler Coexistence Scenarios and Configuration</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme = param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f5f5f5;
+  --cp-bg-elevated: #fafafa;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f9f9f9;
+  --cp-border: #e0e0e0;
+  --cp-border-strong: #bdbdbd;
+  --cp-text: #212121;
+  --cp-text-muted: #616161;
+  --cp-text-soft: #757575;
+  --cp-accent: #0f6cbd;
+  --cp-accent-hover: #0a5496;
+  --cp-accent-soft: rgba(15, 108, 189, 0.05);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #107c10;
+  --cp-danger: #d13438;
+  --cp-warning: #f7630c;
+  --cp-link: #0f6cbd;
+  --cp-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  --cp-shadow-lg: 0 4px 12px rgba(0,0,0,0.1);
+  --cp-overlay: rgba(255,255,255,0.8);
+  --cp-panel: rgba(255,255,255,0.86);
+  --cp-panel-strong: rgba(255,255,255,0.96);
+  --cp-sheen: rgba(255,255,255,0.55);
+  --cp-highlight: rgba(15,108,189,0.06);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #1a1a1a;
+  --cp-bg-elevated: #222222;
+  --cp-surface: #2a2a2a;
+  --cp-surface-soft: #313131;
+  --cp-border: #3d3d3d;
+  --cp-border-strong: #555555;
+  --cp-text: #e4e4e4;
+  --cp-text-muted: #9e9e9e;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #5ba7e6;
+  --cp-accent-hover: #7dbcf0;
+  --cp-accent-soft: rgba(91,167,230,0.08);
+  --cp-accent-fg: #111111;
+  --cp-success: #4caf50;
+  --cp-danger: #ef5350;
+  --cp-warning: #ffa726;
+  --cp-link: #5ba7e6;
+  --cp-shadow: 0 1px 3px rgba(0,0,0,0.24);
+  --cp-shadow-lg: 0 4px 12px rgba(0,0,0,0.4);
+  --cp-overlay: rgba(26,26,26,0.9);
+  --cp-panel: rgba(42,42,42,0.86);
+  --cp-panel-strong: rgba(42,42,42,0.96);
+  --cp-sheen: rgba(255,255,255,0.03);
+  --cp-highlight: rgba(91,167,230,0.08);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Navigation */
+.topbar {
+  background: var(--cp-surface);
+  border-bottom: 1px solid var(--cp-border);
+  padding: 0 32px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.topbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.topbar-logo svg { width: 16px; height: 16px; flex-shrink: 0; }
+.topbar-title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--cp-text);
+}
+.topbar-sep {
+  color: var(--cp-border-strong);
+  font-weight: 300;
+}
+.topbar-sub {
+  font-size: 0.8125rem;
+  color: var(--cp-text-muted);
+}
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.topbar-link {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--cp-link);
+  text-decoration: none;
+}
+.topbar-link:hover { text-decoration: underline; }
+.topbar-btn {
+  width: 28px; height: 28px;
+  border: 1px solid var(--cp-border);
+  border-radius: 4px;
+  background: var(--cp-surface);
+  color: var(--cp-text-muted);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem;
+}
+.topbar-btn:hover { background: var(--cp-surface-soft); }
+
+/* Main content */
+.main { max-width: 1200px; margin: 0 auto; padding: 36px 32px 64px; }
+
+.page-heading {
+  margin-bottom: 36px;
+}
+.page-heading h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+}
+.page-heading p {
+  font-size: 0.8125rem;
+  color: var(--cp-text-muted);
+  max-width: 600px;
+  line-height: 1.6;
+}
+
+/* Scenario Section */
+.section-title {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--cp-text-muted);
+  margin-bottom: 14px;
+}
+
+.tenant-input-container {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+.tenant-input-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.tenant-label {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text);
+  white-space: nowrap;
+}
+.tenant-field {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1.5px solid var(--border-strong, #919191);
+  border-radius: 6px;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 13px;
+  background: #ffffff;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
+}
+.tenant-field:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+.tenant-field.valid {
+  border-color: #059669;
+}
+.tenant-field.invalid {
+  border-color: #dc2626;
+}
+.btn-apply-tenant {
+  padding: 8px 16px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.btn-apply-tenant:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.btn-apply-tenant:not(:disabled):hover {
+  background: #1d4ed8;
+}
+.tenant-hint {
+  margin-top: 8px;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+.tenant-hint.applied {
+  color: #059669;
+  font-weight: 500;
+}
+.tenant-endpoints {
+  margin-top: 12px;
+  border: 1px solid rgba(37, 99, 235, 0.2);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.tenant-endpoints-title {
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #2563eb;
+  background: rgba(37, 99, 235, 0.06);
+  border-bottom: 1px solid rgba(37, 99, 235, 0.15);
+}
+.tenant-endpoints-list {
+  padding: 8px 12px;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 11px;
+  line-height: 1.8;
+  color: var(--cp-text);
+  background: var(--cp-bg-elevated);
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 48px;
+}
+
+.scenario-tile {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 8px;
+  padding: 20px;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.scenario-tile:hover {
+  border-color: var(--cp-border-strong);
+  box-shadow: var(--cp-shadow);
+}
+.scenario-tile.selected {
+  border-color: var(--cp-accent);
+  box-shadow: 0 0 0 1px var(--cp-accent), var(--cp-shadow);
+}
+
+.tile-scenario-label {
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--cp-accent);
+}
+.tile-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--cp-text);
+  line-height: 1.3;
+}
+.tile-desc {
+  font-size: 0.75rem;
+  color: var(--cp-text-muted);
+  line-height: 1.55;
+}
+.tile-ownership {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 4px;
+}
+.ownership-col h4 {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--cp-text);
+  margin-bottom: 4px;
+}
+.ownership-col ul {
+  list-style: none;
+  padding: 0;
+}
+.ownership-col ul li {
+  font-size: 0.6875rem;
+  color: var(--cp-text-muted);
+  line-height: 1.6;
+  padding-left: 10px;
+  position: relative;
+}
+.ownership-col ul li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: var(--cp-text-soft);
+}
+
+/* Diagram */
+.diagram-section {
+  padding: 20px;
+}
+.diagram-title {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--cp-text-muted);
+  margin-bottom: 16px;
+}
+.diagram-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Collapsible Sections */
+.collapsible-section {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.collapsible-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.1s;
+}
+.collapsible-header:hover {
+  background: var(--cp-surface-soft);
+}
+.collapsible-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.collapsible-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--cp-text);
+}
+.collapsible-chevron {
+  color: var(--cp-text-muted);
+  font-size: 0.75rem;
+  transition: transform 0.2s;
+}
+.collapsible-chevron.collapsed {
+  transform: rotate(-90deg);
+}
+.collapsible-body {
+  display: none;
+  border-top: 1px solid var(--cp-border);
+}
+.collapsible-body.open {
+  display: block;
+}
+
+@keyframes flowBlue {
+  from { stroke-dashoffset: 24; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes flowGreen {
+  from { stroke-dashoffset: 20; }
+  to { stroke-dashoffset: 0; }
+}
+.diagram-svg {
+  width: 100%;
+  max-width: 780px;
+  height: auto;
+}
+.diagram-svg text {
+  font-family: "Segoe UI", Aptos, Calibri, sans-serif;
+}
+
+/* Configuration Steps */
+.steps-panel {
+  display: none;
+}
+.steps-panel.show {
+  display: block;
+  animation: slideUp 0.2s ease;
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.steps-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--cp-border);
+}
+.steps-panel-title {
+  font-size: 1rem;
+  font-weight: 600;
+}
+.steps-panel-meta {
+  font-size: 0.75rem;
+  color: var(--cp-text-muted);
+}
+
+/* Phase dividers */
+.phase-divider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 20px 0 12px;
+}
+.phase-divider-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.phase-divider-label.gsa { color: var(--cp-accent); }
+.phase-divider-label.zscaler { color: #00875a; }
+html[data-theme="dark"] .phase-divider-label.zscaler { color: #4caf50; }
+.phase-divider-label.verify { color: #7c4dff; }
+html[data-theme="dark"] .phase-divider-label.verify { color: #b39ddb; }
+.phase-divider-line {
+  flex: 1;
+  height: 1px;
+  background: var(--cp-border);
+}
+
+/* Step row */
+.step-row {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 6px;
+  margin-bottom: 6px;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+.step-row.open {
+  border-color: var(--cp-accent);
+}
+.step-row.done {
+  opacity: 0.7;
+}
+.step-row-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+}
+.step-row-header:hover {
+  background: var(--cp-surface-soft);
+}
+.step-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid var(--cp-border-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: var(--cp-text-muted);
+  flex-shrink: 0;
+}
+.step-row.done .step-num {
+  background: var(--cp-success);
+  border-color: var(--cp-success);
+  color: white;
+}
+.step-row-title {
+  flex: 1;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--cp-text);
+}
+.step-row.done .step-row-title {
+  text-decoration: line-through;
+  color: var(--cp-text-muted);
+}
+.step-tag {
+  font-size: 0.625rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.step-tag.gsa { background: rgba(15,108,189,0.08); color: var(--cp-accent); }
+.step-tag.zscaler { background: rgba(0,135,90,0.07); color: #00875a; }
+html[data-theme="dark"] .step-tag.zscaler { color: #4caf50; }
+.step-tag.verify { background: rgba(124,77,255,0.07); color: #7c4dff; }
+html[data-theme="dark"] .step-tag.verify { color: #b39ddb; }
+.step-tenant-badge {
+  font-size: 0.625rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 3px;
+  background: rgba(37, 99, 235, 0.08);
+  color: #2563eb;
+  margin-left: auto;
+}
+.step-arrow {
+  color: var(--cp-text-soft);
+  font-size: 0.5rem;
+  transition: transform 0.15s;
+}
+.step-row.open .step-arrow { transform: rotate(180deg); }
+
+/* Step detail */
+.step-detail {
+  display: none;
+  padding: 0 16px 16px 50px;
+}
+.step-row.open .step-detail { display: block; }
+
+.step-detail ol {
+  padding-left: 16px;
+  margin-bottom: 12px;
+}
+.step-detail ol li {
+  font-size: 0.8125rem;
+  color: var(--cp-text);
+  line-height: 1.7;
+  margin-bottom: 4px;
+}
+.step-detail ol li code {
+  font-family: Consolas, "Courier New", Courier, monospace;
+  font-size: 0.75rem;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+/* Config block */
+.config-panel {
+  border: 1px solid var(--cp-border);
+  border-radius: 6px;
+  margin: 10px 0;
+  overflow: hidden;
+}
+.config-panel-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--cp-surface-soft);
+  border-bottom: 1px solid var(--cp-border);
+}
+.config-panel-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--cp-text-muted);
+}
+.btn-copy {
+  margin-left: auto;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--cp-link);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+.btn-copy:hover { background: var(--cp-highlight); }
+.btn-copy.ok { color: var(--cp-success); }
+.btn-copy.warn { color: #dc2626; font-size: 0.6rem; }
+.config-tenant-notice {
+  padding: 6px 12px;
+  font-size: 11px;
+  color: #b45309;
+  background: rgba(245, 158, 11, 0.08);
+  border-bottom: 1px solid rgba(245, 158, 11, 0.2);
+}
+.config-panel-code {
+  padding: 10px 12px;
+  font-family: Consolas, "Courier New", Courier, monospace;
+  font-size: 0.7rem;
+  line-height: 1.7;
+  color: var(--cp-text);
+  white-space: pre-wrap;
+  word-break: break-all;
+  background: var(--cp-bg-elevated);
+  max-height: 260px;
+  overflow-y: auto;
+}
+.config-tenanted-header {
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #2563eb;
+  background: rgba(37, 99, 235, 0.06);
+  border-bottom: 1px solid var(--cp-border);
+}
+.config-tenanted-badge {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #2563eb;
+  background: rgba(37, 99, 235, 0.08);
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-left: auto;
+  margin-right: 8px;
+}
+
+/* Checklist */
+.check-list {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0;
+}
+.check-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: var(--cp-text);
+  padding: 5px 0;
+}
+.check-list li input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--cp-success);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.check-list li label {
+  cursor: pointer;
+}
+.check-list li.checked label {
+  text-decoration: line-through;
+  color: var(--cp-text-muted);
+}
+
+/* Done button */
+.btn-done {
+  margin-top: 10px;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 5px 12px;
+  border: 1px solid var(--cp-border);
+  border-radius: 4px;
+  background: var(--cp-surface);
+  color: var(--cp-text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-done:hover { border-color: var(--cp-accent); color: var(--cp-accent); }
+.btn-done:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: var(--cp-border);
+  color: var(--cp-text-muted);
+}
+.btn-done:disabled:hover {
+  border-color: var(--cp-border);
+  color: var(--cp-text-muted);
+}
+
+/* Responsive */
+@media (max-width: 960px) { .scenario-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) {
+  .scenario-grid { grid-template-columns: 1fr; }
+  .topbar { padding: 0 16px; }
+  .main { padding: 24px 16px; }
+  .step-detail { padding-left: 16px; }
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-logo">
+      <svg viewBox="0 0 23 23" fill="none"><rect x="1" y="1" width="10" height="10" fill="#f25022"/><rect x="12" y="1" width="10" height="10" fill="#7fba00"/><rect x="1" y="12" width="10" height="10" fill="#00a4ef"/><rect x="12" y="12" width="10" height="10" fill="#ffb900"/></svg>
+      <span class="topbar-title">Microsoft Entra</span>
+    </div>
+    <span class="topbar-sep">|</span>
+    <span class="topbar-sub">Global Secure Access</span>
+  </div>
+  <div class="topbar-right">
+    <a href="https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-zscaler-coexistence" target="_blank" class="topbar-link">Official Docs ↗</a>
+    <button class="topbar-btn" onclick="toggleTheme()" title="Toggle theme">◐</button>
+  </div>
+</header>
+
+<main class="main">
+  <div class="page-heading">
+    <h1>Global Secure Access + Zscaler Coexistence Scenarios and Configuration</h1>
+    <p>Configure Microsoft Global Secure Access alongside Zscaler Private Access and Internet Access. Select a scenario below to view step-by-step configuration instructions.</p>
+  </div>
+
+  <div class="section-title">Choose your coexistence scenario</div>
+
+  <!-- Tenant ID Input -->
+  <div class="tenant-input-container" id="tenantInput">
+    <div class="tenant-input-row">
+      <label class="tenant-label" for="tenantIdField">Tenant ID</label>
+      <input type="text" id="tenantIdField" class="tenant-field" placeholder="e.g. a1b2c3d4-e5f6-7890-abcd-ef1234567890" pattern="[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}" oninput="validateTenantId()"/>
+      <button class="btn-apply-tenant" id="btnApplyTenant" onclick="applyTenantId()" disabled>Apply</button>
+    </div>
+    <div class="tenant-hint" id="tenantHint">Enter your Microsoft Entra tenant ID (GUID format). This will populate the bypass FQDNs in the configuration blocks below.</div>
+  </div>
+
+  <div class="scenario-grid" id="grid"></div>
+
+  <div class="steps-panel" id="stepsPanel">
+    <div class="steps-panel-header">
+      <div class="steps-panel-title" id="panelTitle"></div>
+      <div class="steps-panel-meta" id="panelMeta"></div>
+    </div>
+
+    <!-- Traffic Flow Diagram (collapsible) -->
+    <div class="collapsible-section" id="diagramCollapsible">
+      <div class="collapsible-header" onclick="toggleDiagram()">
+        <div class="collapsible-header-left">
+          <span class="collapsible-title">Traffic Flow Diagram</span>
+        </div>
+        <span class="collapsible-chevron" id="diagramChevron">▾</span>
+      </div>
+      <div class="collapsible-body open" id="diagramBody">
+        <div class="diagram-section" id="diagramSection"></div>
+      </div>
+    </div>
+
+    <!-- Implementation Guide title + steps (old style) -->
+    <div class="section-title" style="margin-top: 32px;">Implementation Guide</div>
+    <div id="stepsBody"></div>
+  </div>
+</main>
+
+<script>
+const DATA = [
+  {
+    id: 1,
+    scenario: "Scenario 1",
+    title: "GSA Private Access + Zscaler ZIA",
+    desc: "GSA handles private application traffic. Zscaler Internet Access manages internet traffic. ZPA module is disabled.",
+    gsaOwns: ["Private app traffic (Entra PA)"],
+    zscalerOwns: ["Internet traffic (ZIA)"],
+    steps: [
+      { t: "Enable Private Access forwarding profile", b: "gsa", inst: ["Sign in to the <strong>Microsoft Entra admin center</strong>.", "Navigate to <strong>Global Secure Access → Connect → Traffic forwarding</strong>.", "Toggle <strong>Private access profile</strong> to Enabled."] },
+      { t: "Install Private Network Connector", b: "gsa", inst: ["Navigate to <strong>Global Secure Access → Connect → Connectors</strong>.", "Download and install the connector on a server in your private network.", "Register with your Entra tenant and verify status shows <strong>Active</strong>."] },
+      { t: "Configure Quick Access & Private DNS", b: "gsa", inst: ["Navigate to <strong>Global Secure Access → Applications → Quick Access</strong>.", "Add private application FQDNs and IP ranges.", "Configure <strong>Private DNS</strong> and add DNS suffixes."] },
+      { t: "Install Global Secure Access client", b: "gsa", inst: ["Download and install the GSA client on end-user devices (Windows/macOS).", "Verify client shows <strong>Connected</strong> in system tray."] },
+      { t: "Create ZCC forwarding profile", b: "zscaler", inst: ["Navigate to <strong>ZCC Portal → Administration → Forwarding Profile → Add</strong>.", "Profile Name: <code>ZIA Only</code>", "Tunnel Driver Type: <strong>Packet Filter-Based</strong>", "Forwarding action: <strong>Tunnel</strong> → Z-Tunnel 2.0", "ZPA section: select <strong>None</strong> for all options."], cfg: { label: "Profile configuration", code: "Profile Name:     ZIA Only\nDriver Type:      Packet Filter-Based\nZIA Action:       Tunnel (Z-Tunnel 2.0)\nZPA Action:       None (all options)" } },
+      { t: "Create ZCC app profile with GSA bypasses", b: "zscaler", inst: ["Navigate to <strong>ZCC Portal → App Profiles → Add Policy</strong>.", "Name the policy, set Rule Order = 1, Enable.", "Assign users and select forwarding profile <strong>ZIA Only</strong>.", "Add the entries below to <strong>HOSTNAME OR IP ADDRESS BYPASS FOR VPN GATEWAY</strong>."], cfg: { label: "GSA service bypass entries — paste into VPN Gateway bypass", code: "150.171.15.0/24\n150.171.18.0/24\n150.171.19.0/24\n150.171.20.0/24\n13.107.232.0/24\n13.107.233.0/24\n151.206.0.0/16\n6.6.0.0/16\ninternet.edgediagnostic.globalsecureaccess.microsoft.com\nm365.edgediagnostic.globalsecureaccess.microsoft.com\nprivate.edgediagnostic.globalsecureaccess.microsoft.com\naps.globalsecureaccess.microsoft.com\nauth.edgediagnostic.globalsecureaccess.microsoft.com\n<tenantid>.internet.client.globalsecureaccess.microsoft.com\n<tenantid>.m365.client.globalsecureaccess.microsoft.com\n<tenantid>.private.client.globalsecureaccess.microsoft.com\n<tenantid>.auth.client.globalsecureaccess.microsoft.com\n<tenantid>.private-backup.client.globalsecureaccess.microsoft.com\n<tenantid>.internet-backup.client.globalsecureaccess.microsoft.com\n<tenantid>.m365-backup.client.globalsecureaccess.microsoft.com\n<tenantid>.auth-backup.client.globalsecureaccess.microsoft.com" } },
+      { t: "Verify client configurations", b: "verify", inst: ["<strong>GSA → Advanced Diagnostics → Forwarding Profile</strong>: Private Access + Private DNS rules applied.", "<strong>GSA → Health Check</strong>: No checks failing.", "<strong>Zscaler → More</strong>: App Policy up to date.", "<strong>Zscaler → Internet Security</strong>: Status <code>ON</code>.", "<strong>Zscaler → Private Access</strong>: Status <code>DISABLED</code>."], chk: ["GSA shows Private Access rules", "Health check passes", "ZIA: ON", "ZPA: DISABLED"] },
+      { t: "Test traffic flow", b: "verify", inst: ["Start GSA traffic collection via <strong>Advanced Diagnostics → Traffic</strong>.", "Browse to <code>bing.com</code>, <code>salesforce.com</code> — GSA should <strong>not</strong> capture.", "Access private app (e.g., SMB share) — GSA <strong>should</strong> capture.", "Verify in <strong>Entra → Traffic logs</strong> and <strong>Zscaler ZIA → Analytics → Logs</strong>."], chk: ["Internet traffic → ZIA", "Private apps → GSA", "No cross-traffic in logs"] }
+    ]
+  },
+  {
+    id: 2,
+    scenario: "Scenario 2",
+    title: "GSA PA + ZPA + ZIA (Dual PA)",
+    desc: "Both clients handle separate private applications. GSA owns Entra Private Access apps. Zscaler owns ZPA apps and internet traffic.",
+    gsaOwns: ["Private apps in Entra PA"],
+    zscalerOwns: ["Private apps (ZPA)", "Internet traffic (ZIA)"],
+    steps: [
+      { t: "Enable Private Access forwarding profile", b: "gsa", inst: ["Sign in to the <strong>Microsoft Entra admin center</strong>.", "Navigate to <strong>Global Secure Access → Connect → Traffic forwarding</strong>.", "Toggle <strong>Private access profile</strong> to Enabled."] },
+      { t: "Install Private Network Connector", b: "gsa", inst: ["Navigate to <strong>Global Secure Access → Connect → Connectors</strong>.", "Download and install the connector on a server in your private network.", "Register with your Entra tenant and verify status shows <strong>Active</strong>."] },
+      { t: "Configure Quick Access & Private DNS", b: "gsa", inst: ["Navigate to <strong>Global Secure Access → Applications → Quick Access</strong>.", "Add private application FQDNs and IP ranges for GSA-managed apps only.", "Configure <strong>Private DNS</strong> and add DNS suffixes for your private network.", "Do <strong>not</strong> add applications that are managed by Zscaler ZPA."] },
+      { t: "Install Global Secure Access client", b: "gsa", inst: ["Navigate to <strong>Global Secure Access → Connect → Client download</strong>.", "Download and install the GSA client on end-user devices (Windows/macOS).", "Verify client shows <strong>Connected</strong> in the system tray."] },
+      { t: "Create ZCC forwarding profile", b: "zscaler", inst: ["Navigate to <strong>Zscaler Client Connector admin portal → Administration → Forwarding Profile → Add Forwarding Profile</strong>.", "Set <strong>Profile Name</strong> to <code>ZIA and ZPA</code>.", "Select <strong>Packet Filter-Based</strong> in Tunnel Driver Type.", "Set forwarding profile action to <strong>Tunnel</strong> and select <strong>Z-Tunnel 2.0</strong>.", "Scroll down to <strong>Forwarding profile action for ZPA</strong>.", "Select <strong>Tunnel</strong> for all options in this section."], cfg: { label: "Profile configuration", code: "Profile Name:     ZIA and ZPA\nDriver Type:      Packet Filter-Based\nZIA Action:       Tunnel (Z-Tunnel 2.0)\nZPA Action:       Tunnel (all options)" } },
+      { t: "Create ZCC app profile with GSA bypasses", b: "zscaler", inst: ["Navigate to <strong>Zscaler Client Connector admin portal → App Profiles → Windows (or macOS) → Add Windows Policy (or macOS)</strong>.", "Set <strong>Name</strong>, set <strong>Rule Order</strong> to <code>1</code>, select <strong>Enable</strong>.", "Select <strong>User(s)</strong> to apply this policy.", "Select the Forwarding Profile: <strong>ZIA and ZPA</strong>.", "Scroll down and add the Microsoft SSE service IPs and FQDNs below to <strong>HOSTNAME OR IP ADDRESS BYPASS FOR VPN GATEWAY</strong>."], cfg: { label: "GSA service bypass entries — paste into VPN Gateway bypass", code: "150.171.15.0/24\n150.171.18.0/24\n150.171.19.0/24\n150.171.20.0/24\n13.107.232.0/24\n13.107.233.0/24\n151.206.0.0/16\n6.6.0.0/16\ninternet.edgediagnostic.globalsecureaccess.microsoft.com\nm365.edgediagnostic.globalsecureaccess.microsoft.com\nprivate.edgediagnostic.globalsecureaccess.microsoft.com\naps.globalsecureaccess.microsoft.com\nauth.edgediagnostic.globalsecureaccess.microsoft.com\n<tenantid>.internet.client.globalsecureaccess.microsoft.com\n<tenantid>.m365.client.globalsecureaccess.microsoft.com\n<tenantid>.private.client.globalsecureaccess.microsoft.com\n<tenantid>.auth.client.globalsecureaccess.microsoft.com\n<tenantid>.private-backup.client.globalsecureaccess.microsoft.com\n<tenantid>.internet-backup.client.globalsecureaccess.microsoft.com\n<tenantid>.m365-backup.client.globalsecureaccess.microsoft.com\n<tenantid>.auth-backup.client.globalsecureaccess.microsoft.com" } },
+      { t: "Verify client configurations", b: "verify", inst: ["Right-click <strong>Global Secure Access Client → Advanced Diagnostics → Forwarding Profile</strong> and verify that Private Access and Private DNS rules are applied.", "Navigate to <strong>Advanced Diagnostics → Health Check</strong> and ensure no checks are failing.", "Right-click <strong>Zscaler Client → Open Zscaler → More</strong>. Verify <strong>App Policy</strong> matches configurations. Validate that it's up to date.", "Navigate to <strong>Zscaler Client → Internet Security</strong>. Verify Service Status is <code>ON</code> and Authentication Status is <code>Authenticated</code>.", "Navigate to <strong>Zscaler Client → Private Access</strong>. Verify Service Status is <code>ON</code> and Authentication Status is <code>Authenticated</code>."], chk: ["GSA shows Private Access + Private DNS rules", "GSA health check passes", "Zscaler App Policy up to date", "ZIA: ON + Authenticated", "ZPA: ON + Authenticated"] },
+      { t: "Test traffic flow", b: "verify", inst: ["In the system tray, right-click <strong>Global Secure Access Client → Advanced Diagnostics → Traffic → Start collecting</strong>.", "Browse to <code>bing.com</code>, <code>salesforce.com</code>, <code>instagram.com</code> — verify GSA is <strong>not</strong> capturing traffic from these websites.", "Access your private application set up in <strong>Microsoft Entra Private Access</strong> (e.g., SMB file share) — verify GSA <strong>is</strong> capturing this traffic.", "Access your private application set up in <strong>Zscaler Private Access</strong> (e.g., RDP session to a private server) — verify GSA is <strong>not</strong> capturing this traffic.", "Sign in to <strong>Entra admin center → Global Secure Access → Monitor → Traffic logs</strong>. Validate SMB file share traffic is captured and RDP session traffic is not.", "Sign in to <strong>Zscaler ZPA admin portal → Analytics → Diagnostics → Logs</strong>. Validate RDP session traffic is present and SMB file share traffic is not.", "Stop collecting traffic and confirm GSA handled only its private application traffic."], chk: ["Internet traffic → Zscaler ZIA", "Entra PA apps (SMB) → GSA", "ZPA apps (RDP) → Zscaler ZPA", "No cross-contamination in logs"] }
+    ]
+  },
+  {
+    id: 3,
+    scenario: "Scenario 3",
+    title: "GSA M365 + ZPA + ZIA",
+    desc: "GSA handles all Microsoft 365 traffic. Zscaler handles private apps via ZPA and internet via ZIA.",
+    gsaOwns: ["Microsoft 365 traffic"],
+    zscalerOwns: ["Private apps (ZPA)", "Internet traffic (ZIA)"],
+    steps: [
+      { t: "Enable Microsoft traffic forwarding profile", b: "gsa", inst: ["Sign in to the <strong>Microsoft Entra admin center</strong>.", "Navigate to <strong>Global Secure Access → Connect → Traffic forwarding</strong>.", "Toggle <strong>Microsoft traffic profile</strong> to Enabled."] },
+      { t: "Install Global Secure Access client", b: "gsa", inst: ["Navigate to <strong>Global Secure Access → Connect → Client download</strong>.", "Download and install the GSA client on end-user devices (Windows/macOS).", "Verify client shows <strong>Connected</strong> in the system tray."] },
+      { t: "Create ZCC forwarding profile", b: "zscaler", inst: ["Navigate to <strong>Zscaler Client Connector admin portal → Administration → Forwarding Profile → Add Forwarding Profile</strong>.", "Set <strong>Profile Name</strong> to <code>ZIA and ZPA</code>.", "Select <strong>Packet Filter-Based</strong> in Tunnel Driver Type.", "Set forwarding profile action to <strong>Tunnel</strong> and select <strong>Z-Tunnel 2.0</strong>.", "Scroll down to <strong>Forwarding profile action for ZPA</strong>.", "Select <strong>Tunnel</strong> for all options in this section."], cfg: { label: "Profile configuration", code: "Profile Name:     ZIA and ZPA\nDriver Type:      Packet Filter-Based\nZIA Action:       Tunnel (Z-Tunnel 2.0)\nZPA Action:       Tunnel (all options)" } },
+      { t: "Create ZCC app profile with GSA bypasses", b: "zscaler", inst: ["Navigate to <strong>Zscaler Client Connector admin portal → App Profiles → Windows (or macOS) → Add Windows Policy (or macOS)</strong>.", "Set <strong>Name</strong>, set <strong>Rule Order</strong> to <code>1</code>, select <strong>Enable</strong>.", "Select <strong>User(s)</strong> to apply this policy.", "Select the Forwarding Profile: <strong>ZIA and ZPA</strong>.", "Scroll down and add the Microsoft SSE service IPs and FQDNs below to <strong>HOSTNAME OR IP ADDRESS BYPASS FOR VPN GATEWAY</strong>."], cfg: { label: "GSA service bypass entries — paste into VPN Gateway bypass", code: "150.171.15.0/24\n150.171.18.0/24\n150.171.19.0/24\n150.171.20.0/24\n13.107.232.0/24\n13.107.233.0/24\n151.206.0.0/16\n6.6.0.0/16\ninternet.edgediagnostic.globalsecureaccess.microsoft.com\nm365.edgediagnostic.globalsecureaccess.microsoft.com\nprivate.edgediagnostic.globalsecureaccess.microsoft.com\naps.globalsecureaccess.microsoft.com\nauth.edgediagnostic.globalsecureaccess.microsoft.com\n<tenantid>.internet.client.globalsecureaccess.microsoft.com\n<tenantid>.m365.client.globalsecureaccess.microsoft.com\n<tenantid>.private.client.globalsecureaccess.microsoft.com\n<tenantid>.auth.client.globalsecureaccess.microsoft.com\n<tenantid>.private-backup.client.globalsecureaccess.microsoft.com\n<tenantid>.internet-backup.client.globalsecureaccess.microsoft.com\n<tenantid>.m365-backup.client.globalsecureaccess.microsoft.com\n<tenantid>.auth-backup.client.globalsecureaccess.microsoft.com" } },
+      { t: "Verify client configurations", b: "verify", inst: ["Right-click <strong>Global Secure Access Client → Advanced Diagnostics → Forwarding Profile</strong> and verify that only <strong>Microsoft 365 rules</strong> are applied to this client.", "Navigate to <strong>Advanced Diagnostics → Health Check</strong> and ensure no checks are failing.", "Right-click <strong>Zscaler Client → Open Zscaler → More</strong>. Verify <strong>App Policy</strong> matches configurations. Validate that it's up to date.", "Navigate to <strong>Zscaler Client → Internet Security</strong>. Verify Service Status is <code>ON</code> and Authentication Status is <code>Authenticated</code>.", "Navigate to <strong>Zscaler Client → Private Access</strong>. Verify Service Status is <code>ON</code> and Authentication Status is <code>Authenticated</code>."], chk: ["GSA shows only Microsoft 365 rules", "GSA health check passes", "Zscaler App Policy up to date", "ZIA: ON + Authenticated", "ZPA: ON + Authenticated"] },
+      { t: "Test traffic flow", b: "verify", inst: ["In the system tray, right-click <strong>Global Secure Access Client → Advanced Diagnostics → Traffic → Start collecting</strong>.", "Browse to <code>bing.com</code>, <code>salesforce.com</code>, <code>instagram.com</code> — verify GSA is <strong>not</strong> capturing internet traffic.", "Sign in to <strong>Zscaler ZIA admin portal → Analytics → Web Insights → Logs</strong>. Validate internet traffic is present in Zscaler logs.", "Access your private application set up in <strong>Zscaler Private Access</strong> (e.g., RDP session) — verify GSA is <strong>not</strong> capturing it.", "Sign in to <strong>Zscaler ZPA admin portal → Analytics → Diagnostics → Logs</strong>. Validate private app traffic is present.", "Access <strong>Outlook Online</strong> (<code>outlook.office.com</code>) and <strong>SharePoint Online</strong> (<code>yourtenantdomain.sharepoint.com</code>) — verify GSA <strong>is</strong> capturing this M365 traffic.", "Stop collecting and confirm GSA handled only Microsoft 365 traffic.", "Navigate to <strong>Entra admin center → Global Secure Access → Monitor → Traffic logs</strong>. Validate Outlook and SharePoint traffic is captured.", "Validate M365 traffic is <strong>absent</strong> from Zscaler ZIA logs."], chk: ["Internet traffic → Zscaler ZIA", "Private apps → Zscaler ZPA", "M365 (Outlook, SharePoint) → GSA", "M365 absent from ZIA logs"] }
+    ]
+  },
+  {
+    id: 4,
+    scenario: "Scenario 4",
+    title: "GSA Internet + M365 + ZPA",
+    desc: "GSA handles internet and Microsoft 365 traffic. Zscaler only handles private applications via ZPA. ZIA is disabled.",
+    gsaOwns: ["Internet traffic", "Microsoft 365 traffic"],
+    zscalerOwns: ["Private apps (ZPA)"],
+    steps: [
+      { t: "Enable Microsoft & Internet Access profiles", b: "gsa", inst: ["Sign in to the <strong>Microsoft Entra admin center</strong>.", "Navigate to <strong>Global Secure Access → Connect → Traffic forwarding</strong>.", "Toggle <strong>Microsoft traffic profile</strong> to Enabled.", "Toggle <strong>Internet access profile</strong> to Enabled."] },
+      { t: "Add custom bypass for ZPA service", b: "gsa", inst: ["Navigate to <strong>Global Secure Access → Connect → Traffic forwarding → Internet access profile</strong>.", "Under <strong>Internet access policies</strong> select <strong>View</strong>.", "Expand <strong>Custom Bypass</strong> and select <strong>Add rule</strong>.", "Leave destination type as <strong>FQDN</strong>.", "In <strong>Destination</strong> enter the value below.", "Select <strong>Save</strong>."], cfg: { label: "Custom bypass FQDN for ZPA service", code: "*.prod.zpath.net" } },
+      { t: "Install Global Secure Access client", b: "gsa", inst: ["Navigate to <strong>Global Secure Access → Connect → Client download</strong>.", "Download and install the GSA client on end-user devices (Windows/macOS).", "Verify client shows <strong>Connected</strong> in the system tray."] },
+      { t: "Create ZCC forwarding profile (ZPA Only)", b: "zscaler", inst: ["Navigate to <strong>Zscaler Client Connector admin portal → Administration → Forwarding Profile → Add Forwarding Profile</strong>.", "Set <strong>Profile Name</strong> to <code>ZPA Only</code>.", "Select <strong>Packet Filter-Based</strong> in Tunnel Driver Type.", "Set forwarding profile action to <strong>None</strong>.", "Scroll down to <strong>Forwarding profile action for ZPA</strong>.", "Select <strong>Tunnel</strong> for all options in this section."], cfg: { label: "Profile configuration", code: "Profile Name:     ZPA Only\nDriver Type:      Packet Filter-Based\nZIA Action:       None\nZPA Action:       Tunnel (all options)" } },
+      { t: "Create ZCC app profile with GSA bypasses", b: "zscaler", inst: ["Navigate to <strong>Zscaler Client Connector admin portal → App Profiles → Windows (or macOS) → Add Windows Policy (or macOS)</strong>.", "Set <strong>Name</strong>, set <strong>Rule Order</strong> to <code>1</code>, select <strong>Enable</strong>.", "Select <strong>User(s)</strong> to apply this policy.", "Select the Forwarding Profile: <strong>ZPA Only</strong>.", "Scroll down and add the Microsoft SSE service IPs and FQDNs below to <strong>HOSTNAME OR IP ADDRESS BYPASS FOR VPN GATEWAY</strong>."], cfg: { label: "GSA service bypass entries — paste into VPN Gateway bypass", code: "150.171.15.0/24\n150.171.18.0/24\n150.171.19.0/24\n150.171.20.0/24\n13.107.232.0/24\n13.107.233.0/24\n151.206.0.0/16\n6.6.0.0/16\ninternet.edgediagnostic.globalsecureaccess.microsoft.com\nm365.edgediagnostic.globalsecureaccess.microsoft.com\nprivate.edgediagnostic.globalsecureaccess.microsoft.com\naps.globalsecureaccess.microsoft.com\nauth.edgediagnostic.globalsecureaccess.microsoft.com\n<tenantid>.internet.client.globalsecureaccess.microsoft.com\n<tenantid>.m365.client.globalsecureaccess.microsoft.com\n<tenantid>.private.client.globalsecureaccess.microsoft.com\n<tenantid>.auth.client.globalsecureaccess.microsoft.com\n<tenantid>.private-backup.client.globalsecureaccess.microsoft.com\n<tenantid>.internet-backup.client.globalsecureaccess.microsoft.com\n<tenantid>.m365-backup.client.globalsecureaccess.microsoft.com\n<tenantid>.auth-backup.client.globalsecureaccess.microsoft.com" } },
+      { t: "Verify client configurations", b: "verify", inst: ["Right-click <strong>Global Secure Access Client → Advanced Diagnostics → Forwarding Profile</strong> and verify that <strong>Microsoft 365 and Internet Access rules</strong> are applied.", "Expand the Internet access rules and verify that the custom bypass <code>*.prod.zpath.net</code> exists in the profile.", "Navigate to <strong>Advanced Diagnostics → Health Check</strong> and ensure no checks are failing.", "Right-click <strong>Zscaler Client → Open Zscaler → More</strong>. Verify <strong>App Policy</strong> matches configurations. Validate that it's up to date.", "Navigate to <strong>Zscaler Client → Private Access</strong>. Verify Service Status is <code>ON</code> and Authentication Status is <code>Authenticated</code>.", "Navigate to <strong>Zscaler Client → Internet Security</strong>. Verify Service Status is <code>DISABLED</code>."], chk: ["GSA shows M365 + Internet Access rules", "Custom bypass *.prod.zpath.net present", "GSA health check passes", "ZPA: ON + Authenticated", "ZIA: DISABLED"] },
+      { t: "Test traffic flow", b: "verify", inst: ["In the system tray, right-click <strong>Global Secure Access Client → Advanced Diagnostics → Traffic → Start collecting</strong>.", "Browse to <code>bing.com</code>, <code>salesforce.com</code>, <code>instagram.com</code>, <strong>Outlook Online</strong> (<code>outlook.office.com</code>), and <strong>SharePoint Online</strong> (<code>yourtenantdomain.sharepoint.com</code>).", "Sign in to <strong>Entra admin center → Global Secure Access → Monitor → Traffic logs</strong>. Validate traffic related to all these sites is captured.", "Access your private application set up in <strong>Zscaler Private Access</strong> (e.g., RDP session to a private server).", "Sign in to <strong>Zscaler ZPA admin portal → Analytics → Diagnostics → Logs</strong>. Validate RDP session traffic is present.", "Sign in to <strong>Zscaler ZIA admin portal → Analytics → Web Insights → Logs</strong>. Validate internet and M365 traffic is <strong>absent</strong> from ZIA logs.", "Stop collecting and confirm GSA captured internet and M365 traffic, but <strong>not</strong> private application traffic."], chk: ["Internet + M365 → GSA", "Private apps (RDP) → Zscaler ZPA", "No internet/M365 in ZIA logs", "No private traffic in GSA logs"] }
+    ]
+  }
+];
+
+let active = null;
+let doneMap = {};
+
+function renderGrid() {
+  document.getElementById('grid').innerHTML = DATA.map(d => `
+    <div class="scenario-tile" id="tile-${d.id}" onclick="pick(${d.id})">
+      <div class="tile-scenario-label">${d.scenario}</div>
+      <div class="tile-title">${d.title}</div>
+      <div class="tile-desc">${d.desc}</div>
+      <div class="tile-ownership">
+        <div class="ownership-col">
+          <h4>GSA owns</h4>
+          <ul>${d.gsaOwns.map(x => `<li>${x}</li>`).join('')}</ul>
+        </div>
+        <div class="ownership-col">
+          <h4>Zscaler owns</h4>
+          <ul>${d.zscalerOwns.map(x => `<li>${x}</li>`).join('')}</ul>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function pick(id) {
+  active = DATA.find(d => d.id === id);
+  if (!doneMap[id]) doneMap[id] = new Set();
+  document.querySelectorAll('.scenario-tile').forEach(t => t.classList.remove('selected'));
+  document.getElementById(`tile-${id}`).classList.add('selected');
+  renderSteps();
+  const panel = document.getElementById('stepsPanel');
+  panel.classList.add('show');
+  setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+}
+
+function renderSteps() {
+  const s = active;
+  const done = doneMap[s.id];
+  document.getElementById('panelTitle').textContent = s.title;
+  document.getElementById('panelMeta').textContent = `${done.size} of ${s.steps.length} steps completed`;
+
+  // Render diagram
+  document.getElementById('diagramSection').innerHTML = `
+    <div class="diagram-container">${getDiagram(s.id)}</div>`;
+
+  let html = '';
+  let curBadge = '';
+  s.steps.forEach((st, i) => {
+    if (st.b !== curBadge) {
+      curBadge = st.b;
+      const lbl = curBadge === 'gsa' ? 'Microsoft Global Secure Access' : curBadge === 'zscaler' ? 'Zscaler Client Connector' : 'Verification';
+      html += `<div class="phase-divider"><span class="phase-divider-label ${curBadge}">${lbl}</span><span class="phase-divider-line"></span></div>`;
+    }
+    const isDone = done.has(i);
+    // Count tenanted endpoints in this step's config
+    let tenantBadge = '';
+    if (st.cfg) {
+      const tCount = st.cfg.code.split('\n').filter(l => l.includes('<tenantid>') && l.includes('.client.globalsecureaccess')).length;
+      if (tCount > 0) tenantBadge = `<span class="step-tenant-badge">Tenanted Endpoints: ${tCount}</span>`;
+    }
+    html += `<div class="step-row ${isDone ? 'done' : ''}" id="sr-${i}">
+      <div class="step-row-header" onclick="toggle(${i})">
+        <div class="step-num">${isDone ? '✓' : i + 1}</div>
+        <div class="step-row-title">${st.t}</div>
+        ${tenantBadge}
+        <span class="step-tag ${st.b}">${st.b === 'gsa' ? 'GSA' : st.b === 'zscaler' ? 'ZCC' : 'Verify'}</span>
+        <span class="step-arrow">▾</span>
+      </div>
+      <div class="step-detail">
+        <ol>${st.inst.map(x => `<li>${x}</li>`).join('')}</ol>
+        ${st.cfg ? configHTML(st.cfg, i) : ''}
+        ${st.chk ? checkHTML(st.chk, i) : ''}
+        <button class="btn-done ${st.chk ? 'has-checklist' : ''}" id="done-${i}" onclick="markDone(${i},event)" ${st.chk ? 'disabled' : ''}>${isDone ? 'Mark incomplete' : 'Mark complete'}</button>
+      </div>
+    </div>`;
+  });
+  document.getElementById('stepsBody').innerHTML = html;
+}
+
+function configHTML(cfg, idx) {
+  const cid = `c-${active.id}-${idx}`;
+  let code = cfg.code;
+  const hasTenanted = code.includes('<tenantid>');
+  if (tenantId) {
+    code = code.replace(/&lt;tenantid&gt;/g, tenantId).replace(/<tenantid>/g, tenantId);
+  }
+  const notice = (hasTenanted && !tenantId) ? `<div class="config-tenant-notice">⚠ Enter your Tenant ID above to populate tenant-specific endpoints before copying.</div>` : '';
+  return `<div class="config-panel">
+    <div class="config-panel-top">
+      <span class="config-panel-label">${cfg.label}</span>
+      <button class="btn-copy" id="cb-${cid}" onclick="doCopy('${cid}',event)">${hasTenanted && !tenantId ? '🔒 Copy' : 'Copy'}</button>
+    </div>
+    ${notice}
+    <div class="config-panel-code" id="${cid}">${code}</div>
+  </div>`;
+}
+
+function checkHTML(items, stepIdx) {
+  return `<ul class="check-list" id="cl-${stepIdx}">${items.map((x, i) => `<li><input type="checkbox" id="chk-${active.id}-${stepIdx}-${i}" onchange="this.parentElement.classList.toggle('checked', this.checked); updateDoneBtn(${stepIdx})"><label for="chk-${active.id}-${stepIdx}-${i}">${x}</label></li>`).join('')}</ul>`;
+}
+
+function toggle(i) {
+  document.getElementById(`sr-${i}`).classList.toggle('open');
+}
+
+function markDone(i, e) {
+  e.stopPropagation();
+  const done = doneMap[active.id];
+  done.has(i) ? done.delete(i) : done.add(i);
+  renderSteps();
+}
+
+function updateDoneBtn(stepIdx) {
+  const cl = document.getElementById(`cl-${stepIdx}`);
+  if (!cl) return;
+  const boxes = cl.querySelectorAll('input[type="checkbox"]');
+  const allChecked = [...boxes].every(cb => cb.checked);
+  const btn = document.getElementById(`done-${stepIdx}`);
+  if (btn) btn.disabled = !allChecked;
+}
+
+function doCopy(id, e) {
+  e.stopPropagation();
+  const txt = document.getElementById(id).textContent;
+  // Block copy if config contains unresolved tenant placeholders
+  if (txt.includes('<tenantid>') || txt.match(/\.[a-z]+-?[a-z]*\.client\.globalsecureaccess/) && !tenantId) {
+    const btn = document.getElementById(`cb-${id}`);
+    btn.textContent = '⚠ Enter Tenant ID first';
+    btn.classList.add('warn');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('warn'); }, 3000);
+    return;
+  }
+  navigator.clipboard.writeText(txt).then(() => {
+    const btn = document.getElementById(`cb-${id}`);
+    btn.textContent = 'Copied ✓';
+    btn.classList.add('ok');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('ok'); }, 2000);
+  });
+}
+
+function toggleTheme() {
+  const t = document.documentElement.getAttribute('data-theme');
+  document.documentElement.setAttribute('data-theme', t === 'dark' ? 'light' : 'dark');
+}
+
+function toggleDiagram() {
+  const body = document.getElementById('diagramBody');
+  const chev = document.getElementById('diagramChevron');
+  body.classList.toggle('open');
+  chev.classList.toggle('collapsed');
+}
+
+// Tenant ID logic
+let tenantId = '';
+const GUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function validateTenantId() {
+  const field = document.getElementById('tenantIdField');
+  const btn = document.getElementById('btnApplyTenant');
+  const val = field.value.trim();
+  if (val === '') {
+    field.classList.remove('valid', 'invalid');
+    btn.disabled = true;
+  } else if (GUID_RE.test(val)) {
+    field.classList.add('valid');
+    field.classList.remove('invalid');
+    btn.disabled = false;
+  } else {
+    field.classList.add('invalid');
+    field.classList.remove('valid');
+    btn.disabled = true;
+  }
+}
+
+function applyTenantId() {
+  const field = document.getElementById('tenantIdField');
+  const hint = document.getElementById('tenantHint');
+  const val = field.value.trim();
+  if (!GUID_RE.test(val)) return;
+  tenantId = val;
+  hint.textContent = `✓ Tenant ID applied: ${tenantId}`;
+  hint.classList.add('applied');
+
+  if (active) renderSteps();
+}
+
+function getDiagram(id) {
+  // Shared SVG icon definitions
+  const gsaIcon = `<svg x="{X}" y="{Y}" width="20" height="20" viewBox="0 0 18 18"><defs><linearGradient id="gsa-g1-{ID}" x1="0" y1="9" x2="12.076" y2="9" gradientUnits="userSpaceOnUse"><stop offset=".446" stop-color="#44dbf9"/><stop offset=".922" stop-color="#225086"/></linearGradient><linearGradient id="gsa-g2-{ID}" x1="9" y1="18" x2="9" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#225086"/><stop offset="1" stop-color="#0055c5"/></linearGradient><linearGradient id="gsa-g3-{ID}" x1="13.5" y1="18" x2="13.5" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#225086"/><stop offset=".508" stop-color="#0294e4"/><stop offset="1" stop-color="#6df"/></linearGradient></defs><circle cx="9" cy="9" r="9" fill="url(#gsa-g1-{ID})"/><path d="m9,0C13.971,0,18,4.029,18,9s-4.029,9-9,9S0,13.971,0,9,4.029,0,9,0Zm2.645,13.049h-5.289c.587,2.172,1.607,3.601,2.645,3.601s2.058-1.429,2.645-3.601Zm-6.687,0h-2.45c.862,1.379,2.152,2.464,3.684,3.069-.47-.738-.858-1.661-1.143-2.714l-.091-.355Zm10.534,0h-2.45c-.291,1.2-.712,2.249-1.235,3.069,1.437-.567,2.661-1.556,3.519-2.814l.167-.255ZM4.585,7.2H1.563l-.004.016c-.137.573-.209,1.17-.209,1.785,0,.95.173,1.86.49,2.7h2.855c-.128-.854-.196-1.762-.196-2.7,0-.616.029-1.218.085-1.8Zm7.472,0h-6.114c-.061.576-.094,1.179-.094,1.8,0,.953.078,1.863.216,2.7h5.87c.138-.837.216-1.746.216-2.7,0-.621-.033-1.224-.094-1.8Zm4.38,0h-3.022c.056.583.085,1.186.085,1.801,0,.938-.068,1.845-.196,2.699h2.855c.317-.839.49-1.749.49-2.699,0-.62-.074-1.223-.213-1.801ZM6.193,1.881l-.021.008c-1.842.733-3.332,2.161-4.147,3.961h2.743c.282-1.577.774-2.95,1.424-3.969Zm2.807-.532l-.104.005c-1.139.104-2.239,1.906-2.75,4.496h5.707c-.51-2.583-1.605-4.381-2.74-4.495l-.114-.006Zm2.808.532l.096.157c.602,1.001,1.059,2.315,1.327,3.813h2.743c-.778-1.72-2.174-3.101-3.904-3.86l-.262-.109Z" fill="url(#gsa-g2-{ID})"/><path d="m9,0c.691,2.022,1.495,5.137,1.495,9s-.804,6.978-1.495,9c4.937,0,9-4.063,9-9C18,4.029,13.971,0,9,0Z" fill="url(#gsa-g3-{ID})"/></svg>`;
+
+  const zsIcon = `<image x="{X}" y="{Y}" width="20" height="20" href="data:image/png;base64,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" />`;
+
+  function gsa(x, y, diagId) { return gsaIcon.replace(/\{X\}/g, x).replace(/\{Y\}/g, y).replace(/\{ID\}/g, diagId); }
+  function zs(x, y) { return zsIcon.replace('{X}', x).replace('{Y}', y); }
+
+  const diagrams = {
+    1: `<svg class="diagram-svg" viewBox="0 0 820 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <style>
+        .node-title { font-size: 11px; font-weight: 600; font-family: "Segoe UI", sans-serif; }
+        .node-sub { font-size: 9px; font-family: "Segoe UI", sans-serif; }
+        .arrow-label { font-size: 8.5px; font-weight: 500; font-family: "Segoe UI", sans-serif; }
+        .gsa-flow { stroke-dasharray: 6 3; animation: flowBlue 0.6s linear infinite; }
+      </style>
+      <!-- Client -->
+      <rect x="30" y="85" width="130" height="64" rx="6" fill="white" stroke="#d1d5db" stroke-width="1.2"/>
+      <rect x="30" y="85" width="130" height="64" rx="6" fill="url(#grad-client1)"/>
+      <text x="95" y="112" text-anchor="middle" class="node-title" fill="#374151">End-User Device</text>
+      <text x="95" y="128" text-anchor="middle" class="node-sub" fill="#6b7280">GSA Client + ZCC installed</text>
+
+      <!-- GSA Box -->
+      <rect x="310" y="24" width="180" height="72" rx="6" fill="white" stroke="#2563eb" stroke-width="1.4"/>
+      <rect x="310" y="24" width="180" height="72" rx="6" fill="rgba(37,99,235,0.04)"/>
+      ${gsa(318, 40, '1')}
+      <text x="418" y="54" text-anchor="middle" class="node-title" fill="#2563eb">Global Secure Access</text>
+      <text x="418" y="70" text-anchor="middle" class="node-sub" fill="#6b7280">Private Access Profile</text>
+      <text x="418" y="84" text-anchor="middle" class="node-sub" fill="#9ca3af">Enabled</text>
+
+      <!-- Zscaler Box -->
+      <rect x="310" y="138" width="180" height="72" rx="6" fill="white" stroke="#059669" stroke-width="1.4"/>
+      <rect x="310" y="138" width="180" height="72" rx="6" fill="rgba(5,150,105,0.04)"/>
+      ${zs(318, 154)}
+      <text x="418" y="168" text-anchor="middle" class="node-title" fill="#059669">Zscaler ZIA</text>
+      <text x="418" y="184" text-anchor="middle" class="node-sub" fill="#6b7280">Internet Access</text>
+      <text x="418" y="198" text-anchor="middle" class="node-sub" fill="#9ca3af">ZPA: Disabled</text>
+
+      <!-- Destination: Private -->
+      <rect x="620" y="24" width="160" height="72" rx="6" fill="white" stroke="#d1d5db" stroke-width="1.2"/>
+      <text x="700" y="52" text-anchor="middle" class="node-title" fill="#374151">Private Apps</text>
+      <text x="700" y="68" text-anchor="middle" class="node-sub" fill="#6b7280">SMB, Internal Web Apps</text>
+      <text x="700" y="82" text-anchor="middle" class="node-sub" fill="#9ca3af">via Microsoft Entra PA</text>
+
+      <!-- Destination: Internet -->
+      <rect x="620" y="138" width="160" height="72" rx="6" fill="white" stroke="#d1d5db" stroke-width="1.2"/>
+      <text x="700" y="166" text-anchor="middle" class="node-title" fill="#374151">Internet</text>
+      <text x="700" y="182" text-anchor="middle" class="node-sub" fill="#6b7280">bing.com, salesforce.com</text>
+      <text x="700" y="196" text-anchor="middle" class="node-sub" fill="#9ca3af">All web traffic</text>
+
+      <!-- Arrows -->
+      <path d="M160 105 L305 58" stroke="#2563eb" stroke-width="2" class="gsa-flow" marker-end="url(#a1b)"/>
+      <path d="M160 128 L305 172" stroke="#059669" stroke-width="1.8" marker-end="url(#a1g)"/>
+      <path d="M494 60 L615 60" stroke="#2563eb" stroke-width="2" class="gsa-flow" marker-end="url(#a1b)"/>
+      <path d="M494 174 L615 174" stroke="#059669" stroke-width="1.8" marker-end="url(#a1g)"/>
+
+      <text x="218" y="68" class="arrow-label" fill="#2563eb">Private traffic</text>
+      <text x="218" y="168" class="arrow-label" fill="#059669">Internet traffic</text>
+
+      <defs>
+        <linearGradient id="grad-client1" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#f9fafb"/><stop offset="100%" stop-color="#f3f4f6"/></linearGradient>
+        <marker id="a1b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#2563eb"/></marker>
+        <marker id="a1g" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#059669"/></marker>
+      </defs>
+    </svg>`,
+
+    2: `<svg class="diagram-svg" viewBox="0 0 820 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <style>
+        .node-title { font-size: 11px; font-weight: 600; font-family: "Segoe UI", sans-serif; }
+        .node-sub { font-size: 9px; font-family: "Segoe UI", sans-serif; }
+        .arrow-label { font-size: 8.5px; font-weight: 500; font-family: "Segoe UI", sans-serif; }
+        .gsa-flow { stroke-dasharray: 6 3; animation: flowBlue 0.6s linear infinite; }
+      </style>
+      <rect x="30" y="115" width="130" height="64" rx="6" fill="white" stroke="#d1d5db" stroke-width="1.2"/>
+      <rect x="30" y="115" width="130" height="64" rx="6" fill="url(#grad-client2)"/>
+      <text x="95" y="142" text-anchor="middle" class="node-title" fill="#374151">End-User Device</text>
+      <text x="95" y="158" text-anchor="middle" class="node-sub" fill="#6b7280">GSA Client + ZCC installed</text>
+
+      <rect x="310" y="16" width="180" height="64" rx="6" fill="white" stroke="#2563eb" stroke-width="1.4"/>
+      <rect x="310" y="16" width="180" height="64" rx="6" fill="rgba(37,99,235,0.04)"/>
+      ${gsa(318, 28, '2')}
+      <text x="418" y="44" text-anchor="middle" class="node-title" fill="#2563eb">Global Secure Access</text>
+      <text x="418" y="60" text-anchor="middle" class="node-sub" fill="#6b7280">Private Access Profile</text>
+
+      <rect x="310" y="114" width="180" height="64" rx="6" fill="white" stroke="#059669" stroke-width="1.4"/>
+      <rect x="310" y="114" width="180" height="64" rx="6" fill="rgba(5,150,105,0.04)"/>
+      ${zs(318, 126)}
+      <text x="418" y="142" text-anchor="middle" class="node-title" fill="#059669">Zscaler ZPA</text>
+      <text x="418" y="158" text-anchor="middle" class="node-sub" fill="#6b7280">Private Access</text>
+
+      <rect x="310" y="214" width="180" height="64" rx="6" fill="white" stroke="#059669" stroke-width="1.4"/>
+      <rect x="310" y="214" width="180" height="64" rx="6" fill="rgba(5,150,105,0.04)"/>
+      ${zs(318, 226)}
+      <text x="418" y="242" text-anchor="middle" class="node-title" fill="#059669">Zscaler ZIA</text>
+      <text x="418" y="258" text-anchor="middle" class="node-sub" fill="#6b7280">Internet Access</text>
+
+      <rect x="620" y="16" width="160" height="64" rx="6" fill="white" stroke="#d1d5db" stroke-width="1.2"/>
+      <text x="700" y="42" text-anchor="middle" class="node-title" fill="#374151">Entra PA Apps</text>
+      <text x="700" y="58" text-anchor="middle" class="node-sub" fill="#6b7280">SMB File Shares</text>
+
+      <rect x="620" y="114" width="160" height="64" rx="6" fill="white" stroke="#d1d5db" stroke-width="1.2"/>
+      <text x="700" y="140" text-anchor="middle" class="node-title" fill="#374151">ZPA Apps</text>
+      <text x="700" y="156" text-anchor="middle" class="node-sub" fill="#6b7280">RDP, Private Servers</text>
+
+      <rect x="620" y="214" width="160" height="64" rx="6" fill="white" stroke="#d1d5db" stroke-width="1.2"/>
+      <text x="700" y="240" text-anchor="middle" class="node-title" fill="#374151">Internet</text>
+      <text x="700" y="256" text-anchor="middle" class="node-sub" fill="#6b7280">Web, SaaS</text>
+
+      <path d="M160 130 L305 48" stroke="#2563eb" stroke-width="2" class="gsa-flow" marker-end="url(#a2b)"/>
+      <path d="M160 147 L305 146" stroke="#059669" stroke-width="1.8" marker-end="url(#a2g)"/>
+      <path d="M160 162 L305 246" stroke="#059669" stroke-width="1.8" marker-end="url(#a2g)"/>
+      <path d="M494 48 L615 48" stroke="#2563eb" stroke-width="2" class="gsa-flow" marker-end="url(#a2b)"/>
+      <path d="M494 146 L615 146" stroke="#059669" stroke-width="1.8" marker-end="url(#a2g)"/>
+      <path d="M494 246 L615 246" stroke="#059669" stroke-width="1.8" marker-end="url(#a2g)"/>
+
+      <text x="200" y="74" class="arrow-label" fill="#2563eb">Private (Entra)</text>
+      <text x="200" y="138" class="arrow-label" fill="#059669">Private (ZPA)</text>
+      <text x="200" y="214" class="arrow-label" fill="#059669">Internet</text>
+
+      <defs>
+        <linearGradient id="grad-client2" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#f9fafb"/><stop offset="100%" stop-color="#f3f4f6"/></linearGradient>
+        <marker id="a2b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#2563eb"/></marker>
+        <marker id="a2g" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#059669"/></marker>
+      </defs>
+    </svg>`,
+
+    3: `<svg class="diagram-svg" viewBox="0 0 820 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <style>
+        .node-title { font-size: 11px; font-weight: 600; font-family: "Segoe UI", sans-serif; }
+        .node-sub { font-size: 9px; font-family: "Segoe UI", sans-serif; }
+        .arrow-label { font-size: 8.5px; font-weight: 500; font-family: "Segoe UI", sans-serif; }
+        .gsa-flow { stroke-dasharray: 6 3; animation: flowBlue 0.6s linear infinite; }
+      </style>
+      <rect x="30" y="115" width="130" height="64" rx="6" fill="white" stroke="#d1d5db" stroke-width="1.2"/>
+      <rect x="30" y="115" width="130" height="64" rx="6" fill="url(#grad-client3)"/>
+      <text x="95" y="142" text-anchor="middle" class="node-title" fill="#374151">End-User Device</text>
+      <text x="95" y="158" text-anchor="middle" class="node-sub" fill="#6b7280">GSA Client + ZCC installed</text>
+
+      <rect x="310" y="16" width="180" height="64" rx="6" fill="white" stroke="#2563eb" stroke-width="1.4"/>
+      <rect x="310" y="16" width="180" height="64" rx="6" fill="rgba(37,99,235,0.04)"/>
+      ${gsa(318, 28, '3')}
+      <text x="418" y="44" text-anchor="middle" class="node-title" fill="#2563eb">Global Secure Access</text>
+      <text x="418" y="60" text-anchor="middle" class="node-sub" fill="#6b7280">Microsoft Traffic Profile</text>
+
+      <rect x="310" y="114" width="180" height="64" rx="6" fill="white" stroke="#059669" stroke-width="1.4"/>
+      <rect x="310" y="114" width="180" height="64" rx="6" fill="rgba(5,150,105,0.04)"/>
+      ${zs(318, 126)}
+      <text x="418" y="142" text-anchor="middle" class="node-title" fill="#059669">Zscaler ZPA</text>
+      <text x="418" y="158" text-anchor="middle" class="node-sub" fill="#6b7280">Private Access</text>
+
+      <rect x="310" y="214" width="180" height="64" rx="6" fill="white" stroke="#059669" stroke-width="1.4"/>
+      <rect x="310" y="214" width="180" height="64" rx="6" fill="rgba(5,150,105,0.04)"/>
+      ${zs(318, 226)}
+      <text x="418" y="242" text-anchor="middle" class="node-title" fill="#059669">Zscaler ZIA</text>
+      <text x="418" y="258" text-anchor="middle" class="node-sub" fill="#6b7280">Internet Access</text>
+
+      <rect x="620" y="16" width="160" height="64" rx="6" fill="white" stroke="#d1d5db" stroke-width="1.2"/>
+      <text x="700" y="42" text-anchor="middle" class="node-title" fill="#374151">Microsoft 365</text>
+      <text x="700" y="58" text-anchor="middle" class="node-sub" fill="#6b7280">Outlook, SharePoint, Teams</text>
+
+      <rect x="620" y="114" width="160" height="64" rx="6" fill="white" stroke="#d1d5db" stroke-width="1.2"/>
+      <text x="700" y="140" text-anchor="middle" class="node-title" fill="#374151">Private Apps</text>
+      <text x="700" y="156" text-anchor="middle" class="node-sub" fill="#6b7280">RDP, Internal Apps</text>
+
+      <rect x="620" y="214" width="160" height="64" rx="6" fill="white" stroke="#d1d5db" stroke-width="1.2"/>
+      <text x="700" y="240" text-anchor="middle" class="node-title" fill="#374151">Internet</text>
+      <text x="700" y="256" text-anchor="middle" class="node-sub" fill="#6b7280">Web, SaaS</text>
+
+      <path d="M160 130 L305 48" stroke="#2563eb" stroke-width="2" class="gsa-flow" marker-end="url(#a3b)"/>
+      <path d="M160 147 L305 146" stroke="#059669" stroke-width="1.8" marker-end="url(#a3g)"/>
+      <path d="M160 162 L305 246" stroke="#059669" stroke-width="1.8" marker-end="url(#a3g)"/>
+      <path d="M494 48 L615 48" stroke="#2563eb" stroke-width="2" class="gsa-flow" marker-end="url(#a3b)"/>
+      <path d="M494 146 L615 146" stroke="#059669" stroke-width="1.8" marker-end="url(#a3g)"/>
+      <path d="M494 246 L615 246" stroke="#059669" stroke-width="1.8" marker-end="url(#a3g)"/>
+
+      <text x="200" y="74" class="arrow-label" fill="#2563eb">M365 traffic</text>
+      <text x="200" y="138" class="arrow-label" fill="#059669">Private apps</text>
+      <text x="200" y="214" class="arrow-label" fill="#059669">Internet</text>
+
+      <defs>
+        <linearGradient id="grad-client3" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#f9fafb"/><stop offset="100%" stop-color="#f3f4f6"/></linearGradient>
+        <marker id="a3b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#2563eb"/></marker>
+        <marker id="a3g" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#059669"/></marker>
+      </defs>
+    </svg>`,
+
+    4: `<svg class="diagram-svg" viewBox="0 0 820 310" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <style>
+        .node-title { font-size: 11px; font-weight: 600; font-family: "Segoe UI", sans-serif; }
+        .node-sub { font-size: 9px; font-family: "Segoe UI", sans-serif; }
+        .arrow-label { font-size: 8.5px; font-weight: 500; font-family: "Segoe UI", sans-serif; }
+        .gsa-flow { stroke-dasharray: 6 3; animation: flowBlue 0.6s linear infinite; }
+      </style>
+      <rect x="30" y="120" width="130" height="64" rx="6" fill="white" stroke="#d1d5db" stroke-width="1.2"/>
+      <rect x="30" y="120" width="130" height="64" rx="6" fill="url(#grad-client4)"/>
+      <text x="95" y="147" text-anchor="middle" class="node-title" fill="#374151">End-User Device</text>
+      <text x="95" y="163" text-anchor="middle" class="node-sub" fill="#6b7280">GSA Client + ZCC installed</text>
+
+      <rect x="300" y="20" width="200" height="80" rx="6" fill="white" stroke="#2563eb" stroke-width="1.4"/>
+      <rect x="300" y="20" width="200" height="80" rx="6" fill="rgba(37,99,235,0.04)"/>
+      ${gsa(308, 32, '4')}
+      <text x="418" y="46" text-anchor="middle" class="node-title" fill="#2563eb">Global Secure Access</text>
+      <text x="418" y="62" text-anchor="middle" class="node-sub" fill="#6b7280">Microsoft Traffic Profile</text>
+      <text x="418" y="76" text-anchor="middle" class="node-sub" fill="#6b7280">+ Internet Access Profile</text>
+      <text x="418" y="92" text-anchor="middle" class="node-sub" fill="#9ca3af">Bypass: *.prod.zpath.net</text>
+
+      <rect x="300" y="215" width="200" height="72" rx="6" fill="white" stroke="#059669" stroke-width="1.4"/>
+      <rect x="300" y="215" width="200" height="72" rx="6" fill="rgba(5,150,105,0.04)"/>
+      ${zs(308, 231)}
+      <text x="418" y="246" text-anchor="middle" class="node-title" fill="#059669">Zscaler ZPA</text>
+      <text x="418" y="262" text-anchor="middle" class="node-sub" fill="#6b7280">Private Access Only</text>
+      <text x="418" y="276" text-anchor="middle" class="node-sub" fill="#9ca3af">ZIA: Disabled</text>
+
+      <rect x="630" y="10" width="155" height="58" rx="6" fill="white" stroke="#d1d5db" stroke-width="1.2"/>
+      <text x="708" y="34" text-anchor="middle" class="node-title" fill="#374151">Microsoft 365</text>
+      <text x="708" y="50" text-anchor="middle" class="node-sub" fill="#6b7280">Outlook, SharePoint, Teams</text>
+
+      <rect x="630" y="82" width="155" height="58" rx="6" fill="white" stroke="#d1d5db" stroke-width="1.2"/>
+      <text x="708" y="106" text-anchor="middle" class="node-title" fill="#374151">Internet</text>
+      <text x="708" y="122" text-anchor="middle" class="node-sub" fill="#6b7280">bing.com, SaaS, Web traffic</text>
+
+      <rect x="630" y="218" width="155" height="66" rx="6" fill="white" stroke="#d1d5db" stroke-width="1.2"/>
+      <text x="708" y="244" text-anchor="middle" class="node-title" fill="#374151">Private Apps</text>
+      <text x="708" y="260" text-anchor="middle" class="node-sub" fill="#6b7280">RDP, Internal Servers</text>
+      <text x="708" y="274" text-anchor="middle" class="node-sub" fill="#9ca3af">via ZPA tunnels</text>
+
+      <path d="M160 135 L295 60" stroke="#2563eb" stroke-width="2" class="gsa-flow" marker-end="url(#a4b)"/>
+      <path d="M160 168 L295 250" stroke="#059669" stroke-width="1.8" marker-end="url(#a4g)"/>
+      <path d="M504 45 L625 39" stroke="#2563eb" stroke-width="2" class="gsa-flow" marker-end="url(#a4b)"/>
+      <path d="M504 72 L625 105" stroke="#2563eb" stroke-width="2" class="gsa-flow" marker-end="url(#a4b)"/>
+      <path d="M504 251 L625 251" stroke="#059669" stroke-width="1.8" marker-end="url(#a4g)"/>
+
+      <text x="195" y="82" class="arrow-label" fill="#2563eb">Internet + M365</text>
+      <text x="195" y="218" class="arrow-label" fill="#059669">Private apps</text>
+
+      <defs>
+        <linearGradient id="grad-client4" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#f9fafb"/><stop offset="100%" stop-color="#f3f4f6"/></linearGradient>
+        <marker id="a4b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#2563eb"/></marker>
+        <marker id="a4g" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#059669"/></marker>
+      </defs>
+    </svg>`
+  };
+  return diagrams[id] || '';
+}
+
+renderGrid();
+</script>
+</body>
+</html>
