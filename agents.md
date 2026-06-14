@@ -300,6 +300,53 @@ Target: < 50KB for fast load. Current Zscaler guide: ~45KB (with base64 icon).
 
 ---
 
+## Versioning
+
+### Format: `X.Y`
+- **X** (major): New scenarios added, structural redesign, breaking changes
+- **Y** (minor): Bug fixes, wording updates, styling tweaks, config corrections
+
+### Location in HTML
+Version is displayed in the footer:
+```html
+<p class="version-line">Version 1.0</p>
+```
+
+### Auto-increment on publish
+When pushing to the repo, the version **must** be incremented. Use this rule:
+
+| Change type | Example | Version bump |
+|-------------|---------|--------------|
+| New scenario added | Scenario 5 | X+1.0 (reset minor) |
+| New section/feature | Added "Export PDF" button | X+1.0 |
+| Step instructions updated | Fixed typo in Step 3 | X.Y+1 |
+| Config values corrected | Updated bypass IPs | X.Y+1 |
+| Styling/cosmetic fix | Adjusted padding | X.Y+1 |
+
+### Publish workflow
+Before every `git push`, run:
+```powershell
+# Auto-increment minor version in the HTML file
+$file = "Zscaler/gsa-zscaler-coexistence.html"
+$content = Get-Content $file -Raw
+if ($content -match 'Version (\d+)\.(\d+)') {
+  $major = [int]$Matches[1]
+  $minor = [int]$Matches[2] + 1
+  $newVer = "Version $major.$minor"
+  $content = $content -replace 'Version \d+\.\d+', $newVer
+  Set-Content $file $content -NoNewline -Encoding UTF8
+  Write-Host "Bumped to $newVer"
+}
+```
+
+For major bumps, manually set the version or pass a flag:
+```powershell
+# Major version bump (resets minor to 0)
+$content = $content -replace 'Version \d+\.\d+', 'Version 2.0'
+```
+
+---
+
 ## Quick Start Command
 
 ```
