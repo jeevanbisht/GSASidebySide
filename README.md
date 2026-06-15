@@ -18,10 +18,6 @@ Interactive configuration guides for deploying Microsoft Global Secure Access al
 - **Tenant ID Integration** — Enter your tenant GUID to auto-populate tenant-specific bypass FQDNs (where applicable)
 - **Progress Tracking** — Checkboxes and step completion tracking per scenario
 
-## Build Playbook
-
-See [agents.md](agents.md) for the full playbook to create guides for additional vendors.
-
 ## Official Documentation
 
 - [Microsoft: GSA + Zscaler Coexistence](https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-zscaler-coexistence)
