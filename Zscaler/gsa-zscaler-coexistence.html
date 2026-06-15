@@ -350,12 +350,93 @@ body {
   margin-bottom: 16px;
 }
 .diagram-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0;
+  display: block;
   width: 100%;
   overflow-x: auto;
+}
+
+/* === Futuristic HUD Diagram === */
+.hud-canvas {
+  position: relative;
+  background: linear-gradient(135deg, #0a0e1a 0%, #111827 40%, #0c1222 100%);
+  border-radius: 12px;
+  border: 1px solid rgba(56, 189, 248, 0.15);
+  padding: 32px 24px;
+  overflow: hidden;
+  width: 100%;
+  box-shadow: 0 0 40px rgba(56, 189, 248, 0.05), inset 0 0 60px rgba(0,0,0,0.3);
+}
+.hud-canvas::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 50%, rgba(56, 189, 248, 0.03) 0%, transparent 70%),
+    repeating-linear-gradient(0deg, transparent, transparent 49px, rgba(56, 189, 248, 0.02) 50px);
+  pointer-events: none;
+}
+.hud-canvas::after {
+  content: '';
+  position: absolute;
+  top: 8px; left: 8px; right: 8px; bottom: 8px;
+  border: 1px solid rgba(56, 189, 248, 0.06);
+  border-radius: 8px;
+  pointer-events: none;
+}
+.hud-particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.hud-particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: rgba(56, 189, 248, 0.6);
+  border-radius: 50%;
+  animation: particleFloat 8s linear infinite;
+  box-shadow: 0 0 4px rgba(56, 189, 248, 0.4);
+}
+@keyframes particleFloat {
+  0% { transform: translateY(100%) translateX(0); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(-100%) translateX(20px); opacity: 0; }
+}
+.hud-corner {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+}
+.hud-corner--tl { top: 12px; left: 12px; border-top: 2px solid rgba(56, 189, 248, 0.4); border-left: 2px solid rgba(56, 189, 248, 0.4); }
+.hud-corner--tr { top: 12px; right: 12px; border-top: 2px solid rgba(56, 189, 248, 0.4); border-right: 2px solid rgba(56, 189, 248, 0.4); }
+.hud-corner--bl { bottom: 12px; left: 12px; border-bottom: 2px solid rgba(56, 189, 248, 0.4); border-left: 2px solid rgba(56, 189, 248, 0.4); }
+.hud-corner--br { bottom: 12px; right: 12px; border-bottom: 2px solid rgba(56, 189, 248, 0.4); border-right: 2px solid rgba(56, 189, 248, 0.4); }
+.hud-svg {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.hud-svg text {
+  font-family: "Segoe UI", Aptos, Calibri, sans-serif;
+}
+@keyframes hudFlowBlue {
+  to { stroke-dashoffset: -18; }
+}
+@keyframes hudFlowGreen {
+  to { stroke-dashoffset: -16; }
+}
+@keyframes hudPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+@keyframes hudGlow {
+  0%, 100% { filter: drop-shadow(0 0 3px rgba(56,189,248,0.4)); }
+  50% { filter: drop-shadow(0 0 8px rgba(56,189,248,0.7)); }
 }
 
 /* Collapsible Sections */
@@ -416,6 +497,7 @@ body {
   width: 100%;
   max-width: 780px;
   height: auto;
+  display: none; /* replaced by HUD diagrams */
 }
 .diagram-svg text {
   font-family: "Segoe UI", Aptos, Calibri, sans-serif;
@@ -1067,247 +1149,284 @@ function applyTenantId() {
 }
 
 function getDiagram(id) {
-  // Shared SVG icon definitions
-  const gsaIcon = `<svg x="{X}" y="{Y}" width="20" height="20" viewBox="0 0 18 18"><defs><linearGradient id="gsa-g1-{ID}" x1="0" y1="9" x2="12.076" y2="9" gradientUnits="userSpaceOnUse"><stop offset=".446" stop-color="#44dbf9"/><stop offset=".922" stop-color="#225086"/></linearGradient><linearGradient id="gsa-g2-{ID}" x1="9" y1="18" x2="9" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#225086"/><stop offset="1" stop-color="#0055c5"/></linearGradient><linearGradient id="gsa-g3-{ID}" x1="13.5" y1="18" x2="13.5" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#225086"/><stop offset=".508" stop-color="#0294e4"/><stop offset="1" stop-color="#6df"/></linearGradient></defs><circle cx="9" cy="9" r="9" fill="url(#gsa-g1-{ID})"/><path d="m9,0C13.971,0,18,4.029,18,9s-4.029,9-9,9S0,13.971,0,9,4.029,0,9,0Zm2.645,13.049h-5.289c.587,2.172,1.607,3.601,2.645,3.601s2.058-1.429,2.645-3.601Zm-6.687,0h-2.45c.862,1.379,2.152,2.464,3.684,3.069-.47-.738-.858-1.661-1.143-2.714l-.091-.355Zm10.534,0h-2.45c-.291,1.2-.712,2.249-1.235,3.069,1.437-.567,2.661-1.556,3.519-2.814l.167-.255ZM4.585,7.2H1.563l-.004.016c-.137.573-.209,1.17-.209,1.785,0,.95.173,1.86.49,2.7h2.855c-.128-.854-.196-1.762-.196-2.7,0-.616.029-1.218.085-1.8Zm7.472,0h-6.114c-.061.576-.094,1.179-.094,1.8,0,.953.078,1.863.216,2.7h5.87c.138-.837.216-1.746.216-2.7,0-.621-.033-1.224-.094-1.8Zm4.38,0h-3.022c.056.583.085,1.186.085,1.801,0,.938-.068,1.845-.196,2.699h2.855c.317-.839.49-1.749.49-2.699,0-.62-.074-1.223-.213-1.801ZM6.193,1.881l-.021.008c-1.842.733-3.332,2.161-4.147,3.961h2.743c.282-1.577.774-2.95,1.424-3.969Zm2.807-.532l-.104.005c-1.139.104-2.239,1.906-2.75,4.496h5.707c-.51-2.583-1.605-4.381-2.74-4.495l-.114-.006Zm2.808.532l.096.157c.602,1.001,1.059,2.315,1.327,3.813h2.743c-.778-1.72-2.174-3.101-3.904-3.86l-.262-.109Z" fill="url(#gsa-g2-{ID})"/><path d="m9,0c.691,2.022,1.495,5.137,1.495,9s-.804,6.978-1.495,9c4.937,0,9-4.063,9-9C18,4.029,13.971,0,9,0Z" fill="url(#gsa-g3-{ID})"/></svg>`;
+  // HUD particle field
+  function particles(count) {
+    let p = '';
+    for (let i = 0; i < count; i++) {
+      const left = Math.random() * 100;
+      const delay = Math.random() * 8;
+      const size = 1.5 + Math.random() * 1.5;
+      const opacity = 0.3 + Math.random() * 0.4;
+      p += `<div class="hud-particle" style="left:${left}%;animation-delay:${delay}s;width:${size}px;height:${size}px;opacity:${opacity}"></div>`;
+    }
+    return p;
+  }
 
-  const zsIcon = `<svg x="{X}" y="{Y}" width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#049fd9"/><text x="10" y="14.5" text-anchor="middle" font-size="12" font-weight="700" font-family="Segoe UI, sans-serif" fill="white">Z</text></svg>`;
+  function hudWrap(svgContent) {
+    return `<div class="hud-canvas">
+      <div class="hud-particles">${particles(18)}</div>
+      <div class="hud-corner hud-corner--tl"></div>
+      <div class="hud-corner hud-corner--tr"></div>
+      <div class="hud-corner hud-corner--bl"></div>
+      <div class="hud-corner hud-corner--br"></div>
+      ${svgContent}
+    </div>`;
+  }
+
+  // Shared SVG styles for HUD diagrams
+  const hudStyles = `
+    .hud-node-title { font-size: 12px; font-weight: 600; fill: #e2e8f0; }
+    .hud-node-sub { font-size: 10px; fill: #94a3b8; }
+    .hud-node-sub2 { font-size: 9.5px; fill: #64748b; }
+    .hud-arrow-label { font-size: 11px; font-weight: 700; paint-order: stroke; stroke: rgba(10,14,26,0.92); stroke-width: 4px; stroke-linecap: round; stroke-linejoin: round; }
+    .hud-gsa-flow { stroke-dasharray: 8 4; animation: hudFlowBlue 0.8s linear infinite; stroke-linecap: round; filter: drop-shadow(0 0 3px rgba(56,189,248,0.6)); }
+    .hud-vendor-flow { stroke-dasharray: 6 3; animation: hudFlowGreen 0.7s linear infinite; stroke-linecap: round; filter: drop-shadow(0 0 3px rgba(16,185,129,0.6)); }
+    .hud-box-gsa { filter: drop-shadow(0 0 6px rgba(56,189,248,0.3)); }
+    .hud-box-vendor { filter: drop-shadow(0 0 6px rgba(16,185,129,0.3)); }
+    .hud-box-neutral { filter: drop-shadow(0 0 4px rgba(148,163,184,0.15)); }
+  `;
+
+  // GSA icon (neon variant)
+  const gsaIcon = `<svg x="{X}" y="{Y}" width="22" height="22" viewBox="0 0 18 18"><defs><linearGradient id="gsa-h1-{ID}" x1="0" y1="9" x2="12" y2="9" gradientUnits="userSpaceOnUse"><stop offset=".4" stop-color="#38bdf8"/><stop offset="1" stop-color="#1e40af"/></linearGradient><linearGradient id="gsa-h2-{ID}" x1="9" y1="18" x2="9" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#1e3a5f"/><stop offset="1" stop-color="#0ea5e9"/></linearGradient><linearGradient id="gsa-h3-{ID}" x1="13.5" y1="18" x2="13.5" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#1e3a5f"/><stop offset=".5" stop-color="#0ea5e9"/><stop offset="1" stop-color="#7dd3fc"/></linearGradient></defs><circle cx="9" cy="9" r="9" fill="url(#gsa-h1-{ID})"/><path d="m9,0C13.971,0,18,4.029,18,9s-4.029,9-9,9S0,13.971,0,9,4.029,0,9,0Zm2.645,13.049h-5.289c.587,2.172,1.607,3.601,2.645,3.601s2.058-1.429,2.645-3.601Zm-6.687,0h-2.45c.862,1.379,2.152,2.464,3.684,3.069-.47-.738-.858-1.661-1.143-2.714l-.091-.355Zm10.534,0h-2.45c-.291,1.2-.712,2.249-1.235,3.069,1.437-.567,2.661-1.556,3.519-2.814l.167-.255ZM4.585,7.2H1.563l-.004.016c-.137.573-.209,1.17-.209,1.785,0,.95.173,1.86.49,2.7h2.855c-.128-.854-.196-1.762-.196-2.7,0-.616.029-1.218.085-1.8Zm7.472,0h-6.114c-.061.576-.094,1.179-.094,1.8,0,.953.078,1.863.216,2.7h5.87c.138-.837.216-1.746.216-2.7,0-.621-.033-1.224-.094-1.8Zm4.38,0h-3.022c.056.583.085,1.186.085,1.801,0,.938-.068,1.845-.196,2.699h2.855c.317-.839.49-1.749.49-2.699,0-.62-.074-1.223-.213-1.801ZM6.193,1.881l-.021.008c-1.842.733-3.332,2.161-4.147,3.961h2.743c.282-1.577.774-2.95,1.424-3.969Zm2.807-.532l-.104.005c-1.139.104-2.239,1.906-2.75,4.496h5.707c-.51-2.583-1.605-4.381-2.74-4.495l-.114-.006Zm2.808.532l.096.157c.602,1.001,1.059,2.315,1.327,3.813h2.743c-.778-1.72-2.174-3.101-3.904-3.86l-.262-.109Z" fill="url(#gsa-h2-{ID})"/><path d="m9,0c.691,2.022,1.495,5.137,1.495,9s-.804,6.978-1.495,9c4.937,0,9-4.063,9-9C18,4.029,13.971,0,9,0Z" fill="url(#gsa-h3-{ID})"/></svg>`;
+
+  const zsIcon = `<svg x="{X}" y="{Y}" width="22" height="22" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#10b981"/><text x="10" y="14.5" text-anchor="middle" font-size="12" font-weight="700" font-family="Segoe UI, sans-serif" fill="white">Z</text></svg>`;
 
   function gsa(x, y, diagId) { return gsaIcon.replace(/\{X\}/g, x).replace(/\{Y\}/g, y).replace(/\{ID\}/g, diagId); }
   function zs(x, y) { return zsIcon.replace('{X}', x).replace('{Y}', y); }
 
   const diagrams = {
-    1: `<svg class="diagram-svg" viewBox="0 0 820 240" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <style>
-        .node-title { font-size: 11px; font-weight: 600; font-family: "Segoe UI", sans-serif; }
-        .node-sub { font-size: 9px; font-family: "Segoe UI", sans-serif; }
-        .arrow-label { font-size: 8.5px; font-weight: 500; font-family: "Segoe UI", sans-serif; }
-        .gsa-flow { stroke-dasharray: 6 3; animation: flowBlue 0.6s linear infinite; }
-      </style>
+    1: hudWrap(`<svg class="hud-svg" viewBox="0 0 900 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <style>${hudStyles}</style>
+      <defs>
+        <marker id="ha1b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#38bdf8"/></marker>
+        <marker id="ha1g" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#10b981"/></marker>
+      </defs>
       <!-- Client -->
-      <rect x="30" y="85" width="130" height="64" rx="6" fill="white" stroke="#d1d5db" stroke-width="1.2"/>
-      <rect x="30" y="85" width="130" height="64" rx="6" fill="url(#grad-client1)"/>
-      <text x="95" y="112" text-anchor="middle" class="node-title" fill="#374151">End-User Device</text>
-      <text x="95" y="128" text-anchor="middle" class="node-sub" fill="#6b7280">GSA Client + ZCC installed</text>
-
+      <g class="hud-box-neutral">
+        <rect x="30" y="85" width="145" height="64" rx="6" fill="rgba(15,23,42,0.8)" stroke="#475569" stroke-width="1"/>
+        <text x="103" y="112" text-anchor="middle" class="hud-node-title">End-User Device</text>
+        <text x="103" y="128" text-anchor="middle" class="hud-node-sub">GSA Client + ZCC installed</text>
+      </g>
       <!-- GSA Box -->
-      <rect x="310" y="24" width="180" height="72" rx="6" fill="white" stroke="#2563eb" stroke-width="1.4"/>
-      <rect x="310" y="24" width="180" height="72" rx="6" fill="rgba(37,99,235,0.04)"/>
-      ${gsa(318, 40, '1')}
-      <text x="418" y="54" text-anchor="middle" class="node-title" fill="#2563eb">Global Secure Access</text>
-      <text x="418" y="70" text-anchor="middle" class="node-sub" fill="#6b7280">Private Access Profile</text>
-      <text x="418" y="84" text-anchor="middle" class="node-sub" fill="#9ca3af">Enabled</text>
-
+      <g class="hud-box-gsa">
+        <rect x="280" y="24" width="210" height="72" rx="6" fill="rgba(15,23,42,0.9)" stroke="#38bdf8" stroke-width="1.5"/>
+        <rect x="280" y="24" width="210" height="72" rx="6" fill="rgba(56,189,248,0.05)"/>
+        ${gsa(288, 38, 'h1')}
+        <text x="403" y="54" text-anchor="middle" class="hud-node-title" fill="#38bdf8">Global Secure Access</text>
+        <text x="403" y="70" text-anchor="middle" class="hud-node-sub">Private Access Profile</text>
+        <text x="403" y="84" text-anchor="middle" class="hud-node-sub2">Enabled</text>
+      </g>
       <!-- Zscaler Box -->
-      <rect x="310" y="138" width="180" height="72" rx="6" fill="white" stroke="#059669" stroke-width="1.4"/>
-      <rect x="310" y="138" width="180" height="72" rx="6" fill="rgba(5,150,105,0.04)"/>
-      ${zs(318, 154)}
-      <text x="418" y="168" text-anchor="middle" class="node-title" fill="#059669">Zscaler ZIA</text>
-      <text x="418" y="184" text-anchor="middle" class="node-sub" fill="#6b7280">Internet Access</text>
-      <text x="418" y="198" text-anchor="middle" class="node-sub" fill="#9ca3af">ZPA: Disabled</text>
-
+      <g class="hud-box-vendor">
+        <rect x="280" y="138" width="210" height="72" rx="6" fill="rgba(15,23,42,0.9)" stroke="#10b981" stroke-width="1.5"/>
+        <rect x="280" y="138" width="210" height="72" rx="6" fill="rgba(16,185,129,0.05)"/>
+        ${zs(288, 152)}
+        <text x="403" y="168" text-anchor="middle" class="hud-node-title" fill="#10b981">Zscaler ZIA</text>
+        <text x="403" y="184" text-anchor="middle" class="hud-node-sub">Internet Access</text>
+        <text x="403" y="198" text-anchor="middle" class="hud-node-sub2">ZPA: Disabled</text>
+      </g>
       <!-- Destination: Private -->
-      <rect x="620" y="24" width="160" height="72" rx="6" fill="white" stroke="#d1d5db" stroke-width="1.2"/>
-      <text x="700" y="52" text-anchor="middle" class="node-title" fill="#374151">Private Apps</text>
-      <text x="700" y="68" text-anchor="middle" class="node-sub" fill="#6b7280">SMB, Internal Web Apps</text>
-      <text x="700" y="82" text-anchor="middle" class="node-sub" fill="#9ca3af">via Microsoft Entra PA</text>
-
+      <g class="hud-box-neutral">
+        <rect x="640" y="24" width="210" height="72" rx="6" fill="rgba(15,23,42,0.7)" stroke="#475569" stroke-width="1"/>
+        <text x="745" y="52" text-anchor="middle" class="hud-node-title">Private Apps</text>
+        <text x="745" y="68" text-anchor="middle" class="hud-node-sub">SMB, Internal Web Apps</text>
+        <text x="745" y="82" text-anchor="middle" class="hud-node-sub2">via Microsoft Entra PA</text>
+      </g>
       <!-- Destination: Internet -->
-      <rect x="620" y="138" width="160" height="72" rx="6" fill="white" stroke="#d1d5db" stroke-width="1.2"/>
-      <text x="700" y="166" text-anchor="middle" class="node-title" fill="#374151">Internet</text>
-      <text x="700" y="182" text-anchor="middle" class="node-sub" fill="#6b7280">bing.com, salesforce.com</text>
-      <text x="700" y="196" text-anchor="middle" class="node-sub" fill="#9ca3af">All web traffic</text>
-
+      <g class="hud-box-neutral">
+        <rect x="640" y="138" width="210" height="72" rx="6" fill="rgba(15,23,42,0.7)" stroke="#475569" stroke-width="1"/>
+        <text x="745" y="166" text-anchor="middle" class="hud-node-title">Internet</text>
+        <text x="745" y="182" text-anchor="middle" class="hud-node-sub">bing.com, salesforce.com</text>
+        <text x="745" y="196" text-anchor="middle" class="hud-node-sub2">All web traffic</text>
+      </g>
       <!-- Arrows -->
-      <path d="M160 105 L305 58" stroke="#2563eb" stroke-width="2" class="gsa-flow" marker-end="url(#a1b)"/>
-      <path d="M160 128 L305 172" stroke="#059669" stroke-width="1.8" marker-end="url(#a1g)"/>
-      <path d="M494 60 L615 60" stroke="#2563eb" stroke-width="2" class="gsa-flow" marker-end="url(#a1b)"/>
-      <path d="M494 174 L615 174" stroke="#059669" stroke-width="1.8" marker-end="url(#a1g)"/>
+      <path d="M175 105 L275 58" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha1b)"/>
+      <path d="M175 128 L275 172" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha1g)"/>
+      <path d="M494 60 L635 60" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha1b)"/>
+      <path d="M494 174 L635 174" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha1g)"/>
+      <text x="200" y="68" class="hud-arrow-label" fill="#38bdf8">Private traffic</text>
+      <text x="200" y="168" class="hud-arrow-label" fill="#10b981">Internet traffic</text>
+      <text x="548" y="50" class="hud-arrow-label" fill="#38bdf8">Private apps</text>
+      <text x="548" y="164" class="hud-arrow-label" fill="#10b981">Web traffic</text>
+    </svg>`),
 
-      <text x="218" y="68" class="arrow-label" fill="#2563eb">Private traffic</text>
-      <text x="218" y="168" class="arrow-label" fill="#059669">Internet traffic</text>
-
+    2: hudWrap(`<svg class="hud-svg" viewBox="0 0 900 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <style>${hudStyles}</style>
       <defs>
-        <linearGradient id="grad-client1" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#f9fafb"/><stop offset="100%" stop-color="#f3f4f6"/></linearGradient>
-        <marker id="a1b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#2563eb"/></marker>
-        <marker id="a1g" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#059669"/></marker>
+        <marker id="ha2b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#38bdf8"/></marker>
+        <marker id="ha2g" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#10b981"/></marker>
       </defs>
-    </svg>`,
+      <g class="hud-box-neutral">
+        <rect x="30" y="115" width="145" height="64" rx="6" fill="rgba(15,23,42,0.8)" stroke="#475569" stroke-width="1"/>
+        <text x="103" y="142" text-anchor="middle" class="hud-node-title">End-User Device</text>
+        <text x="103" y="158" text-anchor="middle" class="hud-node-sub">GSA Client + ZCC installed</text>
+      </g>
+      <g class="hud-box-gsa">
+        <rect x="280" y="16" width="210" height="64" rx="6" fill="rgba(15,23,42,0.9)" stroke="#38bdf8" stroke-width="1.5"/>
+        <rect x="280" y="16" width="210" height="64" rx="6" fill="rgba(56,189,248,0.05)"/>
+        ${gsa(288, 26, 'h2')}
+        <text x="403" y="44" text-anchor="middle" class="hud-node-title" fill="#38bdf8">Global Secure Access</text>
+        <text x="403" y="60" text-anchor="middle" class="hud-node-sub">Private Access Profile</text>
+      </g>
+      <g class="hud-box-vendor">
+        <rect x="280" y="114" width="210" height="64" rx="6" fill="rgba(15,23,42,0.9)" stroke="#10b981" stroke-width="1.5"/>
+        <rect x="280" y="114" width="210" height="64" rx="6" fill="rgba(16,185,129,0.05)"/>
+        ${zs(288, 124)}
+        <text x="403" y="142" text-anchor="middle" class="hud-node-title" fill="#10b981">Zscaler ZPA</text>
+        <text x="403" y="158" text-anchor="middle" class="hud-node-sub">Private Access</text>
+      </g>
+      <g class="hud-box-vendor">
+        <rect x="280" y="214" width="210" height="64" rx="6" fill="rgba(15,23,42,0.9)" stroke="#10b981" stroke-width="1.5"/>
+        <rect x="280" y="214" width="210" height="64" rx="6" fill="rgba(16,185,129,0.05)"/>
+        ${zs(288, 224)}
+        <text x="403" y="242" text-anchor="middle" class="hud-node-title" fill="#10b981">Zscaler ZIA</text>
+        <text x="403" y="258" text-anchor="middle" class="hud-node-sub">Internet Access</text>
+      </g>
+      <g class="hud-box-neutral">
+        <rect x="640" y="16" width="210" height="64" rx="6" fill="rgba(15,23,42,0.7)" stroke="#475569" stroke-width="1"/>
+        <text x="745" y="42" text-anchor="middle" class="hud-node-title">Entra PA Apps</text>
+        <text x="745" y="58" text-anchor="middle" class="hud-node-sub">SMB File Shares</text>
+      </g>
+      <g class="hud-box-neutral">
+        <rect x="640" y="114" width="210" height="64" rx="6" fill="rgba(15,23,42,0.7)" stroke="#475569" stroke-width="1"/>
+        <text x="745" y="140" text-anchor="middle" class="hud-node-title">ZPA Apps</text>
+        <text x="745" y="156" text-anchor="middle" class="hud-node-sub">RDP, Private Servers</text>
+      </g>
+      <g class="hud-box-neutral">
+        <rect x="640" y="214" width="210" height="64" rx="6" fill="rgba(15,23,42,0.7)" stroke="#475569" stroke-width="1"/>
+        <text x="745" y="240" text-anchor="middle" class="hud-node-title">Internet</text>
+        <text x="745" y="256" text-anchor="middle" class="hud-node-sub">Web, SaaS</text>
+      </g>
+      <path d="M175 130 L275 48" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha2b)"/>
+      <path d="M175 147 L275 146" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha2g)"/>
+      <path d="M175 162 L275 246" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha2g)"/>
+      <path d="M494 48 L635 48" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha2b)"/>
+      <path d="M494 146 L635 146" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha2g)"/>
+      <path d="M494 246 L635 246" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha2g)"/>
+      <text x="200" y="68" class="hud-arrow-label" fill="#38bdf8">Private (Entra)</text>
+      <text x="200" y="133" class="hud-arrow-label" fill="#10b981">Private (ZPA)</text>
+      <text x="200" y="208" class="hud-arrow-label" fill="#10b981">Internet</text>
+      <text x="548" y="38" class="hud-arrow-label" fill="#38bdf8">Entra PA apps</text>
+      <text x="548" y="136" class="hud-arrow-label" fill="#10b981">ZPA apps</text>
+      <text x="548" y="236" class="hud-arrow-label" fill="#10b981">Web traffic</text>
+    </svg>`),
 
-    2: `<svg class="diagram-svg" viewBox="0 0 820 300" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <style>
-        .node-title { font-size: 11px; font-weight: 600; font-family: "Segoe UI", sans-serif; }
-        .node-sub { font-size: 9px; font-family: "Segoe UI", sans-serif; }
-        .arrow-label { font-size: 8.5px; font-weight: 500; font-family: "Segoe UI", sans-serif; }
-        .gsa-flow { stroke-dasharray: 6 3; animation: flowBlue 0.6s linear infinite; }
-      </style>
-      <rect x="30" y="115" width="130" height="64" rx="6" fill="white" stroke="#d1d5db" stroke-width="1.2"/>
-      <rect x="30" y="115" width="130" height="64" rx="6" fill="url(#grad-client2)"/>
-      <text x="95" y="142" text-anchor="middle" class="node-title" fill="#374151">End-User Device</text>
-      <text x="95" y="158" text-anchor="middle" class="node-sub" fill="#6b7280">GSA Client + ZCC installed</text>
-
-      <rect x="310" y="16" width="180" height="64" rx="6" fill="white" stroke="#2563eb" stroke-width="1.4"/>
-      <rect x="310" y="16" width="180" height="64" rx="6" fill="rgba(37,99,235,0.04)"/>
-      ${gsa(318, 28, '2')}
-      <text x="418" y="44" text-anchor="middle" class="node-title" fill="#2563eb">Global Secure Access</text>
-      <text x="418" y="60" text-anchor="middle" class="node-sub" fill="#6b7280">Private Access Profile</text>
-
-      <rect x="310" y="114" width="180" height="64" rx="6" fill="white" stroke="#059669" stroke-width="1.4"/>
-      <rect x="310" y="114" width="180" height="64" rx="6" fill="rgba(5,150,105,0.04)"/>
-      ${zs(318, 126)}
-      <text x="418" y="142" text-anchor="middle" class="node-title" fill="#059669">Zscaler ZPA</text>
-      <text x="418" y="158" text-anchor="middle" class="node-sub" fill="#6b7280">Private Access</text>
-
-      <rect x="310" y="214" width="180" height="64" rx="6" fill="white" stroke="#059669" stroke-width="1.4"/>
-      <rect x="310" y="214" width="180" height="64" rx="6" fill="rgba(5,150,105,0.04)"/>
-      ${zs(318, 226)}
-      <text x="418" y="242" text-anchor="middle" class="node-title" fill="#059669">Zscaler ZIA</text>
-      <text x="418" y="258" text-anchor="middle" class="node-sub" fill="#6b7280">Internet Access</text>
-
-      <rect x="620" y="16" width="160" height="64" rx="6" fill="white" stroke="#d1d5db" stroke-width="1.2"/>
-      <text x="700" y="42" text-anchor="middle" class="node-title" fill="#374151">Entra PA Apps</text>
-      <text x="700" y="58" text-anchor="middle" class="node-sub" fill="#6b7280">SMB File Shares</text>
-
-      <rect x="620" y="114" width="160" height="64" rx="6" fill="white" stroke="#d1d5db" stroke-width="1.2"/>
-      <text x="700" y="140" text-anchor="middle" class="node-title" fill="#374151">ZPA Apps</text>
-      <text x="700" y="156" text-anchor="middle" class="node-sub" fill="#6b7280">RDP, Private Servers</text>
-
-      <rect x="620" y="214" width="160" height="64" rx="6" fill="white" stroke="#d1d5db" stroke-width="1.2"/>
-      <text x="700" y="240" text-anchor="middle" class="node-title" fill="#374151">Internet</text>
-      <text x="700" y="256" text-anchor="middle" class="node-sub" fill="#6b7280">Web, SaaS</text>
-
-      <path d="M160 130 L305 48" stroke="#2563eb" stroke-width="2" class="gsa-flow" marker-end="url(#a2b)"/>
-      <path d="M160 147 L305 146" stroke="#059669" stroke-width="1.8" marker-end="url(#a2g)"/>
-      <path d="M160 162 L305 246" stroke="#059669" stroke-width="1.8" marker-end="url(#a2g)"/>
-      <path d="M494 48 L615 48" stroke="#2563eb" stroke-width="2" class="gsa-flow" marker-end="url(#a2b)"/>
-      <path d="M494 146 L615 146" stroke="#059669" stroke-width="1.8" marker-end="url(#a2g)"/>
-      <path d="M494 246 L615 246" stroke="#059669" stroke-width="1.8" marker-end="url(#a2g)"/>
-
-      <text x="200" y="74" class="arrow-label" fill="#2563eb">Private (Entra)</text>
-      <text x="200" y="138" class="arrow-label" fill="#059669">Private (ZPA)</text>
-      <text x="200" y="214" class="arrow-label" fill="#059669">Internet</text>
-
+    3: hudWrap(`<svg class="hud-svg" viewBox="0 0 900 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <style>${hudStyles}</style>
       <defs>
-        <linearGradient id="grad-client2" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#f9fafb"/><stop offset="100%" stop-color="#f3f4f6"/></linearGradient>
-        <marker id="a2b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#2563eb"/></marker>
-        <marker id="a2g" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#059669"/></marker>
+        <marker id="ha3b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#38bdf8"/></marker>
+        <marker id="ha3g" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#10b981"/></marker>
       </defs>
-    </svg>`,
+      <g class="hud-box-neutral">
+        <rect x="30" y="115" width="145" height="64" rx="6" fill="rgba(15,23,42,0.8)" stroke="#475569" stroke-width="1"/>
+        <text x="103" y="142" text-anchor="middle" class="hud-node-title">End-User Device</text>
+        <text x="103" y="158" text-anchor="middle" class="hud-node-sub">GSA Client + ZCC installed</text>
+      </g>
+      <g class="hud-box-gsa">
+        <rect x="280" y="16" width="210" height="64" rx="6" fill="rgba(15,23,42,0.9)" stroke="#38bdf8" stroke-width="1.5"/>
+        <rect x="280" y="16" width="210" height="64" rx="6" fill="rgba(56,189,248,0.05)"/>
+        ${gsa(288, 26, 'h3')}
+        <text x="403" y="44" text-anchor="middle" class="hud-node-title" fill="#38bdf8">Global Secure Access</text>
+        <text x="403" y="60" text-anchor="middle" class="hud-node-sub">Microsoft Traffic Profile</text>
+      </g>
+      <g class="hud-box-vendor">
+        <rect x="280" y="114" width="210" height="64" rx="6" fill="rgba(15,23,42,0.9)" stroke="#10b981" stroke-width="1.5"/>
+        <rect x="280" y="114" width="210" height="64" rx="6" fill="rgba(16,185,129,0.05)"/>
+        ${zs(288, 124)}
+        <text x="403" y="142" text-anchor="middle" class="hud-node-title" fill="#10b981">Zscaler ZPA</text>
+        <text x="403" y="158" text-anchor="middle" class="hud-node-sub">Private Access</text>
+      </g>
+      <g class="hud-box-vendor">
+        <rect x="280" y="214" width="210" height="64" rx="6" fill="rgba(15,23,42,0.9)" stroke="#10b981" stroke-width="1.5"/>
+        <rect x="280" y="214" width="210" height="64" rx="6" fill="rgba(16,185,129,0.05)"/>
+        ${zs(288, 224)}
+        <text x="403" y="242" text-anchor="middle" class="hud-node-title" fill="#10b981">Zscaler ZIA</text>
+        <text x="403" y="258" text-anchor="middle" class="hud-node-sub">Internet Access</text>
+      </g>
+      <g class="hud-box-neutral">
+        <rect x="640" y="16" width="210" height="64" rx="6" fill="rgba(15,23,42,0.7)" stroke="#475569" stroke-width="1"/>
+        <text x="745" y="42" text-anchor="middle" class="hud-node-title">Microsoft 365</text>
+        <text x="745" y="58" text-anchor="middle" class="hud-node-sub">Outlook, SharePoint, Teams</text>
+      </g>
+      <g class="hud-box-neutral">
+        <rect x="640" y="114" width="210" height="64" rx="6" fill="rgba(15,23,42,0.7)" stroke="#475569" stroke-width="1"/>
+        <text x="745" y="140" text-anchor="middle" class="hud-node-title">Private Apps</text>
+        <text x="745" y="156" text-anchor="middle" class="hud-node-sub">RDP, Internal Apps</text>
+      </g>
+      <g class="hud-box-neutral">
+        <rect x="640" y="214" width="210" height="64" rx="6" fill="rgba(15,23,42,0.7)" stroke="#475569" stroke-width="1"/>
+        <text x="745" y="240" text-anchor="middle" class="hud-node-title">Internet</text>
+        <text x="745" y="256" text-anchor="middle" class="hud-node-sub">Web, SaaS</text>
+      </g>
+      <path d="M175 130 L275 48" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha3b)"/>
+      <path d="M175 147 L275 146" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha3g)"/>
+      <path d="M175 162 L275 246" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha3g)"/>
+      <path d="M494 48 L635 48" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha3b)"/>
+      <path d="M494 146 L635 146" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha3g)"/>
+      <path d="M494 246 L635 246" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha3g)"/>
+      <text x="200" y="68" class="hud-arrow-label" fill="#38bdf8">M365 traffic</text>
+      <text x="200" y="133" class="hud-arrow-label" fill="#10b981">Private apps</text>
+      <text x="200" y="208" class="hud-arrow-label" fill="#10b981">Internet</text>
+      <text x="548" y="38" class="hud-arrow-label" fill="#38bdf8">Microsoft 365</text>
+      <text x="548" y="136" class="hud-arrow-label" fill="#10b981">Private apps</text>
+      <text x="548" y="236" class="hud-arrow-label" fill="#10b981">Web traffic</text>
+    </svg>`),
 
-    3: `<svg class="diagram-svg" viewBox="0 0 820 300" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <style>
-        .node-title { font-size: 11px; font-weight: 600; font-family: "Segoe UI", sans-serif; }
-        .node-sub { font-size: 9px; font-family: "Segoe UI", sans-serif; }
-        .arrow-label { font-size: 8.5px; font-weight: 500; font-family: "Segoe UI", sans-serif; }
-        .gsa-flow { stroke-dasharray: 6 3; animation: flowBlue 0.6s linear infinite; }
-      </style>
-      <rect x="30" y="115" width="130" height="64" rx="6" fill="white" stroke="#d1d5db" stroke-width="1.2"/>
-      <rect x="30" y="115" width="130" height="64" rx="6" fill="url(#grad-client3)"/>
-      <text x="95" y="142" text-anchor="middle" class="node-title" fill="#374151">End-User Device</text>
-      <text x="95" y="158" text-anchor="middle" class="node-sub" fill="#6b7280">GSA Client + ZCC installed</text>
-
-      <rect x="310" y="16" width="180" height="64" rx="6" fill="white" stroke="#2563eb" stroke-width="1.4"/>
-      <rect x="310" y="16" width="180" height="64" rx="6" fill="rgba(37,99,235,0.04)"/>
-      ${gsa(318, 28, '3')}
-      <text x="418" y="44" text-anchor="middle" class="node-title" fill="#2563eb">Global Secure Access</text>
-      <text x="418" y="60" text-anchor="middle" class="node-sub" fill="#6b7280">Microsoft Traffic Profile</text>
-
-      <rect x="310" y="114" width="180" height="64" rx="6" fill="white" stroke="#059669" stroke-width="1.4"/>
-      <rect x="310" y="114" width="180" height="64" rx="6" fill="rgba(5,150,105,0.04)"/>
-      ${zs(318, 126)}
-      <text x="418" y="142" text-anchor="middle" class="node-title" fill="#059669">Zscaler ZPA</text>
-      <text x="418" y="158" text-anchor="middle" class="node-sub" fill="#6b7280">Private Access</text>
-
-      <rect x="310" y="214" width="180" height="64" rx="6" fill="white" stroke="#059669" stroke-width="1.4"/>
-      <rect x="310" y="214" width="180" height="64" rx="6" fill="rgba(5,150,105,0.04)"/>
-      ${zs(318, 226)}
-      <text x="418" y="242" text-anchor="middle" class="node-title" fill="#059669">Zscaler ZIA</text>
-      <text x="418" y="258" text-anchor="middle" class="node-sub" fill="#6b7280">Internet Access</text>
-
-      <rect x="620" y="16" width="160" height="64" rx="6" fill="white" stroke="#d1d5db" stroke-width="1.2"/>
-      <text x="700" y="42" text-anchor="middle" class="node-title" fill="#374151">Microsoft 365</text>
-      <text x="700" y="58" text-anchor="middle" class="node-sub" fill="#6b7280">Outlook, SharePoint, Teams</text>
-
-      <rect x="620" y="114" width="160" height="64" rx="6" fill="white" stroke="#d1d5db" stroke-width="1.2"/>
-      <text x="700" y="140" text-anchor="middle" class="node-title" fill="#374151">Private Apps</text>
-      <text x="700" y="156" text-anchor="middle" class="node-sub" fill="#6b7280">RDP, Internal Apps</text>
-
-      <rect x="620" y="214" width="160" height="64" rx="6" fill="white" stroke="#d1d5db" stroke-width="1.2"/>
-      <text x="700" y="240" text-anchor="middle" class="node-title" fill="#374151">Internet</text>
-      <text x="700" y="256" text-anchor="middle" class="node-sub" fill="#6b7280">Web, SaaS</text>
-
-      <path d="M160 130 L305 48" stroke="#2563eb" stroke-width="2" class="gsa-flow" marker-end="url(#a3b)"/>
-      <path d="M160 147 L305 146" stroke="#059669" stroke-width="1.8" marker-end="url(#a3g)"/>
-      <path d="M160 162 L305 246" stroke="#059669" stroke-width="1.8" marker-end="url(#a3g)"/>
-      <path d="M494 48 L615 48" stroke="#2563eb" stroke-width="2" class="gsa-flow" marker-end="url(#a3b)"/>
-      <path d="M494 146 L615 146" stroke="#059669" stroke-width="1.8" marker-end="url(#a3g)"/>
-      <path d="M494 246 L615 246" stroke="#059669" stroke-width="1.8" marker-end="url(#a3g)"/>
-
-      <text x="200" y="74" class="arrow-label" fill="#2563eb">M365 traffic</text>
-      <text x="200" y="138" class="arrow-label" fill="#059669">Private apps</text>
-      <text x="200" y="214" class="arrow-label" fill="#059669">Internet</text>
-
+    4: hudWrap(`<svg class="hud-svg" viewBox="0 0 900 310" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <style>${hudStyles}</style>
       <defs>
-        <linearGradient id="grad-client3" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#f9fafb"/><stop offset="100%" stop-color="#f3f4f6"/></linearGradient>
-        <marker id="a3b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#2563eb"/></marker>
-        <marker id="a3g" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#059669"/></marker>
+        <marker id="ha4b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#38bdf8"/></marker>
+        <marker id="ha4g" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#10b981"/></marker>
       </defs>
-    </svg>`,
-
-    4: `<svg class="diagram-svg" viewBox="0 0 820 310" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <style>
-        .node-title { font-size: 11px; font-weight: 600; font-family: "Segoe UI", sans-serif; }
-        .node-sub { font-size: 9px; font-family: "Segoe UI", sans-serif; }
-        .arrow-label { font-size: 8.5px; font-weight: 500; font-family: "Segoe UI", sans-serif; }
-        .gsa-flow { stroke-dasharray: 6 3; animation: flowBlue 0.6s linear infinite; }
-      </style>
-      <rect x="30" y="120" width="130" height="64" rx="6" fill="white" stroke="#d1d5db" stroke-width="1.2"/>
-      <rect x="30" y="120" width="130" height="64" rx="6" fill="url(#grad-client4)"/>
-      <text x="95" y="147" text-anchor="middle" class="node-title" fill="#374151">End-User Device</text>
-      <text x="95" y="163" text-anchor="middle" class="node-sub" fill="#6b7280">GSA Client + ZCC installed</text>
-
-      <rect x="300" y="20" width="200" height="80" rx="6" fill="white" stroke="#2563eb" stroke-width="1.4"/>
-      <rect x="300" y="20" width="200" height="80" rx="6" fill="rgba(37,99,235,0.04)"/>
-      ${gsa(308, 32, '4')}
-      <text x="418" y="46" text-anchor="middle" class="node-title" fill="#2563eb">Global Secure Access</text>
-      <text x="418" y="62" text-anchor="middle" class="node-sub" fill="#6b7280">Microsoft Traffic Profile</text>
-      <text x="418" y="76" text-anchor="middle" class="node-sub" fill="#6b7280">+ Internet Access Profile</text>
-      <text x="418" y="92" text-anchor="middle" class="node-sub" fill="#9ca3af">Bypass: *.prod.zpath.net</text>
-
-      <rect x="300" y="215" width="200" height="72" rx="6" fill="white" stroke="#059669" stroke-width="1.4"/>
-      <rect x="300" y="215" width="200" height="72" rx="6" fill="rgba(5,150,105,0.04)"/>
-      ${zs(308, 231)}
-      <text x="418" y="246" text-anchor="middle" class="node-title" fill="#059669">Zscaler ZPA</text>
-      <text x="418" y="262" text-anchor="middle" class="node-sub" fill="#6b7280">Private Access Only</text>
-      <text x="418" y="276" text-anchor="middle" class="node-sub" fill="#9ca3af">ZIA: Disabled</text>
-
-      <rect x="630" y="10" width="155" height="58" rx="6" fill="white" stroke="#d1d5db" stroke-width="1.2"/>
-      <text x="708" y="34" text-anchor="middle" class="node-title" fill="#374151">Microsoft 365</text>
-      <text x="708" y="50" text-anchor="middle" class="node-sub" fill="#6b7280">Outlook, SharePoint, Teams</text>
-
-      <rect x="630" y="82" width="155" height="58" rx="6" fill="white" stroke="#d1d5db" stroke-width="1.2"/>
-      <text x="708" y="106" text-anchor="middle" class="node-title" fill="#374151">Internet</text>
-      <text x="708" y="122" text-anchor="middle" class="node-sub" fill="#6b7280">bing.com, SaaS, Web traffic</text>
-
-      <rect x="630" y="218" width="155" height="66" rx="6" fill="white" stroke="#d1d5db" stroke-width="1.2"/>
-      <text x="708" y="244" text-anchor="middle" class="node-title" fill="#374151">Private Apps</text>
-      <text x="708" y="260" text-anchor="middle" class="node-sub" fill="#6b7280">RDP, Internal Servers</text>
-      <text x="708" y="274" text-anchor="middle" class="node-sub" fill="#9ca3af">via ZPA tunnels</text>
-
-      <path d="M160 135 L295 60" stroke="#2563eb" stroke-width="2" class="gsa-flow" marker-end="url(#a4b)"/>
-      <path d="M160 168 L295 250" stroke="#059669" stroke-width="1.8" marker-end="url(#a4g)"/>
-      <path d="M504 45 L625 39" stroke="#2563eb" stroke-width="2" class="gsa-flow" marker-end="url(#a4b)"/>
-      <path d="M504 72 L625 105" stroke="#2563eb" stroke-width="2" class="gsa-flow" marker-end="url(#a4b)"/>
-      <path d="M504 251 L625 251" stroke="#059669" stroke-width="1.8" marker-end="url(#a4g)"/>
-
-      <text x="195" y="82" class="arrow-label" fill="#2563eb">Internet + M365</text>
-      <text x="195" y="218" class="arrow-label" fill="#059669">Private apps</text>
-
-      <defs>
-        <linearGradient id="grad-client4" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#f9fafb"/><stop offset="100%" stop-color="#f3f4f6"/></linearGradient>
-        <marker id="a4b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#2563eb"/></marker>
-        <marker id="a4g" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#059669"/></marker>
-      </defs>
-    </svg>`
+      <g class="hud-box-neutral">
+        <rect x="30" y="120" width="145" height="64" rx="6" fill="rgba(15,23,42,0.8)" stroke="#475569" stroke-width="1"/>
+        <text x="103" y="147" text-anchor="middle" class="hud-node-title">End-User Device</text>
+        <text x="103" y="163" text-anchor="middle" class="hud-node-sub">GSA Client + ZCC installed</text>
+      </g>
+      <g class="hud-box-gsa">
+        <rect x="280" y="20" width="220" height="80" rx="6" fill="rgba(15,23,42,0.9)" stroke="#38bdf8" stroke-width="1.5"/>
+        <rect x="280" y="20" width="220" height="80" rx="6" fill="rgba(56,189,248,0.05)"/>
+        ${gsa(288, 30, 'h4')}
+        <text x="408" y="46" text-anchor="middle" class="hud-node-title" fill="#38bdf8">Global Secure Access</text>
+        <text x="408" y="62" text-anchor="middle" class="hud-node-sub">Microsoft Traffic Profile</text>
+        <text x="408" y="76" text-anchor="middle" class="hud-node-sub">+ Internet Access Profile</text>
+        <text x="408" y="92" text-anchor="middle" class="hud-node-sub2">Bypass: *.prod.zpath.net</text>
+      </g>
+      <g class="hud-box-vendor">
+        <rect x="280" y="215" width="220" height="72" rx="6" fill="rgba(15,23,42,0.9)" stroke="#10b981" stroke-width="1.5"/>
+        <rect x="280" y="215" width="220" height="72" rx="6" fill="rgba(16,185,129,0.05)"/>
+        ${zs(288, 229)}
+        <text x="408" y="246" text-anchor="middle" class="hud-node-title" fill="#10b981">Zscaler ZPA</text>
+        <text x="408" y="262" text-anchor="middle" class="hud-node-sub">Private Access Only</text>
+        <text x="408" y="276" text-anchor="middle" class="hud-node-sub2">ZIA: Disabled</text>
+      </g>
+      <g class="hud-box-neutral">
+        <rect x="640" y="10" width="210" height="58" rx="6" fill="rgba(15,23,42,0.7)" stroke="#475569" stroke-width="1"/>
+        <text x="745" y="34" text-anchor="middle" class="hud-node-title">Microsoft 365</text>
+        <text x="745" y="50" text-anchor="middle" class="hud-node-sub">Outlook, SharePoint, Teams</text>
+      </g>
+      <g class="hud-box-neutral">
+        <rect x="640" y="82" width="210" height="58" rx="6" fill="rgba(15,23,42,0.7)" stroke="#475569" stroke-width="1"/>
+        <text x="745" y="106" text-anchor="middle" class="hud-node-title">Internet</text>
+        <text x="745" y="122" text-anchor="middle" class="hud-node-sub">bing.com, SaaS, Web traffic</text>
+      </g>
+      <g class="hud-box-neutral">
+        <rect x="640" y="218" width="210" height="66" rx="6" fill="rgba(15,23,42,0.7)" stroke="#475569" stroke-width="1"/>
+        <text x="745" y="244" text-anchor="middle" class="hud-node-title">Private Apps</text>
+        <text x="745" y="260" text-anchor="middle" class="hud-node-sub">RDP, Internal Servers</text>
+        <text x="745" y="274" text-anchor="middle" class="hud-node-sub2">via ZPA tunnels</text>
+      </g>
+      <path d="M175 135 L275 60" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha4b)"/>
+      <path d="M175 168 L275 250" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha4g)"/>
+      <path d="M504 45 L635 39" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha4b)"/>
+      <path d="M504 72 L635 105" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha4b)"/>
+      <path d="M504 251 L635 251" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha4g)"/>
+      <text x="200" y="76" class="hud-arrow-label" fill="#38bdf8">Internet + M365</text>
+      <text x="200" y="218" class="hud-arrow-label" fill="#10b981">Private apps</text>
+      <text x="552" y="30" class="hud-arrow-label" fill="#38bdf8">Microsoft 365</text>
+      <text x="548" y="100" class="hud-arrow-label" fill="#38bdf8">Internet</text>
+      <text x="552" y="241" class="hud-arrow-label" fill="#10b981">Private apps</text>
+    </svg>`)
   };
   return diagrams[id] || '';
 }
