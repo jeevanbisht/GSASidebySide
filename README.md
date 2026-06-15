@@ -2,6 +2,12 @@
 
 Interactive configuration guides for deploying Microsoft Global Secure Access alongside third-party security vendors.
 
+## Landing Page
+
+🌐 **[Open Landing Page](https://jeevanbisht.github.io/GSASidebySide/)** — Central hub with links to all vendor guides.
+
+Source: [index.html](index.html)
+
 ## Available Guides
 
 | Vendor | Guide | Live Page |
