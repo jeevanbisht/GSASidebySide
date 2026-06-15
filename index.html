@@ -14,164 +14,194 @@
 <style>
 :root {
   color-scheme: light;
-  --cp-bg: #f7f4ef;
-  --cp-bg-elevated: #fcfbf8;
+  --cp-bg: #f5f5f5;
+  --cp-bg-elevated: #fafafa;
   --cp-surface: #ffffff;
-  --cp-surface-soft: #f5f5f5;
-  --cp-border: #dedede;
-  --cp-border-strong: #919191;
-  --cp-text: #242424;
-  --cp-text-muted: #5c5c5c;
-  --cp-text-soft: #6f6f6f;
-  --cp-accent: #b11f4b;
-  --cp-accent-hover: #9a1a41;
-  --cp-accent-soft: rgba(177, 31, 75, 0.08);
+  --cp-surface-soft: #f9f9f9;
+  --cp-border: #e0e0e0;
+  --cp-border-strong: #bdbdbd;
+  --cp-text: #212121;
+  --cp-text-muted: #616161;
+  --cp-text-soft: #757575;
+  --cp-accent: #0f6cbd;
+  --cp-accent-hover: #0a5496;
+  --cp-accent-soft: rgba(15, 108, 189, 0.05);
   --cp-accent-fg: #ffffff;
-  --cp-success: #16a34a;
-  --cp-danger: #dc2626;
-  --cp-warning: #f59e0b;
-  --cp-link: #0078d4;
-  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
-  --cp-overlay: rgba(255, 255, 255, 0.8);
-  --cp-panel: rgba(255, 255, 255, 0.86);
-  --cp-panel-strong: rgba(255, 255, 255, 0.96);
-  --cp-sheen: rgba(255, 255, 255, 0.55);
-  --cp-highlight: rgba(177, 31, 75, 0.12);
+  --cp-success: #107c10;
+  --cp-danger: #d13438;
+  --cp-warning: #f7630c;
+  --cp-link: #0f6cbd;
+  --cp-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  --cp-shadow-lg: 0 4px 12px rgba(0,0,0,0.1);
 }
 html[data-theme="dark"] {
   color-scheme: dark;
-  --cp-bg: #3d3b3a;
-  --cp-bg-elevated: #343231;
-  --cp-surface: #292929;
-  --cp-surface-soft: #2e2e2e;
-  --cp-border: #474747;
-  --cp-border-strong: #5f5f5f;
-  --cp-text: #dedede;
-  --cp-text-muted: #919191;
+  --cp-bg: #1a1a1a;
+  --cp-bg-elevated: #222222;
+  --cp-surface: #2a2a2a;
+  --cp-surface-soft: #313131;
+  --cp-border: #3d3d3d;
+  --cp-border-strong: #555555;
+  --cp-text: #e4e4e4;
+  --cp-text-muted: #9e9e9e;
   --cp-text-soft: #b0b0b0;
-  --cp-accent: #fd8ea1;
-  --cp-accent-hover: #fb7b91;
-  --cp-accent-soft: rgba(253, 142, 161, 0.14);
-  --cp-accent-fg: #1a1a1a;
-  --cp-success: #4ade80;
-  --cp-danger: #f87171;
-  --cp-warning: #fbbf24;
-  --cp-link: #4da6ff;
-  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
-  --cp-overlay: rgba(41, 41, 41, 0.88);
-  --cp-panel: rgba(41, 41, 41, 0.72);
-  --cp-panel-strong: rgba(41, 41, 41, 0.96);
-  --cp-sheen: rgba(255, 255, 255, 0.04);
-  --cp-highlight: rgba(253, 142, 161, 0.12);
+  --cp-accent: #5ba7e6;
+  --cp-accent-hover: #7dbcf0;
+  --cp-accent-soft: rgba(91, 167, 230, 0.08);
+  --cp-accent-fg: #111111;
+  --cp-success: #4caf50;
+  --cp-danger: #ef5350;
+  --cp-warning: #ffa726;
+  --cp-link: #5ba7e6;
+  --cp-shadow: 0 1px 3px rgba(0,0,0,0.24);
+  --cp-shadow-lg: 0 4px 12px rgba(0,0,0,0.4);
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
   font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--cp-bg);
   color: var(--cp-text);
+  line-height: 1.5;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.hero {
-  text-align: center;
-  padding: 64px 24px 48px;
-  background: var(--cp-bg-elevated);
+/* Topbar */
+.topbar {
+  background: var(--cp-surface);
   border-bottom: 1px solid var(--cp-border);
-}
-
-.hero-icon {
-  width: 64px;
-  height: 64px;
-  margin: 0 auto 20px;
-  border-radius: 16px;
-  background: var(--cp-accent-soft);
+  padding: 0 32px;
+  height: 48px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
-
-.hero-icon svg {
-  width: 36px;
-  height: 36px;
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
-
-.hero h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  margin-bottom: 12px;
+.topbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
-
-.hero p {
-  font-size: 1.05rem;
+.topbar-logo svg { width: 16px; height: 16px; flex-shrink: 0; }
+.topbar-title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--cp-text);
+}
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.topbar-link {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--cp-link);
+  text-decoration: none;
+}
+.topbar-link:hover { text-decoration: underline; }
+.topbar-btn {
+  width: 28px; height: 28px;
+  border: 1px solid var(--cp-border);
+  border-radius: 4px;
+  background: var(--cp-surface);
   color: var(--cp-text-muted);
-  max-width: 560px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem;
+}
+.topbar-btn:hover { background: var(--cp-surface-soft); }
+
+/* Main content */
+.main {
+  max-width: 1200px;
   margin: 0 auto;
+  padding: 36px 32px 64px;
+  flex: 1;
+  width: 100%;
+}
+
+.page-heading {
+  margin-bottom: 36px;
+}
+.page-heading h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+}
+.page-heading p {
+  font-size: 0.8125rem;
+  color: var(--cp-text-muted);
+  max-width: 600px;
   line-height: 1.6;
 }
 
-.container {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 48px 24px;
-  flex: 1;
-}
-
+/* Section labels */
 .section-label {
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   color: var(--cp-text-muted);
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
+/* Guide cards */
 .guides-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
 }
 
 .guide-card {
   background: var(--cp-surface);
   border: 1px solid var(--cp-border);
-  border-radius: 16px;
-  padding: 28px 24px;
+  border-radius: 8px;
+  padding: 20px;
   text-decoration: none;
   color: inherit;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.15s, box-shadow 0.15s;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+  gap: 12px;
+  box-shadow: var(--cp-shadow);
 }
 
 .guide-card:hover {
   border-color: var(--cp-accent);
-  box-shadow: 0 0 0 1px var(--cp-accent), 0 4px 16px rgba(0,0,0,0.08);
+  box-shadow: 0 0 0 1px var(--cp-accent);
 }
 
 .card-header {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
 }
 
 .card-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 0.625rem;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   font-weight: 700;
-  font-size: 1rem;
-  color: var(--cp-accent-fg);
+  font-size: 0.8125rem;
+  color: #ffffff;
 }
 
 .card-icon--zscaler { background: #0076be; }
@@ -179,14 +209,14 @@ body {
 .card-icon--paloalto { background: #fa582d; }
 
 .card-title {
-  font-size: 1.1rem;
+  font-size: 0.875rem;
   font-weight: 600;
 }
 
 .card-desc {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   color: var(--cp-text-muted);
-  line-height: 1.55;
+  line-height: 1.5;
 }
 
 .card-meta {
@@ -194,63 +224,64 @@ body {
   align-items: center;
   gap: 8px;
   margin-top: auto;
-  padding-top: 8px;
+  padding-top: 4px;
 }
 
 .badge {
-  font-size: 0.7rem;
+  font-size: 0.625rem;
   font-weight: 600;
-  padding: 3px 10px;
-  border-radius: 100px;
+  padding: 2px 8px;
+  border-radius: 3px;
   background: var(--cp-accent-soft);
   color: var(--cp-accent);
 }
 
 .card-arrow {
   margin-left: auto;
+  font-size: 0.75rem;
   color: var(--cp-text-muted);
-  transition: transform 0.2s;
+  transition: transform 0.15s;
 }
 
 .guide-card:hover .card-arrow {
-  transform: translateX(3px);
+  transform: translateX(2px);
   color: var(--cp-accent);
 }
 
-.features {
-  margin-top: 56px;
+/* Docs section */
+.docs-section {
+  margin-top: 48px;
 }
 
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 16px;
+.docs-list {
+  list-style: none;
 }
 
-.feature-item {
-  padding: 16px;
-  border-radius: 0.625rem;
-  background: var(--cp-surface-soft);
-  border: 1px solid var(--cp-border);
+.docs-list li {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--cp-border);
 }
 
-.feature-item h4 {
-  font-size: 0.825rem;
-  font-weight: 600;
-  margin-bottom: 4px;
+.docs-list li:last-child {
+  border-bottom: none;
 }
 
-.feature-item p {
-  font-size: 0.75rem;
-  color: var(--cp-text-soft);
-  line-height: 1.5;
+.docs-list a {
+  font-size: 0.8125rem;
+  color: var(--cp-link);
+  text-decoration: none;
 }
 
+.docs-list a:hover {
+  text-decoration: underline;
+}
+
+/* Footer */
 footer {
   text-align: center;
-  padding: 24px;
+  padding: 20px 32px;
   border-top: 1px solid var(--cp-border);
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   color: var(--cp-text-muted);
 }
 
@@ -258,34 +289,45 @@ footer a {
   color: var(--cp-link);
   text-decoration: none;
 }
+footer a:hover { text-decoration: underline; }
 
-footer a:hover {
-  text-decoration: underline;
+@media (max-width: 900px) {
+  .guides-grid { grid-template-columns: repeat(2, 1fr); }
 }
-
 @media (max-width: 600px) {
-  .hero { padding: 40px 16px 32px; }
-  .hero h1 { font-size: 1.5rem; }
-  .container { padding: 32px 16px; }
+  .topbar { padding: 0 16px; }
+  .main { padding: 24px 16px 48px; }
+  .guides-grid { grid-template-columns: 1fr; }
+  .page-heading h1 { font-size: 1.25rem; }
 }
 </style>
 </head>
 <body>
 
-<div class="hero">
-  <div class="hero-icon">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--cp-accent)">
-      <path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z"/>
-      <path d="M3.6 9h16.8M3.6 15h16.8"/>
-      <path d="M12 3a15 15 0 0 1 4 9 15 15 0 0 1-4 9 15 15 0 0 1-4-9 15 15 0 0 1 4-9Z"/>
-    </svg>
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--cp-accent)">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10A15.3 15.3 0 0 1 12 2z"/>
+      </svg>
+      <span class="topbar-title">Global Secure Access</span>
+    </div>
   </div>
-  <h1>GSA Coexistence Guides</h1>
-  <p>Interactive deployment guides for running Microsoft Global Secure Access alongside third-party security vendors.</p>
+  <div class="topbar-right">
+    <a class="topbar-link" href="https://learn.microsoft.com/en-us/entra/global-secure-access/" target="_blank">Documentation</a>
+    <a class="topbar-link" href="https://github.com/jeevanbisht/GSASidebySide" target="_blank">GitHub</a>
+    <button class="topbar-btn" onclick="toggleTheme()" title="Toggle theme">◐</button>
+  </div>
 </div>
 
-<div class="container">
-  <div class="section-label">Available Guides</div>
+<div class="main">
+  <div class="page-heading">
+    <h1>Coexistence Guides</h1>
+    <p>Step-by-step deployment guides for running Microsoft Global Secure Access alongside third-party security vendors. Select a vendor to view scenarios, traffic flow diagrams, and implementation steps.</p>
+  </div>
+
+  <div class="section-label">Vendor Guides</div>
   <div class="guides-grid">
 
     <a class="guide-card" href="Zscaler/gsa-zscaler-coexistence.html">
@@ -293,7 +335,7 @@ footer a:hover {
         <div class="card-icon card-icon--zscaler">Z</div>
         <div class="card-title">Zscaler Internet Access</div>
       </div>
-      <div class="card-desc">Deploy GSA alongside Zscaler ZIA with split-tunnel, PAC-based, or full coexistence scenarios for Internet Access and Private Access workloads.</div>
+      <div class="card-desc">Split-tunnel, PAC-based, and full coexistence scenarios for Internet Access and Private Access workloads.</div>
       <div class="card-meta">
         <span class="badge">4 Scenarios</span>
         <span class="card-arrow">→</span>
@@ -305,7 +347,7 @@ footer a:hover {
         <div class="card-icon card-icon--cisco">C</div>
         <div class="card-title">Cisco Umbrella</div>
       </div>
-      <div class="card-desc">Configure GSA and Cisco Umbrella side-by-side with DNS-layer, proxy chaining, or selective traffic steering approaches.</div>
+      <div class="card-desc">DNS-layer, proxy chaining, and selective traffic steering coexistence approaches.</div>
       <div class="card-meta">
         <span class="badge">4 Scenarios</span>
         <span class="card-arrow">→</span>
@@ -317,7 +359,7 @@ footer a:hover {
         <div class="card-icon card-icon--paloalto">PA</div>
         <div class="card-title">Palo Alto Prisma Access</div>
       </div>
-      <div class="card-desc">Run GSA alongside Palo Alto Prisma Access using tunnel-based, split-tunnel, or selective routing coexistence patterns.</div>
+      <div class="card-desc">Tunnel-based, split-tunnel, and selective routing coexistence patterns.</div>
       <div class="card-meta">
         <span class="badge">4 Scenarios</span>
         <span class="card-arrow">→</span>
@@ -326,40 +368,26 @@ footer a:hover {
 
   </div>
 
-  <div class="features">
-    <div class="section-label">Features</div>
-    <div class="features-grid">
-      <div class="feature-item">
-        <h4>🎯 Scenario Selection</h4>
-        <p>Choose from multiple deployment patterns per vendor</p>
-      </div>
-      <div class="feature-item">
-        <h4>📊 Traffic Flow Diagrams</h4>
-        <p>Animated SVG diagrams showing routing paths</p>
-      </div>
-      <div class="feature-item">
-        <h4>📋 Step-by-Step Guides</h4>
-        <p>Expandable instructions with copy-to-clipboard configs</p>
-      </div>
-      <div class="feature-item">
-        <h4>🔑 Tenant ID Integration</h4>
-        <p>Auto-populate tenant-specific bypass FQDNs</p>
-      </div>
-      <div class="feature-item">
-        <h4>✅ Progress Tracking</h4>
-        <p>Checkboxes and step completion per scenario</p>
-      </div>
-      <div class="feature-item">
-        <h4>🌙 Dark Mode</h4>
-        <p>Automatic theme detection with manual override</p>
-      </div>
-    </div>
+  <div class="docs-section">
+    <div class="section-label">Reference Documentation</div>
+    <ul class="docs-list">
+      <li><a href="https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-zscaler-coexistence" target="_blank">Microsoft Learn — GSA + Zscaler Coexistence</a></li>
+      <li><a href="https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-cisco-coexistence" target="_blank">Microsoft Learn — GSA + Cisco Umbrella Coexistence</a></li>
+      <li><a href="https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-palo-alto-coexistence" target="_blank">Microsoft Learn — GSA + Palo Alto Coexistence</a></li>
+    </ul>
   </div>
 </div>
 
 <footer>
-  <p>Built for the Microsoft Global Secure Access CXE team · <a href="https://learn.microsoft.com/en-us/entra/global-secure-access/" target="_blank">GSA Documentation</a> · <a href="https://github.com/jeevanbisht/GSASidebySide" target="_blank">Source</a></p>
+  <p>Microsoft Global Secure Access · CXE Team · <a href="https://github.com/jeevanbisht/GSASidebySide">Source</a></p>
 </footer>
 
+<script>
+function toggleTheme() {
+  const current = document.documentElement.getAttribute("data-theme");
+  const next = current === "dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", next);
+}
+</script>
 </body>
 </html>
