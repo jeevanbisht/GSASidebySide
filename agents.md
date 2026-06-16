@@ -301,6 +301,8 @@ Box layout: [ 36px icon zone | remaining text zone ]
 - **Vendor**: Inline SVG circle with letter abbreviation
   - Zscaler: emerald circle (#10b981) with white "Z"
   - Cisco Umbrella: green circle (#22c55e) with white "C"
+  - Cisco Secure Access: emerald circle (#10b981) with white "CS"
+  - Cisco VPN: emerald circle (#10b981) with white "VPN"
   - Palo Alto: emerald circle (#10b981) with white "PA"
   - Icon size: 22×22px
 
@@ -380,6 +382,8 @@ Key rules:
 | GSA elements (arrows, borders, text) | #38bdf8 (cyan) |
 | Vendor elements — Zscaler | #10b981 (emerald) |
 | Vendor elements — Cisco Umbrella | #22c55e (green) |
+| Vendor elements — Cisco Secure Access | #10b981 (emerald) |
+| Vendor elements — Cisco VPN | #10b981 (emerald) |
 | Vendor elements — Palo Alto | #10b981 (emerald) |
 | Neutral/destination borders | #475569 (slate) |
 | Node title text | #e2e8f0 |

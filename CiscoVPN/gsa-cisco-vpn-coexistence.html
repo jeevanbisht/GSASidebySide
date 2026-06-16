@@ -70,15 +70,15 @@ html[data-theme="dark"] {
 :root {
   --cp-gsa: var(--cp-link);
   --cp-gsa-soft: var(--cp-highlight);
-  --cp-vendor: #049fd9;
-  --cp-vendor-soft: rgba(4, 159, 217, 0.1);
+  --cp-vendor: #10b981;
+  --cp-vendor-soft: rgba(16, 185, 129, 0.1);
   --cp-verify: var(--cp-success);
   --cp-verify-soft: rgba(22, 163, 74, 0.1);
   --cp-card-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
 }
 html[data-theme="dark"] {
-  --cp-vendor: #1bccf0;
-  --cp-vendor-soft: rgba(27, 204, 240, 0.16);
+  --cp-vendor: #34d399;
+  --cp-vendor-soft: rgba(16, 185, 129, 0.16);
   --cp-verify-soft: rgba(74, 222, 128, 0.16);
   --cp-card-shadow: 0 0 2px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.36);
 }
@@ -336,7 +336,7 @@ code, pre { font-family: Consolas, "Courier New", Courier, monospace; }
 @keyframes hudFlowBlue {
   to { stroke-dashoffset: -18; }
 }
-@keyframes hudFlowCisco {
+@keyframes hudFlowGreen {
   to { stroke-dashoffset: -16; }
 }
 
@@ -1189,15 +1189,15 @@ function getDiagram(id) {
     .hud-node-sub2 { font-size: 9.5px; fill: #64748b; }
     .hud-arrow-label { font-size: 11px; font-weight: 700; paint-order: stroke; stroke: rgba(10,14,26,0.92); stroke-width: 4px; stroke-linecap: round; stroke-linejoin: round; }
     .hud-gsa-flow { stroke-dasharray: 8 4; animation: hudFlowBlue 0.8s linear infinite; stroke-linecap: round; filter: drop-shadow(0 0 3px rgba(56,189,248,0.6)); }
-    .hud-vendor-flow { stroke-dasharray: 6 3; animation: hudFlowCisco 0.7s linear infinite; stroke-linecap: round; filter: drop-shadow(0 0 3px rgba(4,159,217,0.6)); }
+    .hud-vendor-flow { stroke-dasharray: 6 3; animation: hudFlowGreen 0.7s linear infinite; stroke-linecap: round; filter: drop-shadow(0 0 3px rgba(16,185,129,0.6)); }
     .hud-box-gsa { filter: drop-shadow(0 0 6px rgba(56,189,248,0.3)); }
-    .hud-box-vendor { filter: drop-shadow(0 0 6px rgba(4,159,217,0.3)); }
+    .hud-box-vendor { filter: drop-shadow(0 0 6px rgba(16,185,129,0.3)); }
     .hud-box-neutral { filter: drop-shadow(0 0 4px rgba(148,163,184,0.15)); }
   `;
 
   const gsaIcon = `<svg x="{X}" y="{Y}" width="22" height="22" viewBox="0 0 18 18"><defs><linearGradient id="gsa-h1-{ID}" x1="0" y1="9" x2="12" y2="9" gradientUnits="userSpaceOnUse"><stop offset=".4" stop-color="#38bdf8"/><stop offset="1" stop-color="#1e40af"/></linearGradient><linearGradient id="gsa-h2-{ID}" x1="9" y1="18" x2="9" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#1e3a5f"/><stop offset="1" stop-color="#0ea5e9"/></linearGradient><linearGradient id="gsa-h3-{ID}" x1="13.5" y1="18" x2="13.5" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#1e3a5f"/><stop offset=".5" stop-color="#0ea5e9"/><stop offset="1" stop-color="#7dd3fc"/></linearGradient></defs><circle cx="9" cy="9" r="9" fill="url(#gsa-h1-{ID})"/><path d="m9,0C13.971,0,18,4.029,18,9s-4.029,9-9,9S0,13.971,0,9,4.029,0,9,0Zm2.645,13.049h-5.289c.587,2.172,1.607,3.601,2.645,3.601s2.058-1.429,2.645-3.601Zm-6.687,0h-2.45c.862,1.379,2.152,2.464,3.684,3.069-.47-.738-.858-1.661-1.143-2.714l-.091-.355Zm10.534,0h-2.45c-.291,1.2-.712,2.249-1.235,3.069,1.437-.567,2.661-1.556,3.519-2.814l.167-.255ZM4.585,7.2H1.563l-.004.016c-.137.573-.209,1.17-.209,1.785,0,.95.173,1.86.49,2.7h2.855c-.128-.854-.196-1.762-.196-2.7,0-.616.029-1.218.085-1.8Zm7.472,0h-6.114c-.061.576-.094,1.179-.094,1.8,0,.953.078,1.863.216,2.7h5.87c.138-.837.216-1.746.216-2.7,0-.621-.033-1.224-.094-1.8Zm4.38,0h-3.022c.056.583.085,1.186.085,1.801,0,.938-.068,1.845-.196,2.699h2.855c.317-.839.49-1.749.49-2.699,0-.62-.074-1.223-.213-1.801ZM6.193,1.881l-.021.008c-1.842.733-3.332,2.161-4.147,3.961h2.743c.282-1.577.774-2.95,1.424-3.969Zm2.807-.532l-.104.005c-1.139.104-2.239,1.906-2.75,4.496h5.707c-.51-2.583-1.605-4.381-2.74-4.495l-.114-.006Zm2.808.532l.096.157c.602,1.001,1.059,2.315,1.327,3.813h2.743c-.778-1.72-2.174-3.101-3.904-3.86l-.262-.109Z" fill="url(#gsa-h2-{ID})"/><path d="m9,0c.691,2.022,1.495,5.137,1.495,9s-.804,6.978-1.495,9c4.937,0,9-4.063,9-9C18,4.029,13.971,0,9,0Z" fill="url(#gsa-h3-{ID})"/></svg>`;
 
-  const ciscoIcon = `<svg x="{X}" y="{Y}" width="22" height="22" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#049fd9"/><text x="10" y="14" text-anchor="middle" font-size="11" font-weight="700" font-family="Segoe UI, sans-serif" fill="white">VPN</text></svg>`;
+  const ciscoIcon = `<svg x="{X}" y="{Y}" width="22" height="22" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#10b981"/><text x="10" y="14" text-anchor="middle" font-size="11" font-weight="700" font-family="Segoe UI, sans-serif" fill="white">VPN</text></svg>`;
 
   function gsa(x, y, diagId) { return gsaIcon.replace(/\{X\}/g, x).replace(/\{Y\}/g, y).replace(/\{ID\}/g, diagId); }
   function cisco(x, y) { return ciscoIcon.replace('{X}', x).replace('{Y}', y); }
@@ -1207,7 +1207,7 @@ function getDiagram(id) {
     <style>${hudStyles}</style>
     <defs>
       <marker id="ha13b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#38bdf8"/></marker>
-      <marker id="ha13c" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#049fd9"/></marker>
+      <marker id="ha13c" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#10b981"/></marker>
     </defs>
     <g class="hud-box-neutral">
       <rect x="30" y="110" width="155" height="70" rx="6" fill="rgba(15,23,42,0.8)" stroke="#475569" stroke-width="1"/>
@@ -1225,10 +1225,10 @@ function getDiagram(id) {
       <text x="418" y="108" text-anchor="middle" class="hud-node-sub2">Owns web + M365 routing</text>
     </g>
     <g class="hud-box-vendor">
-      <rect x="280" y="196" width="240" height="82" rx="6" fill="rgba(15,23,42,0.9)" stroke="#049fd9" stroke-width="1.5"/>
-      <rect x="280" y="196" width="240" height="82" rx="6" fill="rgba(4,159,217,0.05)"/>
+      <rect x="280" y="196" width="240" height="82" rx="6" fill="rgba(15,23,42,0.9)" stroke="#10b981" stroke-width="1.5"/>
+      <rect x="280" y="196" width="240" height="82" rx="6" fill="rgba(16,185,129,0.05)"/>
       ${cisco(288, 208)}
-      <text x="418" y="224" text-anchor="middle" class="hud-node-title" fill="#049fd9">Cisco VPN</text>
+      <text x="418" y="224" text-anchor="middle" class="hud-node-title" fill="#10b981">Cisco VPN</text>
       <text x="418" y="240" text-anchor="middle" class="hud-node-sub">Split-include tunnel</text>
       <text x="418" y="254" text-anchor="middle" class="hud-node-sub">Private subnets + 6.6.0.0/16</text>
       <text x="418" y="268" text-anchor="middle" class="hud-node-sub2">Owns private app routing</text>
@@ -1249,15 +1249,15 @@ function getDiagram(id) {
       <text x="760" y="258" text-anchor="middle" class="hud-node-sub">RDP, internal resources</text>
     </g>
     <path d="M185 120 L275 76" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha13b)"/>
-    <path d="M185 168 L275 238" stroke="#049fd9" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha13c)"/>
+    <path d="M185 168 L275 238" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha13c)"/>
     <path d="M524 60 L645 52" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha13b)"/>
     <path d="M524 86 L645 128" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha13b)"/>
-    <path d="M524 246 L645 248" stroke="#049fd9" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha13c)"/>
+    <path d="M524 246 L645 248" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha13c)"/>
     <text x="206" y="78" class="hud-arrow-label" fill="#38bdf8">Web + M365</text>
-    <text x="206" y="222" class="hud-arrow-label" fill="#049fd9">VPN tunnel</text>
+    <text x="206" y="222" class="hud-arrow-label" fill="#10b981">VPN tunnel</text>
     <text x="568" y="40" class="hud-arrow-label" fill="#38bdf8">Internet</text>
     <text x="568" y="112" class="hud-arrow-label" fill="#38bdf8">M365</text>
-    <text x="568" y="234" class="hud-arrow-label" fill="#049fd9">Private apps</text>
+    <text x="568" y="234" class="hud-arrow-label" fill="#10b981">Private apps</text>
   </svg>`);
 
   // Scenario 2 & 4: GSA Full Access (internet+M365+private) | Cisco VPN Private (separate apps)
@@ -1265,7 +1265,7 @@ function getDiagram(id) {
     <style>${hudStyles}</style>
     <defs>
       <marker id="ha24b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#38bdf8"/></marker>
-      <marker id="ha24c" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#049fd9"/></marker>
+      <marker id="ha24c" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#10b981"/></marker>
     </defs>
     <g class="hud-box-neutral">
       <rect x="30" y="140" width="155" height="70" rx="6" fill="rgba(15,23,42,0.8)" stroke="#475569" stroke-width="1"/>
@@ -1283,10 +1283,10 @@ function getDiagram(id) {
       <text x="418" y="100" text-anchor="middle" class="hud-node-sub2">Owns web + M365 + Entra private</text>
     </g>
     <g class="hud-box-vendor">
-      <rect x="280" y="224" width="240" height="82" rx="6" fill="rgba(15,23,42,0.9)" stroke="#049fd9" stroke-width="1.5"/>
-      <rect x="280" y="224" width="240" height="82" rx="6" fill="rgba(4,159,217,0.05)"/>
+      <rect x="280" y="224" width="240" height="82" rx="6" fill="rgba(15,23,42,0.9)" stroke="#10b981" stroke-width="1.5"/>
+      <rect x="280" y="224" width="240" height="82" rx="6" fill="rgba(16,185,129,0.05)"/>
       ${cisco(288, 236)}
-      <text x="418" y="252" text-anchor="middle" class="hud-node-title" fill="#049fd9">Cisco VPN</text>
+      <text x="418" y="252" text-anchor="middle" class="hud-node-title" fill="#10b981">Cisco VPN</text>
       <text x="418" y="268" text-anchor="middle" class="hud-node-sub">Split-include tunnel</text>
       <text x="418" y="282" text-anchor="middle" class="hud-node-sub">Separate private subnets</text>
       <text x="418" y="296" text-anchor="middle" class="hud-node-sub2">Owns Cisco private apps only</text>
@@ -1312,17 +1312,17 @@ function getDiagram(id) {
       <text x="760" y="310" text-anchor="middle" class="hud-node-sub">RDP, Cisco-tunneled resources</text>
     </g>
     <path d="M185 148 L275 74" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha24b)"/>
-    <path d="M185 196 L275 266" stroke="#049fd9" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha24c)"/>
+    <path d="M185 196 L275 266" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha24c)"/>
     <path d="M524 50 L645 44" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha24b)"/>
     <path d="M524 72 L645 114" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha24b)"/>
     <path d="M524 96 L645 184" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha24b)"/>
-    <path d="M524 282 L645 300" stroke="#049fd9" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha24c)"/>
+    <path d="M524 282 L645 300" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha24c)"/>
     <text x="206" y="88" class="hud-arrow-label" fill="#38bdf8">Web + M365 + private</text>
-    <text x="206" y="252" class="hud-arrow-label" fill="#049fd9">VPN tunnel</text>
+    <text x="206" y="252" class="hud-arrow-label" fill="#10b981">VPN tunnel</text>
     <text x="568" y="32" class="hud-arrow-label" fill="#38bdf8">Internet</text>
     <text x="568" y="100" class="hud-arrow-label" fill="#38bdf8">M365</text>
     <text x="568" y="168" class="hud-arrow-label" fill="#38bdf8">Entra private</text>
-    <text x="568" y="282" class="hud-arrow-label" fill="#049fd9">Cisco private</text>
+    <text x="568" y="282" class="hud-arrow-label" fill="#10b981">Cisco private</text>
   </svg>`);
 
   const diagrams = {
