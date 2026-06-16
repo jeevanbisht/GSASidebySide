@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Global Secure Access + Netskope Coexistence Scenarios and Configuration</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme = param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f5f5f5;
+  --cp-bg-elevated: #fafafa;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f9f9f9;
+  --cp-border: #e0e0e0;
+  --cp-border-strong: #bdbdbd;
+  --cp-text: #212121;
+  --cp-text-muted: #616161;
+  --cp-text-soft: #757575;
+  --cp-accent: #0f6cbd;
+  --cp-accent-hover: #0a5496;
+  --cp-accent-soft: rgba(15, 108, 189, 0.05);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #107c10;
+  --cp-danger: #d13438;
+  --cp-warning: #f7630c;
+  --cp-link: #0f6cbd;
+  --cp-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  --cp-shadow-lg: 0 4px 12px rgba(0,0,0,0.1);
+  --cp-overlay: rgba(255,255,255,0.8);
+  --cp-panel: rgba(255,255,255,0.86);
+  --cp-panel-strong: rgba(255,255,255,0.96);
+  --cp-sheen: rgba(255,255,255,0.55);
+  --cp-highlight: rgba(15,108,189,0.06);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #1a1a1a;
+  --cp-bg-elevated: #222222;
+  --cp-surface: #2a2a2a;
+  --cp-surface-soft: #313131;
+  --cp-border: #3d3d3d;
+  --cp-border-strong: #555555;
+  --cp-text: #e4e4e4;
+  --cp-text-muted: #9e9e9e;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #5ba7e6;
+  --cp-accent-hover: #7dbcf0;
+  --cp-accent-soft: rgba(91,167,230,0.08);
+  --cp-accent-fg: #111111;
+  --cp-success: #4caf50;
+  --cp-danger: #ef5350;
+  --cp-warning: #ffa726;
+  --cp-link: #5ba7e6;
+  --cp-shadow: 0 1px 3px rgba(0,0,0,0.24);
+  --cp-shadow-lg: 0 4px 12px rgba(0,0,0,0.4);
+  --cp-overlay: rgba(26,26,26,0.9);
+  --cp-panel: rgba(42,42,42,0.86);
+  --cp-panel-strong: rgba(42,42,42,0.96);
+  --cp-sheen: rgba(255,255,255,0.03);
+  --cp-highlight: rgba(91,167,230,0.08);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Navigation */
+.topbar {
+  background: var(--cp-surface);
+  border-bottom: 1px solid var(--cp-border);
+  padding: 0 32px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.topbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.topbar-logo svg { width: 16px; height: 16px; flex-shrink: 0; }
+.topbar-title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--cp-text);
+}
+.topbar-sep {
+  color: var(--cp-border-strong);
+  font-weight: 300;
+}
+.topbar-sub {
+  font-size: 0.8125rem;
+  color: var(--cp-text-muted);
+}
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.topbar-link {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--cp-link);
+  text-decoration: none;
+}
+.topbar-link:hover { text-decoration: underline; }
+.topbar-btn {
+  width: 28px; height: 28px;
+  border: 1px solid var(--cp-border);
+  border-radius: 4px;
+  background: var(--cp-surface);
+  color: var(--cp-text-muted);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem;
+}
+.topbar-btn:hover { background: var(--cp-surface-soft); }
+
+/* Main content */
+.main { max-width: 1200px; margin: 0 auto; padding: 36px 32px 64px; }
+
+.page-heading {
+  margin-bottom: 36px;
+}
+.page-heading h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+}
+.page-heading p {
+  font-size: 0.8125rem;
+  color: var(--cp-text-muted);
+  max-width: 600px;
+  line-height: 1.6;
+}
+
+/* Scenario Section */
+.section-title {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--cp-text-muted);
+  margin-bottom: 14px;
+}
+
+.tenant-input-container {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+.tenant-input-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.tenant-label {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text);
+  white-space: nowrap;
+}
+.tenant-field {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1.5px solid var(--border-strong, #919191);
+  border-radius: 6px;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 13px;
+  background: #ffffff;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
+}
+.tenant-field:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+.tenant-field.valid {
+  border-color: #059669;
+}
+.tenant-field.invalid {
+  border-color: #dc2626;
+}
+.btn-apply-tenant {
+  padding: 8px 16px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.btn-apply-tenant:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.btn-apply-tenant:not(:disabled):hover {
+  background: #1d4ed8;
+}
+.tenant-hint {
+  margin-top: 8px;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+.tenant-hint.applied {
+  color: #059669;
+  font-weight: 500;
+}
+
+.scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 48px;
+}
+
+.scenario-tile {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 8px;
+  padding: 20px;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.scenario-tile:hover {
+  border-color: var(--cp-border-strong);
+  box-shadow: var(--cp-shadow);
+}
+.scenario-tile.selected {
+  border-color: var(--cp-accent);
+  box-shadow: 0 0 0 1px var(--cp-accent), var(--cp-shadow);
+}
+
+.tile-scenario-label {
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--cp-accent);
+}
+.tile-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--cp-text);
+  line-height: 1.3;
+}
+.tile-desc {
+  font-size: 0.75rem;
+  color: var(--cp-text-muted);
+  line-height: 1.55;
+}
+.tile-ownership {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 4px;
+}
+.ownership-col h4 {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--cp-text);
+  margin-bottom: 4px;
+}
+.ownership-col ul {
+  list-style: none;
+  padding: 0;
+}
+.ownership-col ul li {
+  font-size: 0.6875rem;
+  color: var(--cp-text-muted);
+  line-height: 1.6;
+  padding-left: 10px;
+  position: relative;
+}
+.ownership-col ul li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: var(--cp-text-soft);
+}
+
+/* Diagram */
+.diagram-section {
+  padding: 20px;
+}
+.diagram-container {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* === Futuristic HUD Diagram === */
+.hud-canvas {
+  position: relative;
+  background: linear-gradient(135deg, #0a0e1a 0%, #111827 40%, #0c1222 100%);
+  border-radius: 12px;
+  border: 1px solid rgba(56, 189, 248, 0.15);
+  padding: 32px 24px;
+  overflow: hidden;
+  width: 100%;
+  box-shadow: 0 0 40px rgba(56, 189, 248, 0.05), inset 0 0 60px rgba(0,0,0,0.3);
+}
+.hud-canvas::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 50%, rgba(56, 189, 248, 0.03) 0%, transparent 70%),
+    repeating-linear-gradient(0deg, transparent, transparent 49px, rgba(56, 189, 248, 0.02) 50px);
+  pointer-events: none;
+}
+.hud-canvas::after {
+  content: '';
+  position: absolute;
+  top: 8px; left: 8px; right: 8px; bottom: 8px;
+  border: 1px solid rgba(56, 189, 248, 0.06);
+  border-radius: 8px;
+  pointer-events: none;
+}
+.hud-particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.hud-particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: rgba(56, 189, 248, 0.6);
+  border-radius: 50%;
+  animation: particleFloat 8s linear infinite;
+  box-shadow: 0 0 4px rgba(56, 189, 248, 0.4);
+}
+@keyframes particleFloat {
+  0% { transform: translateY(100%) translateX(0); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(-100%) translateX(20px); opacity: 0; }
+}
+.hud-corner {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+}
+.hud-corner--tl { top: 12px; left: 12px; border-top: 2px solid rgba(56, 189, 248, 0.4); border-left: 2px solid rgba(56, 189, 248, 0.4); }
+.hud-corner--tr { top: 12px; right: 12px; border-top: 2px solid rgba(56, 189, 248, 0.4); border-right: 2px solid rgba(56, 189, 248, 0.4); }
+.hud-corner--bl { bottom: 12px; left: 12px; border-bottom: 2px solid rgba(56, 189, 248, 0.4); border-left: 2px solid rgba(56, 189, 248, 0.4); }
+.hud-corner--br { bottom: 12px; right: 12px; border-bottom: 2px solid rgba(56, 189, 248, 0.4); border-right: 2px solid rgba(56, 189, 248, 0.4); }
+.hud-svg {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.hud-svg text {
+  font-family: "Segoe UI", Aptos, Calibri, sans-serif;
+}
+@keyframes hudFlowBlue {
+  to { stroke-dashoffset: -18; }
+}
+@keyframes hudFlowGreen {
+  to { stroke-dashoffset: -16; }
+}
+@keyframes hudPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+/* Collapsible Sections */
+.collapsible-section {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.collapsible-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.1s;
+}
+.collapsible-header:hover {
+  background: var(--cp-surface-soft);
+}
+.collapsible-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.collapsible-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--cp-text);
+}
+.collapsible-chevron {
+  color: var(--cp-text-muted);
+  font-size: 0.75rem;
+  transition: transform 0.2s;
+}
+.collapsible-chevron.collapsed {
+  transform: rotate(-90deg);
+}
+.collapsible-body {
+  display: none;
+  border-top: 1px solid var(--cp-border);
+}
+.collapsible-body.open {
+  display: block;
+}
+
+/* Configuration Steps */
+.steps-panel {
+  display: none;
+}
+.steps-panel.show {
+  display: block;
+  animation: slideUp 0.2s ease;
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.steps-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--cp-border);
+}
+.steps-panel-title {
+  font-size: 1rem;
+  font-weight: 600;
+}
+.steps-panel-meta {
+  font-size: 0.75rem;
+  color: var(--cp-text-muted);
+}
+
+/* Phase dividers */
+.phase-divider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 20px 0 12px;
+}
+.phase-divider-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.phase-divider-label.gsa { color: var(--cp-accent); }
+.phase-divider-label.netskope { color: #00875a; }
+html[data-theme="dark"] .phase-divider-label.netskope { color: #4caf50; }
+.phase-divider-label.verify { color: #7c4dff; }
+html[data-theme="dark"] .phase-divider-label.verify { color: #b39ddb; }
+.phase-divider-line {
+  flex: 1;
+  height: 1px;
+  background: var(--cp-border);
+}
+
+/* Step row */
+.step-row {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 6px;
+  margin-bottom: 6px;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+.step-row.open {
+  border-color: var(--cp-accent);
+}
+.step-row.done {
+  opacity: 0.7;
+}
+.step-row-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+}
+.step-row-header:hover {
+  background: var(--cp-surface-soft);
+}
+.step-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid var(--cp-border-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: var(--cp-text-muted);
+  flex-shrink: 0;
+}
+.step-row.done .step-num {
+  background: var(--cp-success);
+  border-color: var(--cp-success);
+  color: white;
+}
+.step-row-title {
+  flex: 1;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--cp-text);
+}
+.step-row.done .step-row-title {
+  text-decoration: line-through;
+  color: var(--cp-text-muted);
+}
+.step-tag {
+  font-size: 0.625rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.step-tag.gsa { background: rgba(15,108,189,0.08); color: var(--cp-accent); }
+.step-tag.netskope { background: rgba(0,135,90,0.07); color: #00875a; }
+html[data-theme="dark"] .step-tag.netskope { color: #4caf50; }
+.step-tag.verify { background: rgba(124,77,255,0.07); color: #7c4dff; }
+html[data-theme="dark"] .step-tag.verify { color: #b39ddb; }
+.step-tenant-badge {
+  font-size: 0.625rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 3px;
+  background: rgba(37, 99, 235, 0.08);
+  color: #2563eb;
+  margin-left: auto;
+}
+.step-arrow {
+  color: var(--cp-text-soft);
+  font-size: 0.5rem;
+  transition: transform 0.15s;
+}
+.step-row.open .step-arrow { transform: rotate(180deg); }
+
+/* Step detail */
+.step-detail {
+  display: none;
+  padding: 0 16px 16px 50px;
+}
+.step-row.open .step-detail { display: block; }
+
+.step-detail ol {
+  padding-left: 16px;
+  margin-bottom: 12px;
+}
+.step-detail ol li {
+  font-size: 0.8125rem;
+  color: var(--cp-text);
+  line-height: 1.7;
+  margin-bottom: 4px;
+}
+.step-detail ol li code {
+  font-family: Consolas, "Courier New", Courier, monospace;
+  font-size: 0.75rem;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+/* Config block */
+.config-panel {
+  border: 1px solid var(--cp-border);
+  border-radius: 6px;
+  margin: 10px 0;
+  overflow: hidden;
+}
+.config-panel-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--cp-surface-soft);
+  border-bottom: 1px solid var(--cp-border);
+}
+.config-panel-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--cp-text-muted);
+}
+.btn-copy {
+  margin-left: auto;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--cp-link);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+.btn-copy:hover { background: var(--cp-highlight); }
+.btn-copy.ok { color: var(--cp-success); }
+.btn-copy.warn { color: #dc2626; font-size: 0.6rem; }
+.config-tenant-notice {
+  padding: 6px 12px;
+  font-size: 11px;
+  color: #b45309;
+  background: rgba(245, 158, 11, 0.08);
+  border-bottom: 1px solid rgba(245, 158, 11, 0.2);
+}
+.config-panel-code {
+  padding: 10px 12px;
+  font-family: Consolas, "Courier New", Courier, monospace;
+  font-size: 0.7rem;
+  line-height: 1.7;
+  color: var(--cp-text);
+  white-space: pre-wrap;
+  word-break: break-all;
+  background: var(--cp-bg-elevated);
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+/* Checklist */
+.check-list {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0;
+}
+.check-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: var(--cp-text);
+  padding: 5px 0;
+}
+.check-list li input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--cp-success);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.check-list li label {
+  cursor: pointer;
+}
+.check-list li.checked label {
+  text-decoration: line-through;
+  color: var(--cp-text-muted);
+}
+
+/* Done button */
+.btn-done {
+  margin-top: 10px;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 5px 12px;
+  border: 1px solid var(--cp-border);
+  border-radius: 4px;
+  background: var(--cp-surface);
+  color: var(--cp-text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-done:hover { border-color: var(--cp-accent); color: var(--cp-accent); }
+.btn-done:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: var(--cp-border);
+  color: var(--cp-text-muted);
+}
+.btn-done:disabled:hover {
+  border-color: var(--cp-border);
+  color: var(--cp-text-muted);
+}
+
+/* Disclaimer footer */
+.disclaimer-footer {
+  max-width: 1200px;
+  margin: 48px auto 0;
+  padding: 20px 24px;
+  border-top: 1px solid var(--cp-border);
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--cp-text-muted);
+  text-align: center;
+}
+.disclaimer-footer p {
+  margin: 0 0 6px 0;
+}
+.disclaimer-footer p:last-child {
+  margin-bottom: 0;
+}
+.version-line {
+  font-weight: 600;
+  color: var(--cp-text-soft);
+  margin-bottom: 10px !important;
+}
+
+/* Responsive */
+@media (max-width: 960px) { .scenario-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) {
+  .scenario-grid { grid-template-columns: 1fr; }
+  .topbar { padding: 0 16px; }
+  .main { padding: 24px 16px; }
+  .step-detail { padding-left: 16px; }
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-logo">
+      <svg viewBox="0 0 23 23" fill="none"><rect x="1" y="1" width="10" height="10" fill="#f25022"/><rect x="12" y="1" width="10" height="10" fill="#7fba00"/><rect x="1" y="12" width="10" height="10" fill="#00a4ef"/><rect x="12" y="12" width="10" height="10" fill="#ffb900"/></svg>
+      <span class="topbar-title">Microsoft Entra</span>
+    </div>
+    <span class="topbar-sep">|</span>
+    <span class="topbar-sub">Global Secure Access</span>
+  </div>
+  <div class="topbar-right">
+    <a href="https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-netskope-coexistence" target="_blank" class="topbar-link">Official Docs ↗</a>
+    <button class="topbar-btn" onclick="toggleTheme()" title="Toggle theme">◐</button>
+  </div>
+</header>
+
+<main class="main">
+  <div class="page-heading">
+    <h1>Global Secure Access + Netskope Coexistence Scenarios and Configuration</h1>
+    <p>Configure Microsoft Global Secure Access alongside Netskope Private Access and Internet Access. Select a scenario below to view step-by-step configuration instructions.</p>
+  </div>
+
+  <div class="section-title">Choose your coexistence scenario</div>
+
+  <!-- Tenant ID Input -->
+  <div class="tenant-input-container" id="tenantInput">
+    <div class="tenant-input-row">
+      <label class="tenant-label" for="tenantIdField">Tenant ID</label>
+      <input type="text" id="tenantIdField" class="tenant-field" placeholder="e.g. a1b2c3d4-e5f6-7890-abcd-ef1234567890" pattern="[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}" oninput="validateTenantId()"/>
+      <button class="btn-apply-tenant" id="btnApplyTenant" onclick="applyTenantId()" disabled>Apply</button>
+    </div>
+    <div class="tenant-hint" id="tenantHint">Enter your Microsoft Entra tenant ID (GUID format). This will populate the bypass FQDNs in the configuration blocks below.</div>
+  </div>
+
+  <div class="scenario-grid" id="grid"></div>
+
+  <div class="steps-panel" id="stepsPanel">
+    <div class="steps-panel-header">
+      <div class="steps-panel-title" id="panelTitle"></div>
+      <div class="steps-panel-meta" id="panelMeta"></div>
+    </div>
+
+    <!-- Traffic Flow Diagram (collapsible) -->
+    <div class="collapsible-section" id="diagramCollapsible">
+      <div class="collapsible-header" onclick="toggleDiagram()">
+        <div class="collapsible-header-left">
+          <span class="collapsible-title">Traffic Flow Diagram</span>
+        </div>
+        <span class="collapsible-chevron" id="diagramChevron">▾</span>
+      </div>
+      <div class="collapsible-body open" id="diagramBody">
+        <div class="diagram-section" id="diagramSection"></div>
+      </div>
+    </div>
+
+    <!-- Implementation Guide -->
+    <div class="section-title" style="margin-top: 32px;">Implementation Guide</div>
+    <div id="stepsBody"></div>
+  </div>
+</main>
+
+<footer class="disclaimer-footer">
+  <p class="version-line">Version 1.0</p>
+  <p>Microsoft®, Microsoft Entra™, and Global Secure Access™ are trademarks or registered trademarks of Microsoft Corporation. Netskope® is a trademark or registered trademark of Netskope, Inc. This guide is provided for informational and interoperability purposes only. It is not endorsed by, affiliated with, or sponsored by Netskope, Inc. All product names, logos, and brands are property of their respective owners.</p>
+</footer>
+
+<script>
+const DATA = [
+  {
+    id: 1,
+    scenario: "Scenario 1",
+    title: "GSA Private Access + Netskope IA",
+    desc: "GSA handles private application traffic. Netskope only captures internet traffic.",
+    gsaOwns: ["Private app traffic (Entra PA)"],
+    netskopeOwns: ["Internet traffic (Web)"],
+    steps: [
+      { t: "Enable Private Access forwarding profile", b: "gsa", inst: ["Sign in to the <strong>Microsoft Entra admin center</strong>.", "Navigate to <strong>Global Secure Access → Connect → Traffic forwarding</strong>.", "Toggle <strong>Private access profile</strong> to Enabled."] },
+      { t: "Install Private Network Connector", b: "gsa", inst: ["Navigate to <strong>Global Secure Access → Connect → Connectors</strong>.", "Download and install the connector on a server in your private network.", "Register with your Entra tenant and verify status shows <strong>Active</strong>."] },
+      { t: "Configure Quick Access & Private DNS", b: "gsa", inst: ["Navigate to <strong>Global Secure Access → Applications → Quick Access</strong>.", "Add private application FQDNs and IP ranges.", "Configure <strong>Private DNS</strong> and add DNS suffixes."] },
+      { t: "Install Global Secure Access client", b: "gsa", inst: ["Download and install the GSA client on end-user devices (Windows/macOS).", "Verify client shows <strong>Connected</strong> in system tray."] },
+      { t: "Create Netskope Network Location profiles", b: "netskope", inst: ["Navigate to <strong>Netskope portal → Policies → Profiles → Network Location → New Network Location → Single Object</strong>.", "Add the following IP ranges and save as <code>MSFT SSE Service</code>."], cfg: { label: "MSFT SSE Service — Network Location IP ranges", code: "150.171.19.0/24\n150.171.20.0/24\n13.107.232.0/24\n13.107.233.0/24\n150.171.15.0/24\n150.171.18.0/24\n151.206.0.0/16\n6.6.0.0/16" } },
+      { t: "Add Steering Configuration for Internet Access", b: "netskope", inst: ["Navigate to <strong>Netskope portal → Settings → Security Cloud Platform → Steering Configuration → New Configuration</strong>.", "Set Configuration Name to <code>MSFTSSEWebTraffic</code>.", "Choose a <strong>User Group</strong> or <strong>OU</strong> to apply.", "Under <strong>Cloud, Web and Firewall</strong> → <strong>Web Traffic</strong>.", "<strong>Bypass exception traffic at</strong> → <strong>Client</strong>.", "Under <strong>Private Apps</strong> → <strong>None</strong>.", "Under <strong>Borderless SD-WAN Apps</strong> → <strong>None</strong>.", "Set <strong>Status</strong> to <strong>Disabled</strong> and select <strong>Save</strong>.", "Select the <code>MSFTSSEWebTraffic</code> configuration → <strong>Exceptions → New Exception → Destination Locations</strong>.", "Select <code>MSFT SSE Service</code>. Action: <strong>Bypass</strong> → check <strong>Treat it like local IP address</strong> → <strong>Add</strong>.", "Select <strong>New Exception → Domains</strong> and add: <code>*.globalsecureaccess.microsoft.com</code> → <strong>Save</strong>.", "Ensure <code>MSFTSSEWebTraffic</code> is at the top of your steering configurations list. Then <strong>Enable</strong>."], cfg: { label: "GSA domain exception", code: "*.globalsecureaccess.microsoft.com" } },
+      { t: "Install Netskope Client", b: "netskope", inst: ["Install the Netskope Client for <strong>Windows</strong> or <strong>macOS</strong> on end-user devices.", "Verify Netskope client is active in the system tray."] },
+      { t: "Verify client configurations", b: "verify", inst: ["<strong>GSA → Advanced Diagnostics → Forwarding Profile</strong>: Private Access + Private DNS rules applied.", "<strong>GSA → Health Check</strong>: No checks failing.", "Right-click <strong>Netskope Client → Configuration</strong>. Verify <strong>Steering Configuration</strong> matches <code>MSFTSSEWebTraffic</code>. If not, select <strong>Update</strong>."], chk: ["GSA shows Private Access rules", "Health check passes", "Netskope steering matches MSFTSSEWebTraffic"] },
+      { t: "Test traffic flow", b: "verify", inst: ["Start GSA traffic collection via <strong>Advanced Diagnostics → Traffic</strong>.", "Browse to <code>bing.com</code>, <code>salesforce.com</code>, <code>instagram.com</code> — GSA should <strong>not</strong> capture.", "Validate in <strong>Netskope portal → Skope IT → Events & Alerts → Page Events</strong> that internet traffic <strong>is</strong> present.", "Access private app (e.g., SMB share) — GSA <strong>should</strong> capture.", "Validate in <strong>Entra admin center → Global Secure Access → Monitor → Traffic logs</strong> that private app traffic is captured.", "Validate private app traffic is <strong>absent</strong> from Netskope <strong>Network Events</strong>."], chk: ["Internet traffic → Netskope", "Private apps → GSA", "No cross-traffic in logs"] }
+    ]
+  },
+  {
+    id: 2,
+    scenario: "Scenario 2",
+    title: "GSA PA + Netskope PA + Netskope IA",
+    desc: "Both clients handle separate private applications. GSA owns Entra Private Access apps. Netskope owns its Private Access apps and internet traffic.",
+    gsaOwns: ["Private apps in Entra PA"],
+    netskopeOwns: ["Private apps (Netskope PA)", "Internet traffic"],
+    steps: [
+      { t: "Enable Private Access forwarding profile", b: "gsa", inst: ["Sign in to the <strong>Microsoft Entra admin center</strong>.", "Navigate to <strong>Global Secure Access → Connect → Traffic forwarding</strong>.", "Toggle <strong>Private access profile</strong> to Enabled."] },
+      { t: "Install Private Network Connector", b: "gsa", inst: ["Navigate to <strong>Global Secure Access → Connect → Connectors</strong>.", "Download and install the connector on a server in your private network.", "Register with your Entra tenant and verify status shows <strong>Active</strong>."] },
+      { t: "Configure Quick Access & Private DNS", b: "gsa", inst: ["Navigate to <strong>Global Secure Access → Applications → Quick Access</strong>.", "Add private application FQDNs and IP ranges for GSA-managed apps only.", "Configure <strong>Private DNS</strong> and add DNS suffixes.", "Do <strong>not</strong> add applications managed by Netskope Private Access."] },
+      { t: "Install Global Secure Access client", b: "gsa", inst: ["Download and install the GSA client on end-user devices (Windows/macOS).", "Verify client shows <strong>Connected</strong> in system tray."] },
+      { t: "Create Netskope Network Location profiles", b: "netskope", inst: ["Navigate to <strong>Netskope portal → Policies → Profiles → Network Location → New Network Location → Single Object</strong>.", "Add the following IP ranges and save as <code>MSFT SSE Service</code>."], cfg: { label: "MSFT SSE Service — Network Location IP ranges", code: "150.171.19.0/24\n150.171.20.0/24\n13.107.232.0/24\n13.107.233.0/24\n150.171.15.0/24\n150.171.18.0/24\n151.206.0.0/16\n6.6.0.0/16" } },
+      { t: "Add Steering Configuration for Internet + Private Apps", b: "netskope", inst: ["Navigate to <strong>Netskope portal → Settings → Security Cloud Platform → Steering Configuration → New Configuration</strong>.", "Set Configuration Name to <code>MSFTSSEWebAndPrivate</code>.", "Choose a <strong>User Group</strong> or <strong>OU</strong> to apply.", "Under <strong>Cloud, Web and Firewall</strong> → <strong>Web Traffic</strong>.", "<strong>Bypass exception traffic at</strong> → <strong>Client</strong>.", "Under <strong>Private Apps</strong> → select <strong>Specific Private Apps</strong>.", "On the next line → <strong>Netskope will</strong> → <strong>Steer</strong>.", "Under <strong>Borderless SD-WAN Apps</strong> → <strong>None</strong>.", "Set <strong>Status</strong> to <strong>Disabled</strong> and select <strong>Save</strong>.", "Select the <code>MSFTSSEWebAndPrivate</code> configuration → <strong>Exceptions → New Exception → Destination Locations</strong>.", "Select <code>MSFT SSE Service</code>. Action: <strong>Bypass</strong> → check <strong>Treat it like local IP address</strong> → <strong>Add</strong>.", "Select <strong>New Exception → Domains</strong> → add: <code>*.globalsecureaccess.microsoft.com</code> → <strong>Save</strong>.", "Select <strong>Add Steered Item → Private App</strong> and select the private applications for Netskope to steer → <strong>Add</strong>.", "Ensure <code>MSFTSSEWebAndPrivate</code> is at the top of your steering configurations. Then <strong>Enable</strong>."] },
+      { t: "Add Netskope Private App Real-time Protection Policy", b: "netskope", inst: ["Navigate to <strong>Netskope Portal → Policies → Real-time Protection</strong>.", "Select <strong>New Policy → Private App Access</strong>.", "In <strong>Source</strong>, select Users, Groups, or OUs to grant access.", "Add any required <strong>Criteria</strong> (OS, Device Classification).", "In <strong>Destination → Private App</strong> → select Private Apps to allow.", "In <strong>Profile & Action</strong> → <strong>Allow</strong>.", "Name the policy <code>Private Apps</code>, put in <strong>Default</strong> group.", "Set <strong>Status</strong> to <strong>Enabled</strong>."] },
+      { t: "Install Netskope Client & Publisher", b: "netskope", inst: ["Install the Netskope Client for <strong>Windows</strong> or <strong>macOS</strong> on end-user devices.", "Install the <strong>Netskope Private Access Publisher</strong> in your private network.", "Verify both clients are active in the system tray."] },
+      { t: "Verify client configurations", b: "verify", inst: ["<strong>GSA → Advanced Diagnostics → Forwarding Profile</strong>: Private Access + Private DNS rules applied.", "<strong>GSA → Health Check</strong>: No checks failing.", "Right-click <strong>Netskope Client → Configuration</strong>. Verify <strong>Steering Configuration</strong> matches <code>MSFTSSEWebAndPrivate</code>."], chk: ["GSA shows Private Access + Private DNS rules", "GSA health check passes", "Netskope steering matches MSFTSSEWebAndPrivate"] },
+      { t: "Test traffic flow", b: "verify", inst: ["Start GSA traffic collection via <strong>Advanced Diagnostics → Traffic</strong>.", "Browse to <code>bing.com</code>, <code>salesforce.com</code>, <code>yelp.com</code> — verify GSA is <strong>not</strong> capturing.", "Validate internet traffic is in <strong>Netskope → Skope IT → Page Events</strong>.", "Access GSA private app (e.g., SMB file share) — verify GSA <strong>is</strong> capturing.", "Access Netskope private app (e.g., RDP session) — verify GSA is <strong>not</strong> capturing.", "Validate in <strong>Entra Traffic logs</strong>: SMB captured, RDP not captured.", "Validate in <strong>Netskope → Network Events</strong>: RDP present, SMB absent."], chk: ["Internet traffic → Netskope", "Entra PA apps (SMB) → GSA", "Netskope PA apps (RDP) → Netskope", "No cross-contamination in logs"] }
+    ]
+  },
+  {
+    id: 3,
+    scenario: "Scenario 3",
+    title: "GSA M365 + Netskope PA + Netskope IA",
+    desc: "GSA handles all Microsoft 365 traffic. Netskope handles private apps and internet traffic.",
+    gsaOwns: ["Microsoft 365 traffic"],
+    netskopeOwns: ["Private apps (Netskope PA)", "Internet traffic"],
+    steps: [
+      { t: "Enable Microsoft traffic forwarding profile", b: "gsa", inst: ["Sign in to the <strong>Microsoft Entra admin center</strong>.", "Navigate to <strong>Global Secure Access → Connect → Traffic forwarding</strong>.", "Toggle <strong>Microsoft traffic profile</strong> to Enabled."] },
+      { t: "Install Global Secure Access client", b: "gsa", inst: ["Download and install the GSA client on end-user devices (Windows/macOS).", "Verify client shows <strong>Connected</strong> in system tray."] },
+      { t: "Create Netskope Network Location profiles", b: "netskope", inst: ["Navigate to <strong>Netskope portal → Policies → Profiles → Network Location</strong>.", "Create <code>MSFT SSE Service</code> with the following IPs.", "Create <code>MSFT SSE M365</code> with the Microsoft 365 IP ranges (see config below)."], cfg: { label: "MSFT SSE Service IPs + MSFT SSE M365 IPs", code: "# MSFT SSE Service\n150.171.19.0/24\n150.171.20.0/24\n13.107.232.0/24\n13.107.233.0/24\n150.171.15.0/24\n150.171.18.0/24\n151.206.0.0/16\n6.6.0.0/16\n\n# MSFT SSE M365\n132.245.0.0/16\n204.79.197.215/32\n150.171.32.0/22\n131.253.33.215/32\n23.103.160.0/20\n40.96.0.0/13\n52.96.0.0/14\n40.104.0.0/15\n13.107.128.0/22\n13.107.18.10/31\n13.107.6.152/31\n52.238.78.88/32\n104.47.0.0/17\n52.100.0.0/14\n40.107.0.0/16\n40.92.0.0/15\n150.171.40.0/22\n52.104.0.0/14\n104.146.128.0/17\n40.108.128.0/17\n13.107.136.0/22\n40.126.0.0/18\n20.231.128.0/19\n20.190.128.0/18\n20.20.32.0/19" } },
+      { t: "Add Steering Configuration for Internet + Private Apps (No M365)", b: "netskope", inst: ["Navigate to <strong>Netskope portal → Settings → Security Cloud Platform → Steering Configuration → New Configuration</strong>.", "Set Configuration Name to <code>MSFTSSEWebAndPrivate-NoM365</code>.", "Choose a <strong>User Group</strong> or <strong>OU</strong> to apply.", "Under <strong>Cloud, Web and Firewall</strong> → <strong>Web Traffic</strong>.", "<strong>Bypass exception traffic at</strong> → <strong>Client</strong>.", "Under <strong>Private Apps</strong> → select <strong>Specific Private Apps</strong>.", "On the next line → <strong>Netskope will</strong> → <strong>Steer</strong>.", "Under <strong>Borderless SD-WAN Apps</strong> → <strong>None</strong>.", "Set <strong>Status</strong> to <strong>Disabled</strong> and select <strong>Save</strong>.", "Select configuration → <strong>Exceptions → New Exception → Destination Locations</strong> → Select <code>MSFT SSE Service</code> AND <code>MSFT SSE M365</code>.", "Select <strong>Bypass</strong> and <strong>Treat it like local IP address</strong>.", "Select <strong>Exceptions → New Exception → Domains</strong> and add all the M365 domain exceptions (see config block below).", "Select <strong>Add Steered Item → Private App</strong> → select private apps → <strong>Add</strong>.", "Ensure <code>MSFTSSEWebAndPrivate-NoM365</code> is at the top. Then <strong>Enable</strong>."], cfg: { label: "Domain exceptions for M365 + GSA service", code: "*.globalsecureaccess.microsoft.com\n*.auth.microsoft.com\n*.msftidentity.com\n*.msidentity.com\n*.onmicrosoft.com\n*.outlook.com\n*.protection.outlook.com\n*.sharepoint.com\n*.sharepointonline.com\n*.svc.ms\n*.wns.windows.com\naccount.activedirectory.windowsazure.com\naccounts.accesscontrol.windows.net\nadmin.onedrive.com\nadminwebservice.microsoftonline.com\napi.passwordreset.microsoftonline.com\nautologon.microsoftazuread-sso.com\nbecws.microsoftonline.com\nccs.login.microsoftonline.com\nclientconfig.microsoftonline-p.net\ncompanymanager.microsoftonline.com\ndevice.login.microsoftonline.com\ng.live.com\ngraph.microsoft.com\ngraph.windows.net\nlogin-us.microsoftonline.com\nlogin.microsoft.com\nlogin.microsoftonline-p.com\nlogin.microsoftonline.com\nlogin.windows.net\nlogincert.microsoftonline.com\nloginex.microsoftonline.com\nnexus.microsoftonline-p.com\nofficeclient.microsoft.com\noneclient.sfx.ms\noutlook.cloud.microsoft\noutlook.office.com\noutlook.office365.com\npasswordreset.microsoftonline.com\nprovisioningapi.microsoftonline.com\nspoprod-a.akamaihd.net" } },
+      { t: "Add Netskope Private App Real-time Protection Policy", b: "netskope", inst: ["Navigate to <strong>Netskope Portal → Policies → Real-time Protection</strong>.", "Select <strong>New Policy → Private App Access</strong>.", "In <strong>Source</strong>, select Users, Groups, or OUs.", "In <strong>Destination → Private App</strong> → select apps to allow.", "In <strong>Profile & Action</strong> → <strong>Allow</strong>.", "Name: <code>Private Apps</code>, group: <strong>Default</strong>, Status: <strong>Enabled</strong>."] },
+      { t: "Install Netskope Client & Publisher", b: "netskope", inst: ["Install the Netskope Client for <strong>Windows</strong> or <strong>macOS</strong>.", "Install the <strong>Netskope Private Access Publisher</strong>.", "Verify clients are active in system tray."] },
+      { t: "Verify client configurations", b: "verify", inst: ["<strong>GSA → Advanced Diagnostics → Forwarding Profile</strong>: Only <strong>Microsoft 365 rules</strong> applied.", "<strong>GSA → Health Check</strong>: No checks failing.", "Right-click <strong>Netskope Client → Configuration</strong>. Verify <strong>Steering Configuration</strong> matches <code>MSFTSSEWebAndPrivate-NoM365</code>."], chk: ["GSA shows only Microsoft 365 rules", "GSA health check passes", "Netskope steering matches MSFTSSEWebAndPrivate-NoM365"] },
+      { t: "Test traffic flow", b: "verify", inst: ["Start GSA traffic collection via <strong>Advanced Diagnostics → Traffic</strong>.", "Browse to <code>bing.com</code>, <code>salesforce.com</code>, <code>yelp.com</code> — verify GSA is <strong>not</strong> capturing.", "Validate internet traffic in <strong>Netskope → Skope IT → Page Events</strong>.", "Access Netskope private app (e.g., RDP) — verify GSA is <strong>not</strong> capturing.", "Validate RDP in <strong>Netskope → Network Events</strong>.", "Access <strong>Outlook Online</strong> (<code>outlook.office.com</code>) and <strong>SharePoint Online</strong> — verify GSA <strong>is</strong> capturing M365 traffic.", "Stop collecting. Confirm GSA handled only Microsoft 365 traffic.", "Validate M365 traffic is <strong>absent</strong> from Netskope Page Events."], chk: ["Internet traffic → Netskope", "Private apps → Netskope PA", "M365 (Outlook, SharePoint) → GSA", "M365 absent from Netskope logs"] }
+    ]
+  },
+  {
+    id: 4,
+    scenario: "Scenario 4",
+    title: "GSA Internet + M365 + Netskope PA",
+    desc: "GSA handles internet and Microsoft 365 traffic. Netskope only handles private application traffic.",
+    gsaOwns: ["Internet traffic", "Microsoft 365 traffic"],
+    netskopeOwns: ["Private apps (Netskope PA)"],
+    steps: [
+      { t: "Enable Microsoft & Internet Access profiles", b: "gsa", inst: ["Sign in to the <strong>Microsoft Entra admin center</strong>.", "Navigate to <strong>Global Secure Access → Connect → Traffic forwarding</strong>.", "Toggle <strong>Microsoft traffic profile</strong> to Enabled.", "Toggle <strong>Internet access profile</strong> to Enabled."] },
+      { t: "Add custom bypass for Netskope service", b: "gsa", inst: ["Navigate to <strong>Global Secure Access → Connect → Traffic forwarding → Internet access profile</strong>.", "Under <strong>Internet access policies</strong> select <strong>View</strong>.", "Expand <strong>Custom Bypass</strong> and select <strong>Add rule</strong>.", "Leave destination type as <strong>FQDN</strong>. Enter <code>*.goskope.com</code> → <strong>Save</strong>.", "Select <strong>Add rule</strong> again → <strong>IP Range</strong>.", "Add each IP range below as a new rule → <strong>Save</strong>."], cfg: { label: "Custom bypass entries for Netskope service", code: "# FQDN bypass\n*.goskope.com\n\n# IP Range bypasses\n163.116.128.0..163.116.255.255\n162.10.0.0..162.10.127.255\n31.186.239.0..31.186.239.255\n8.39.144.0..8.39.144.255\n8.36.116.0..8.36.116.255" } },
+      { t: "Install Global Secure Access client", b: "gsa", inst: ["Download and install the GSA client on end-user devices (Windows/macOS).", "Verify client shows <strong>Connected</strong> in system tray."] },
+      { t: "Add Steering Configuration for Private Apps Only", b: "netskope", inst: ["Navigate to <strong>Netskope portal → Settings → Security Cloud Platform → Steering Configuration → New Configuration</strong>.", "Set Configuration Name to <code>MSFTSSEPrivate</code>.", "Choose a <strong>User Group</strong> or <strong>OU</strong> to apply.", "Under <strong>Cloud, Web and Firewall</strong> → <strong>None</strong>.", "Under <strong>Private Apps</strong> → select <strong>All Private Apps</strong>.", "On the next line → <strong>Netskope will</strong> → <strong>Steer</strong>.", "Under <strong>Borderless SD-WAN Apps</strong> → <strong>None</strong>.", "Set <strong>Status</strong> to <strong>Disabled</strong> and select <strong>Save</strong>.", "Ensure <code>MSFTSSEPrivate</code> is at the top. Then <strong>Enable</strong>."] },
+      { t: "Add Netskope Private App Real-time Protection Policy", b: "netskope", inst: ["Navigate to <strong>Netskope Portal → Policies → Real-time Protection</strong>.", "Select <strong>New Policy → Private App Access</strong>.", "In <strong>Source</strong>, select Users, Groups, or OUs.", "In <strong>Destination → Private App</strong> → select apps to allow.", "In <strong>Profile & Action</strong> → <strong>Allow</strong>.", "Name: <code>Private Apps</code>, group: <strong>Default</strong>, Status: <strong>Enabled</strong>."] },
+      { t: "Install Netskope Client & Publisher", b: "netskope", inst: ["Install the Netskope Client for <strong>Windows</strong> or <strong>macOS</strong>.", "Install the <strong>Netskope Private Access Publisher</strong>.", "Verify clients are active in system tray."] },
+      { t: "Verify client configurations", b: "verify", inst: ["<strong>GSA → Advanced Diagnostics → Forwarding Profile</strong>: <strong>Microsoft 365 and Internet Access rules</strong> applied.", "Verify custom bypass <code>*.goskope.com</code> exists in the Internet Access profile.", "<strong>GSA → Health Check</strong>: No checks failing.", "Right-click <strong>Netskope Client → Configuration</strong>. Verify <strong>Steering Configuration</strong> matches <code>MSFTSSEPrivate</code>."], chk: ["GSA shows M365 + Internet Access rules", "Custom bypass *.goskope.com present", "GSA health check passes", "Netskope steering matches MSFTSSEPrivate"] },
+      { t: "Test traffic flow", b: "verify", inst: ["Start GSA traffic collection via <strong>Advanced Diagnostics → Traffic</strong>.", "Browse to <code>bing.com</code>, <code>salesforce.com</code>, <code>instagram.com</code>, <strong>Outlook Online</strong>, <strong>SharePoint Online</strong>.", "Validate in <strong>Entra → Traffic logs</strong> that all internet and M365 traffic <strong>is</strong> captured.", "Access Netskope private app (e.g., RDP) — verify GSA is <strong>not</strong> capturing.", "Validate RDP in <strong>Netskope → Skope IT → Network Events</strong>.", "Validate internet and M365 traffic is <strong>absent</strong> from Netskope events.", "Stop collecting and confirm GSA captured internet + M365, but not private app traffic."], chk: ["Internet + M365 → GSA", "Private apps (RDP) → Netskope PA", "No internet/M365 in Netskope logs", "No private traffic in GSA logs"] }
+    ]
+  }
+];
+
+let active = null;
+let doneMap = {};
+
+function renderGrid() {
+  document.getElementById('grid').innerHTML = DATA.map(d => `
+    <div class="scenario-tile" id="tile-${d.id}" onclick="pick(${d.id})">
+      <div class="tile-scenario-label">${d.scenario}</div>
+      <div class="tile-title">${d.title}</div>
+      <div class="tile-desc">${d.desc}</div>
+      <div class="tile-ownership">
+        <div class="ownership-col">
+          <h4>GSA owns</h4>
+          <ul>${d.gsaOwns.map(x => `<li>${x}</li>`).join('')}</ul>
+        </div>
+        <div class="ownership-col">
+          <h4>Netskope owns</h4>
+          <ul>${d.netskopeOwns.map(x => `<li>${x}</li>`).join('')}</ul>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function pick(id) {
+  active = DATA.find(d => d.id === id);
+  if (!doneMap[id]) doneMap[id] = new Set();
+  document.querySelectorAll('.scenario-tile').forEach(t => t.classList.remove('selected'));
+  document.getElementById(`tile-${id}`).classList.add('selected');
+  renderSteps();
+  const panel = document.getElementById('stepsPanel');
+  panel.classList.add('show');
+  setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+}
+
+function renderSteps() {
+  const s = active;
+  const done = doneMap[s.id];
+  document.getElementById('panelTitle').textContent = s.title;
+  document.getElementById('panelMeta').textContent = `${done.size} of ${s.steps.length} steps completed`;
+
+  // Render diagram
+  document.getElementById('diagramSection').innerHTML = `
+    <div class="diagram-container">${getDiagram(s.id)}</div>`;
+
+  let html = '';
+  let curBadge = '';
+  s.steps.forEach((st, i) => {
+    if (st.b !== curBadge) {
+      curBadge = st.b;
+      const lbl = curBadge === 'gsa' ? 'Microsoft Global Secure Access' : curBadge === 'netskope' ? 'Netskope Configuration' : 'Verification';
+      html += `<div class="phase-divider"><span class="phase-divider-label ${curBadge}">${lbl}</span><span class="phase-divider-line"></span></div>`;
+    }
+    const isDone = done.has(i);
+    let tenantBadge = '';
+    if (st.cfg) {
+      const tCount = st.cfg.code.split('\n').filter(l => l.includes('<tenantid>') && l.includes('.client.globalsecureaccess')).length;
+      if (tCount > 0) tenantBadge = `<span class="step-tenant-badge">Tenanted Endpoints: ${tCount}</span>`;
+    }
+    html += `<div class="step-row ${isDone ? 'done' : ''}" id="sr-${i}">
+      <div class="step-row-header" onclick="toggle(${i})">
+        <div class="step-num">${isDone ? '✓' : i + 1}</div>
+        <div class="step-row-title">${st.t}</div>
+        ${tenantBadge}
+        <span class="step-tag ${st.b}">${st.b === 'gsa' ? 'GSA' : st.b === 'netskope' ? 'Netskope' : 'Verify'}</span>
+        <span class="step-arrow">▾</span>
+      </div>
+      <div class="step-detail">
+        <ol>${st.inst.map(x => `<li>${x}</li>`).join('')}</ol>
+        ${st.cfg ? configHTML(st.cfg, i) : ''}
+        ${st.chk ? checkHTML(st.chk, i) : ''}
+        <button class="btn-done ${st.chk ? 'has-checklist' : ''}" id="done-${i}" onclick="markDone(${i},event)" ${st.chk ? 'disabled' : ''}>${isDone ? 'Mark incomplete' : 'Mark complete'}</button>
+      </div>
+    </div>`;
+  });
+  document.getElementById('stepsBody').innerHTML = html;
+}
+
+function configHTML(cfg, idx) {
+  const cid = `c-${active.id}-${idx}`;
+  let code = cfg.code;
+  const hasTenanted = code.includes('<tenantid>');
+  if (tenantId) {
+    code = code.replace(/&lt;tenantid&gt;/g, tenantId).replace(/<tenantid>/g, tenantId);
+  }
+  const notice = (hasTenanted && !tenantId) ? `<div class="config-tenant-notice">⚠ Enter your Tenant ID above to populate tenant-specific endpoints before copying.</div>` : '';
+  return `<div class="config-panel">
+    <div class="config-panel-top">
+      <span class="config-panel-label">${cfg.label}</span>
+      <button class="btn-copy" id="cb-${cid}" onclick="doCopy('${cid}',event)">${hasTenanted && !tenantId ? '🔒 Copy' : 'Copy'}</button>
+    </div>
+    ${notice}
+    <div class="config-panel-code" id="${cid}">${code}</div>
+  </div>`;
+}
+
+function checkHTML(items, stepIdx) {
+  return `<ul class="check-list" id="cl-${stepIdx}">${items.map((x, i) => `<li><input type="checkbox" id="chk-${active.id}-${stepIdx}-${i}" onchange="this.parentElement.classList.toggle('checked', this.checked); updateDoneBtn(${stepIdx})"><label for="chk-${active.id}-${stepIdx}-${i}">${x}</label></li>`).join('')}</ul>`;
+}
+
+function toggle(i) {
+  document.getElementById(`sr-${i}`).classList.toggle('open');
+}
+
+function markDone(i, e) {
+  e.stopPropagation();
+  const done = doneMap[active.id];
+  done.has(i) ? done.delete(i) : done.add(i);
+  renderSteps();
+}
+
+function updateDoneBtn(stepIdx) {
+  const cl = document.getElementById(`cl-${stepIdx}`);
+  if (!cl) return;
+  const boxes = cl.querySelectorAll('input[type="checkbox"]');
+  const allChecked = [...boxes].every(cb => cb.checked);
+  const btn = document.getElementById(`done-${stepIdx}`);
+  if (btn) btn.disabled = !allChecked;
+}
+
+function doCopy(id, e) {
+  e.stopPropagation();
+  const txt = document.getElementById(id).textContent;
+  if (txt.includes('<tenantid>') && !tenantId) {
+    const btn = document.getElementById(`cb-${id}`);
+    btn.textContent = '⚠ Enter Tenant ID first';
+    btn.classList.add('warn');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('warn'); }, 3000);
+    return;
+  }
+  navigator.clipboard.writeText(txt).then(() => {
+    const btn = document.getElementById(`cb-${id}`);
+    btn.textContent = 'Copied ✓';
+    btn.classList.add('ok');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('ok'); }, 2000);
+  });
+}
+
+function toggleTheme() {
+  const t = document.documentElement.getAttribute('data-theme');
+  document.documentElement.setAttribute('data-theme', t === 'dark' ? 'light' : 'dark');
+}
+
+function toggleDiagram() {
+  const body = document.getElementById('diagramBody');
+  const chev = document.getElementById('diagramChevron');
+  body.classList.toggle('open');
+  chev.classList.toggle('collapsed');
+}
+
+// Tenant ID logic
+let tenantId = '';
+const GUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function validateTenantId() {
+  const field = document.getElementById('tenantIdField');
+  const btn = document.getElementById('btnApplyTenant');
+  const val = field.value.trim();
+  if (val === '') {
+    field.classList.remove('valid', 'invalid');
+    btn.disabled = true;
+  } else if (GUID_RE.test(val)) {
+    field.classList.add('valid');
+    field.classList.remove('invalid');
+    btn.disabled = false;
+  } else {
+    field.classList.add('invalid');
+    field.classList.remove('valid');
+    btn.disabled = true;
+  }
+}
+
+function applyTenantId() {
+  const field = document.getElementById('tenantIdField');
+  const hint = document.getElementById('tenantHint');
+  const val = field.value.trim();
+  if (!GUID_RE.test(val)) return;
+  tenantId = val;
+  hint.textContent = `✓ Tenant ID applied: ${tenantId}`;
+  hint.classList.add('applied');
+  if (active) renderSteps();
+}
+
+function getDiagram(id) {
+  function particles(count) {
+    let p = '';
+    for (let i = 0; i < count; i++) {
+      const left = Math.random() * 100;
+      const delay = Math.random() * 8;
+      const size = 1.5 + Math.random() * 1.5;
+      const opacity = 0.3 + Math.random() * 0.4;
+      p += `<div class="hud-particle" style="left:${left}%;animation-delay:${delay}s;width:${size}px;height:${size}px;opacity:${opacity}"></div>`;
+    }
+    return p;
+  }
+
+  function hudWrap(svgContent) {
+    return `<div class="hud-canvas">
+      <div class="hud-particles">${particles(18)}</div>
+      <div class="hud-corner hud-corner--tl"></div>
+      <div class="hud-corner hud-corner--tr"></div>
+      <div class="hud-corner hud-corner--bl"></div>
+      <div class="hud-corner hud-corner--br"></div>
+      ${svgContent}
+    </div>`;
+  }
+
+  const hudStyles = `
+    .hud-node-title { font-size: 12px; font-weight: 600; fill: #e2e8f0; }
+    .hud-node-sub { font-size: 10px; fill: #94a3b8; }
+    .hud-node-sub2 { font-size: 9.5px; fill: #64748b; }
+    .hud-arrow-label { font-size: 11px; font-weight: 700; paint-order: stroke; stroke: rgba(10,14,26,0.92); stroke-width: 4px; stroke-linecap: round; stroke-linejoin: round; }
+    .hud-gsa-flow { stroke-dasharray: 8 4; animation: hudFlowBlue 0.8s linear infinite; stroke-linecap: round; filter: drop-shadow(0 0 3px rgba(56,189,248,0.6)); }
+    .hud-vendor-flow { stroke-dasharray: 6 3; animation: hudFlowGreen 0.7s linear infinite; stroke-linecap: round; filter: drop-shadow(0 0 3px rgba(16,185,129,0.6)); }
+    .hud-box-gsa { filter: drop-shadow(0 0 6px rgba(56,189,248,0.3)); }
+    .hud-box-vendor { filter: drop-shadow(0 0 6px rgba(16,185,129,0.3)); }
+    .hud-box-neutral { filter: drop-shadow(0 0 4px rgba(148,163,184,0.15)); }
+  `;
+
+  const gsaIcon = `<svg x="{X}" y="{Y}" width="22" height="22" viewBox="0 0 18 18"><defs><linearGradient id="gsa-h1-{ID}" x1="0" y1="9" x2="12" y2="9" gradientUnits="userSpaceOnUse"><stop offset=".4" stop-color="#38bdf8"/><stop offset="1" stop-color="#1e40af"/></linearGradient><linearGradient id="gsa-h2-{ID}" x1="9" y1="18" x2="9" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#1e3a5f"/><stop offset="1" stop-color="#0ea5e9"/></linearGradient><linearGradient id="gsa-h3-{ID}" x1="13.5" y1="18" x2="13.5" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#1e3a5f"/><stop offset=".5" stop-color="#0ea5e9"/><stop offset="1" stop-color="#7dd3fc"/></linearGradient></defs><circle cx="9" cy="9" r="9" fill="url(#gsa-h1-{ID})"/><path d="m9,0C13.971,0,18,4.029,18,9s-4.029,9-9,9S0,13.971,0,9,4.029,0,9,0Zm2.645,13.049h-5.289c.587,2.172,1.607,3.601,2.645,3.601s2.058-1.429,2.645-3.601Zm-6.687,0h-2.45c.862,1.379,2.152,2.464,3.684,3.069-.47-.738-.858-1.661-1.143-2.714l-.091-.355Zm10.534,0h-2.45c-.291,1.2-.712,2.249-1.235,3.069,1.437-.567,2.661-1.556,3.519-2.814l.167-.255ZM4.585,7.2H1.563l-.004.016c-.137.573-.209,1.17-.209,1.785,0,.95.173,1.86.49,2.7h2.855c-.128-.854-.196-1.762-.196-2.7,0-.616.029-1.218.085-1.8Zm7.472,0h-6.114c-.061.576-.094,1.179-.094,1.8,0,.953.078,1.863.216,2.7h5.87c.138-.837.216-1.746.216-2.7,0-.621-.033-1.224-.094-1.8Zm4.38,0h-3.022c.056.583.085,1.186.085,1.801,0,.938-.068,1.845-.196,2.699h2.855c.317-.839.49-1.749.49-2.699,0-.62-.074-1.223-.213-1.801ZM6.193,1.881l-.021.008c-1.842.733-3.332,2.161-4.147,3.961h2.743c.282-1.577.774-2.95,1.424-3.969Zm2.807-.532l-.104.005c-1.139.104-2.239,1.906-2.75,4.496h5.707c-.51-2.583-1.605-4.381-2.74-4.495l-.114-.006Zm2.808.532l.096.157c.602,1.001,1.059,2.315,1.327,3.813h2.743c-.778-1.72-2.174-3.101-3.904-3.86l-.262-.109Z" fill="url(#gsa-h2-{ID})"/><path d="m9,0c.691,2.022,1.495,5.137,1.495,9s-.804,6.978-1.495,9c4.937,0,9-4.063,9-9C18,4.029,13.971,0,9,0Z" fill="url(#gsa-h3-{ID})"/></svg>`;
+
+  const nsIcon = `<svg x="{X}" y="{Y}" width="22" height="22" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#10b981"/><text x="10" y="14.5" text-anchor="middle" font-size="11" font-weight="700" font-family="Segoe UI, sans-serif" fill="white">N</text></svg>`;
+
+  function gsa(x, y, diagId) { return gsaIcon.replace(/\{X\}/g, x).replace(/\{Y\}/g, y).replace(/\{ID\}/g, diagId); }
+  function ns(x, y) { return nsIcon.replace('{X}', x).replace('{Y}', y); }
+
+  const diagrams = {
+    1: hudWrap(`<svg class="hud-svg" viewBox="0 0 900 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <style>${hudStyles}</style>
+      <defs>
+        <marker id="ha1b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#38bdf8"/></marker>
+        <marker id="ha1g" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#10b981"/></marker>
+      </defs>
+      <!-- Client -->
+      <g class="hud-box-neutral">
+        <rect x="30" y="85" width="145" height="64" rx="6" fill="rgba(15,23,42,0.8)" stroke="#475569" stroke-width="1"/>
+        <text x="103" y="112" text-anchor="middle" class="hud-node-title">End-User Device</text>
+        <text x="103" y="128" text-anchor="middle" class="hud-node-sub">GSA + Netskope Client</text>
+      </g>
+      <!-- GSA Box -->
+      <g class="hud-box-gsa">
+        <rect x="280" y="24" width="210" height="72" rx="6" fill="rgba(15,23,42,0.9)" stroke="#38bdf8" stroke-width="1.5"/>
+        <rect x="280" y="24" width="210" height="72" rx="6" fill="rgba(56,189,248,0.05)"/>
+        ${gsa(288, 38, 'h1')}
+        <text x="403" y="54" text-anchor="middle" class="hud-node-title" fill="#38bdf8">Global Secure Access</text>
+        <text x="403" y="70" text-anchor="middle" class="hud-node-sub">Private Access Profile</text>
+        <text x="403" y="84" text-anchor="middle" class="hud-node-sub2">Enabled</text>
+      </g>
+      <!-- Netskope Box -->
+      <g class="hud-box-vendor">
+        <rect x="280" y="138" width="210" height="72" rx="6" fill="rgba(15,23,42,0.9)" stroke="#10b981" stroke-width="1.5"/>
+        <rect x="280" y="138" width="210" height="72" rx="6" fill="rgba(16,185,129,0.05)"/>
+        ${ns(288, 152)}
+        <text x="403" y="168" text-anchor="middle" class="hud-node-title" fill="#10b981">Netskope</text>
+        <text x="403" y="184" text-anchor="middle" class="hud-node-sub">Internet Access</text>
+        <text x="403" y="198" text-anchor="middle" class="hud-node-sub2">Web Traffic Steering</text>
+      </g>
+      <!-- Destination: Private -->
+      <g class="hud-box-neutral">
+        <rect x="640" y="24" width="210" height="72" rx="6" fill="rgba(15,23,42,0.7)" stroke="#475569" stroke-width="1"/>
+        <text x="745" y="52" text-anchor="middle" class="hud-node-title">Private Apps</text>
+        <text x="745" y="68" text-anchor="middle" class="hud-node-sub">SMB, Internal Web Apps</text>
+        <text x="745" y="82" text-anchor="middle" class="hud-node-sub2">via Microsoft Entra PA</text>
+      </g>
+      <!-- Destination: Internet -->
+      <g class="hud-box-neutral">
+        <rect x="640" y="138" width="210" height="72" rx="6" fill="rgba(15,23,42,0.7)" stroke="#475569" stroke-width="1"/>
+        <text x="745" y="166" text-anchor="middle" class="hud-node-title">Internet</text>
+        <text x="745" y="182" text-anchor="middle" class="hud-node-sub">bing.com, salesforce.com</text>
+        <text x="745" y="196" text-anchor="middle" class="hud-node-sub2">All web traffic</text>
+      </g>
+      <!-- Arrows -->
+      <path d="M175 105 L275 58" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha1b)"/>
+      <path d="M175 128 L275 172" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha1g)"/>
+      <path d="M494 60 L635 60" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha1b)"/>
+      <path d="M494 174 L635 174" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha1g)"/>
+      <text x="200" y="68" class="hud-arrow-label" fill="#38bdf8">Private traffic</text>
+      <text x="200" y="168" class="hud-arrow-label" fill="#10b981">Internet traffic</text>
+      <text x="548" y="50" class="hud-arrow-label" fill="#38bdf8">Private apps</text>
+      <text x="548" y="164" class="hud-arrow-label" fill="#10b981">Web traffic</text>
+    </svg>`),
+
+    2: hudWrap(`<svg class="hud-svg" viewBox="0 0 900 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <style>${hudStyles}</style>
+      <defs>
+        <marker id="ha2b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#38bdf8"/></marker>
+        <marker id="ha2g" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#10b981"/></marker>
+      </defs>
+      <g class="hud-box-neutral">
+        <rect x="30" y="115" width="145" height="64" rx="6" fill="rgba(15,23,42,0.8)" stroke="#475569" stroke-width="1"/>
+        <text x="103" y="142" text-anchor="middle" class="hud-node-title">End-User Device</text>
+        <text x="103" y="158" text-anchor="middle" class="hud-node-sub">GSA + Netskope Client</text>
+      </g>
+      <g class="hud-box-gsa">
+        <rect x="280" y="16" width="210" height="64" rx="6" fill="rgba(15,23,42,0.9)" stroke="#38bdf8" stroke-width="1.5"/>
+        <rect x="280" y="16" width="210" height="64" rx="6" fill="rgba(56,189,248,0.05)"/>
+        ${gsa(288, 26, 'h2')}
+        <text x="403" y="44" text-anchor="middle" class="hud-node-title" fill="#38bdf8">Global Secure Access</text>
+        <text x="403" y="60" text-anchor="middle" class="hud-node-sub">Private Access Profile</text>
+      </g>
+      <g class="hud-box-vendor">
+        <rect x="280" y="114" width="210" height="64" rx="6" fill="rgba(15,23,42,0.9)" stroke="#10b981" stroke-width="1.5"/>
+        <rect x="280" y="114" width="210" height="64" rx="6" fill="rgba(16,185,129,0.05)"/>
+        ${ns(288, 124)}
+        <text x="403" y="142" text-anchor="middle" class="hud-node-title" fill="#10b981">Netskope PA</text>
+        <text x="403" y="158" text-anchor="middle" class="hud-node-sub">Private Access</text>
+      </g>
+      <g class="hud-box-vendor">
+        <rect x="280" y="214" width="210" height="64" rx="6" fill="rgba(15,23,42,0.9)" stroke="#10b981" stroke-width="1.5"/>
+        <rect x="280" y="214" width="210" height="64" rx="6" fill="rgba(16,185,129,0.05)"/>
+        ${ns(288, 224)}
+        <text x="403" y="242" text-anchor="middle" class="hud-node-title" fill="#10b981">Netskope IA</text>
+        <text x="403" y="258" text-anchor="middle" class="hud-node-sub">Internet Access</text>
+      </g>
+      <g class="hud-box-neutral">
+        <rect x="640" y="16" width="210" height="64" rx="6" fill="rgba(15,23,42,0.7)" stroke="#475569" stroke-width="1"/>
+        <text x="745" y="42" text-anchor="middle" class="hud-node-title">Entra PA Apps</text>
+        <text x="745" y="58" text-anchor="middle" class="hud-node-sub">SMB File Shares</text>
+      </g>
+      <g class="hud-box-neutral">
+        <rect x="640" y="114" width="210" height="64" rx="6" fill="rgba(15,23,42,0.7)" stroke="#475569" stroke-width="1"/>
+        <text x="745" y="140" text-anchor="middle" class="hud-node-title">Netskope PA Apps</text>
+        <text x="745" y="156" text-anchor="middle" class="hud-node-sub">RDP, Private Servers</text>
+      </g>
+      <g class="hud-box-neutral">
+        <rect x="640" y="214" width="210" height="64" rx="6" fill="rgba(15,23,42,0.7)" stroke="#475569" stroke-width="1"/>
+        <text x="745" y="240" text-anchor="middle" class="hud-node-title">Internet</text>
+        <text x="745" y="256" text-anchor="middle" class="hud-node-sub">Web, SaaS</text>
+      </g>
+      <path d="M175 130 L275 48" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha2b)"/>
+      <path d="M175 147 L275 146" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha2g)"/>
+      <path d="M175 162 L275 246" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha2g)"/>
+      <path d="M494 48 L635 48" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha2b)"/>
+      <path d="M494 146 L635 146" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha2g)"/>
+      <path d="M494 246 L635 246" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha2g)"/>
+      <text x="200" y="68" class="hud-arrow-label" fill="#38bdf8">Private (Entra)</text>
+      <text x="200" y="133" class="hud-arrow-label" fill="#10b981">Private (Netskope)</text>
+      <text x="200" y="208" class="hud-arrow-label" fill="#10b981">Internet</text>
+      <text x="548" y="38" class="hud-arrow-label" fill="#38bdf8">Entra PA apps</text>
+      <text x="548" y="136" class="hud-arrow-label" fill="#10b981">Netskope PA apps</text>
+      <text x="548" y="236" class="hud-arrow-label" fill="#10b981">Web traffic</text>
+    </svg>`),
+
+    3: hudWrap(`<svg class="hud-svg" viewBox="0 0 900 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <style>${hudStyles}</style>
+      <defs>
+        <marker id="ha3b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#38bdf8"/></marker>
+        <marker id="ha3g" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#10b981"/></marker>
+      </defs>
+      <g class="hud-box-neutral">
+        <rect x="30" y="115" width="145" height="64" rx="6" fill="rgba(15,23,42,0.8)" stroke="#475569" stroke-width="1"/>
+        <text x="103" y="142" text-anchor="middle" class="hud-node-title">End-User Device</text>
+        <text x="103" y="158" text-anchor="middle" class="hud-node-sub">GSA + Netskope Client</text>
+      </g>
+      <g class="hud-box-gsa">
+        <rect x="280" y="16" width="210" height="64" rx="6" fill="rgba(15,23,42,0.9)" stroke="#38bdf8" stroke-width="1.5"/>
+        <rect x="280" y="16" width="210" height="64" rx="6" fill="rgba(56,189,248,0.05)"/>
+        ${gsa(288, 26, 'h3')}
+        <text x="403" y="44" text-anchor="middle" class="hud-node-title" fill="#38bdf8">Global Secure Access</text>
+        <text x="403" y="60" text-anchor="middle" class="hud-node-sub">Microsoft Traffic Profile</text>
+      </g>
+      <g class="hud-box-vendor">
+        <rect x="280" y="114" width="210" height="64" rx="6" fill="rgba(15,23,42,0.9)" stroke="#10b981" stroke-width="1.5"/>
+        <rect x="280" y="114" width="210" height="64" rx="6" fill="rgba(16,185,129,0.05)"/>
+        ${ns(288, 124)}
+        <text x="403" y="142" text-anchor="middle" class="hud-node-title" fill="#10b981">Netskope PA</text>
+        <text x="403" y="158" text-anchor="middle" class="hud-node-sub">Private Access</text>
+      </g>
+      <g class="hud-box-vendor">
+        <rect x="280" y="214" width="210" height="64" rx="6" fill="rgba(15,23,42,0.9)" stroke="#10b981" stroke-width="1.5"/>
+        <rect x="280" y="214" width="210" height="64" rx="6" fill="rgba(16,185,129,0.05)"/>
+        ${ns(288, 224)}
+        <text x="403" y="242" text-anchor="middle" class="hud-node-title" fill="#10b981">Netskope IA</text>
+        <text x="403" y="258" text-anchor="middle" class="hud-node-sub">Internet Access</text>
+      </g>
+      <g class="hud-box-neutral">
+        <rect x="640" y="16" width="210" height="64" rx="6" fill="rgba(15,23,42,0.7)" stroke="#475569" stroke-width="1"/>
+        <text x="745" y="42" text-anchor="middle" class="hud-node-title">Microsoft 365</text>
+        <text x="745" y="58" text-anchor="middle" class="hud-node-sub">Outlook, SharePoint, Teams</text>
+      </g>
+      <g class="hud-box-neutral">
+        <rect x="640" y="114" width="210" height="64" rx="6" fill="rgba(15,23,42,0.7)" stroke="#475569" stroke-width="1"/>
+        <text x="745" y="140" text-anchor="middle" class="hud-node-title">Private Apps</text>
+        <text x="745" y="156" text-anchor="middle" class="hud-node-sub">RDP, Internal Apps</text>
+      </g>
+      <g class="hud-box-neutral">
+        <rect x="640" y="214" width="210" height="64" rx="6" fill="rgba(15,23,42,0.7)" stroke="#475569" stroke-width="1"/>
+        <text x="745" y="240" text-anchor="middle" class="hud-node-title">Internet</text>
+        <text x="745" y="256" text-anchor="middle" class="hud-node-sub">Web, SaaS</text>
+      </g>
+      <path d="M175 130 L275 48" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha3b)"/>
+      <path d="M175 147 L275 146" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha3g)"/>
+      <path d="M175 162 L275 246" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha3g)"/>
+      <path d="M494 48 L635 48" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha3b)"/>
+      <path d="M494 146 L635 146" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha3g)"/>
+      <path d="M494 246 L635 246" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha3g)"/>
+      <text x="200" y="68" class="hud-arrow-label" fill="#38bdf8">M365 traffic</text>
+      <text x="200" y="133" class="hud-arrow-label" fill="#10b981">Private apps</text>
+      <text x="200" y="208" class="hud-arrow-label" fill="#10b981">Internet</text>
+      <text x="548" y="38" class="hud-arrow-label" fill="#38bdf8">Microsoft 365</text>
+      <text x="548" y="136" class="hud-arrow-label" fill="#10b981">Private apps</text>
+      <text x="548" y="236" class="hud-arrow-label" fill="#10b981">Web traffic</text>
+    </svg>`),
+
+    4: hudWrap(`<svg class="hud-svg" viewBox="0 0 900 310" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <style>${hudStyles}</style>
+      <defs>
+        <marker id="ha4b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#38bdf8"/></marker>
+        <marker id="ha4g" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#10b981"/></marker>
+      </defs>
+      <g class="hud-box-neutral">
+        <rect x="30" y="120" width="145" height="64" rx="6" fill="rgba(15,23,42,0.8)" stroke="#475569" stroke-width="1"/>
+        <text x="103" y="147" text-anchor="middle" class="hud-node-title">End-User Device</text>
+        <text x="103" y="163" text-anchor="middle" class="hud-node-sub">GSA + Netskope Client</text>
+      </g>
+      <g class="hud-box-gsa">
+        <rect x="280" y="20" width="220" height="80" rx="6" fill="rgba(15,23,42,0.9)" stroke="#38bdf8" stroke-width="1.5"/>
+        <rect x="280" y="20" width="220" height="80" rx="6" fill="rgba(56,189,248,0.05)"/>
+        ${gsa(288, 30, 'h4')}
+        <text x="408" y="46" text-anchor="middle" class="hud-node-title" fill="#38bdf8">Global Secure Access</text>
+        <text x="408" y="62" text-anchor="middle" class="hud-node-sub">Microsoft Traffic Profile</text>
+        <text x="408" y="76" text-anchor="middle" class="hud-node-sub">+ Internet Access Profile</text>
+        <text x="408" y="92" text-anchor="middle" class="hud-node-sub2">Bypass: *.goskope.com</text>
+      </g>
+      <g class="hud-box-vendor">
+        <rect x="280" y="215" width="220" height="72" rx="6" fill="rgba(15,23,42,0.9)" stroke="#10b981" stroke-width="1.5"/>
+        <rect x="280" y="215" width="220" height="72" rx="6" fill="rgba(16,185,129,0.05)"/>
+        ${ns(288, 229)}
+        <text x="408" y="246" text-anchor="middle" class="hud-node-title" fill="#10b981">Netskope PA</text>
+        <text x="408" y="262" text-anchor="middle" class="hud-node-sub">Private Access Only</text>
+        <text x="408" y="276" text-anchor="middle" class="hud-node-sub2">No Internet Steering</text>
+      </g>
+      <g class="hud-box-neutral">
+        <rect x="640" y="10" width="210" height="58" rx="6" fill="rgba(15,23,42,0.7)" stroke="#475569" stroke-width="1"/>
+        <text x="745" y="34" text-anchor="middle" class="hud-node-title">Microsoft 365</text>
+        <text x="745" y="50" text-anchor="middle" class="hud-node-sub">Outlook, SharePoint, Teams</text>
+      </g>
+      <g class="hud-box-neutral">
+        <rect x="640" y="82" width="210" height="58" rx="6" fill="rgba(15,23,42,0.7)" stroke="#475569" stroke-width="1"/>
+        <text x="745" y="106" text-anchor="middle" class="hud-node-title">Internet</text>
+        <text x="745" y="122" text-anchor="middle" class="hud-node-sub">bing.com, SaaS, Web traffic</text>
+      </g>
+      <g class="hud-box-neutral">
+        <rect x="640" y="218" width="210" height="66" rx="6" fill="rgba(15,23,42,0.7)" stroke="#475569" stroke-width="1"/>
+        <text x="745" y="244" text-anchor="middle" class="hud-node-title">Private Apps</text>
+        <text x="745" y="260" text-anchor="middle" class="hud-node-sub">RDP, Internal Servers</text>
+        <text x="745" y="274" text-anchor="middle" class="hud-node-sub2">via Netskope Publisher</text>
+      </g>
+      <path d="M175 135 L275 60" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha4b)"/>
+      <path d="M175 168 L275 250" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha4g)"/>
+      <path d="M504 45 L635 39" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha4b)"/>
+      <path d="M504 72 L635 105" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha4b)"/>
+      <path d="M504 251 L635 251" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha4g)"/>
+      <text x="200" y="76" class="hud-arrow-label" fill="#38bdf8">Internet + M365</text>
+      <text x="200" y="218" class="hud-arrow-label" fill="#10b981">Private apps</text>
+      <text x="552" y="30" class="hud-arrow-label" fill="#38bdf8">Microsoft 365</text>
+      <text x="548" y="100" class="hud-arrow-label" fill="#38bdf8">Internet</text>
+      <text x="552" y="241" class="hud-arrow-label" fill="#10b981">Private apps</text>
+    </svg>`)
+  };
+  return diagrams[id] || '';
+}
+
+renderGrid();
+</script>
+</body>
+</html>
