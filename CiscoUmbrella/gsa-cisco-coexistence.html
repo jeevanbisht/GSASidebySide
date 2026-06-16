@@ -482,6 +482,83 @@ code, pre { font-family: Consolas, "Courier New", Courier, monospace; }
 }
 .btn-copy:hover { background: var(--cp-highlight); }
 .btn-copy.ok { color: var(--cp-success); }
+.btn-copy.warn { color: #dc2626; font-size: 0.6rem; }
+.tenant-input-container {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+.tenant-input-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.tenant-label {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--cp-text);
+  white-space: nowrap;
+}
+.tenant-field {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1.5px solid var(--cp-border-strong, #919191);
+  border-radius: 6px;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 13px;
+  background: #ffffff;
+  color: var(--cp-text);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
+}
+html[data-theme="dark"] .tenant-field { background: var(--cp-bg-elevated); }
+.tenant-field:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+.tenant-field.valid { border-color: #059669; }
+.tenant-field.invalid { border-color: #dc2626; }
+.btn-apply-tenant {
+  padding: 8px 16px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.btn-apply-tenant:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-apply-tenant:not(:disabled):hover { background: #1d4ed8; }
+.tenant-hint {
+  margin-top: 8px;
+  font-size: 11.5px;
+  color: var(--cp-text-muted);
+}
+.tenant-hint.applied {
+  color: #059669;
+  font-weight: 500;
+}
+.step-tenant-badge {
+  font-size: 0.625rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 3px;
+  background: rgba(37, 99, 235, 0.08);
+  color: #2563eb;
+  margin-left: auto;
+}
+.config-tenant-notice {
+  padding: 6px 12px;
+  font-size: 11px;
+  color: #b45309;
+  background: rgba(245, 158, 11, 0.08);
+  border-bottom: 1px solid rgba(245, 158, 11, 0.2);
+}
 .config-panel-code {
   padding: 10px 12px;
   font-size: 0.7rem;
@@ -588,6 +665,15 @@ code, pre { font-family: Consolas, "Courier New", Courier, monospace; }
     <p>Configure Microsoft Global Secure Access alongside Cisco Umbrella DNS-only protection. Select a scenario below to view the traffic flow, Cisco bypass requirements, and step-by-step implementation guidance.</p>
   </div>
 
+  <div class="tenant-input-container">
+    <div class="tenant-input-row">
+      <label class="tenant-label" for="appIdField">Quick Access App ID</label>
+      <input type="text" id="appIdField" class="tenant-field" placeholder="e.g. a1b2c3d4-e5f6-7890-abcd-ef1234567890" oninput="validateInputs()">
+      <button class="btn-apply-tenant" id="btnApplyTenant" onclick="applyIds()" disabled>Apply</button>
+    </div>
+    <div class="tenant-hint" id="tenantHint">Accepts a GUID (e.g. a1b2c3d4-e5f6-7890-abcd-ef1234567890) &nbsp;|&nbsp; <strong>Quick Access App ID</strong> — Required for Scenario 2 &nbsp;|&nbsp; Scenario 1 does not require it.</div>
+  </div>
+
   <div class="section-title">Choose your coexistence scenario</div>
   <div class="scenario-grid" id="grid"></div>
 
@@ -615,11 +701,14 @@ code, pre { font-family: Consolas, "Courier New", Courier, monospace; }
 </main>
 
 <footer class="disclaimer-footer">
-  <p class="version-line">Version 1.1</p>
+  <p class="version-line">Version 1.2</p>
   <p>Microsoft®, Microsoft Entra™, and Global Secure Access™ are trademarks or registered trademarks of Microsoft Corporation. Cisco®, Cisco Umbrella™, and Cisco Secure Client™ are trademarks or registered trademarks of Cisco Systems, Inc. This guide is provided for informational and interoperability purposes only. It is not endorsed by, affiliated with, or sponsored by Cisco Systems, Inc. All product names, logos, and brands are property of their respective owners.</p>
 </footer>
 
 <script>
+let appId = '';
+const GUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 const DATA = [
   {
     id: 1,
@@ -904,6 +993,25 @@ net stop csc_vpnagent && net stop acsock && net start csc_vpnagent`
 let active = null;
 let doneMap = {};
 
+function validateInputs() {
+  const af = document.getElementById('appIdField');
+  const btn = document.getElementById('btnApplyTenant');
+  const av = af.value.trim();
+  af.classList.toggle('valid', av && GUID_RE.test(av));
+  af.classList.toggle('invalid', av && !GUID_RE.test(av));
+  btn.disabled = !(av && GUID_RE.test(av));
+}
+
+function applyIds() {
+  const af = document.getElementById('appIdField');
+  const hint = document.getElementById('tenantHint');
+  const av = af.value.trim();
+  if (av && GUID_RE.test(av)) appId = av;
+  hint.textContent = `✓ Applied: App ID: ${appId}`;
+  hint.classList.add('applied');
+  if (active) renderSteps();
+}
+
 function renderGrid() {
   document.getElementById('grid').innerHTML = DATA.map(d => `
     <div class="scenario-tile" id="tile-${d.id}" onclick="pick(${d.id})">
@@ -950,10 +1058,16 @@ function renderSteps() {
       html += `<div class="phase-divider"><span class="phase-divider-label ${curBadge}">${lbl}</span><span class="phase-divider-line"></span></div>`;
     }
     const isDone = done.has(i);
+    let tenantBadge = '';
+    if (st.cfg) {
+      const aCount = (st.cfg.code.match(/<quickaccessapplicationid>/gi) || []).length;
+      if (aCount > 0) tenantBadge = `<span class="step-tenant-badge">Quick Access App ID: ${aCount}</span>`;
+    }
     html += `<div class="step-row ${isDone ? 'done' : ''}" id="sr-${i}">
       <div class="step-row-header" onclick="toggle(${i})">
         <div class="step-num">${isDone ? '✓' : i + 1}</div>
         <div class="step-row-title">${st.t}</div>
+        ${tenantBadge}
         <span class="step-tag ${st.b}">${st.b === 'gsa' ? 'GSA' : st.b === 'cisco' ? 'CSC' : 'Verify'}</span>
         <span class="step-arrow">▾</span>
       </div>
@@ -979,12 +1093,22 @@ function escapeHtml(text) {
 
 function configHTML(cfg, idx) {
   const cid = `c-${active.id}-${idx}`;
+  let code = cfg.code;
+  const hasAppId = code.includes('<quickaccessapplicationid>');
+  if (appId) {
+    code = code.replace(/<quickaccessapplicationid>/g, appId);
+  }
+  const locked = hasAppId && !appId;
+  const notice = locked
+    ? `<div class="config-tenant-notice">⚠ Enter your Quick Access App ID above to populate endpoints before copying.</div>` : '';
+  const btnLabel = locked ? '🔒 Copy' : 'Copy';
   return `<div class="config-panel">
     <div class="config-panel-top">
       <span class="config-panel-label">${cfg.label}</span>
-      <button class="btn-copy" id="cb-${cid}" onclick="doCopy('${cid}', event)">Copy</button>
+      <button class="btn-copy" id="cb-${cid}" onclick="doCopy('${cid}', event)">${btnLabel}</button>
     </div>
-    <div class="config-panel-code" id="${cid}">${escapeHtml(cfg.code)}</div>
+    ${notice}
+    <div class="config-panel-code" id="${cid}">${escapeHtml(code)}</div>
   </div>`;
 }
 
@@ -1015,6 +1139,13 @@ function updateDoneBtn(stepIdx) {
 function doCopy(id, e) {
   e.stopPropagation();
   const txt = document.getElementById(id).textContent;
+  if (txt.includes('<quickaccessapplicationid>') && !appId) {
+    const btn = document.getElementById(`cb-${id}`);
+    btn.textContent = '⚠ Enter App ID first';
+    btn.classList.add('warn');
+    setTimeout(() => { btn.textContent = '🔒 Copy'; btn.classList.remove('warn'); }, 3000);
+    return;
+  }
   navigator.clipboard.writeText(txt).then(() => {
     const btn = document.getElementById(`cb-${id}`);
     btn.textContent = 'Copied ✓';

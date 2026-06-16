@@ -192,8 +192,8 @@ code, pre { font-family: Consolas, "Courier New", Courier, monospace; }
   padding: 6px 12px;
   font-size: 0.75rem;
   font-family: Consolas, monospace;
-  width: 320px;
-  max-width: 100%;
+  flex: 1;
+  max-width: 320px;
   color: var(--cp-text);
 }
 html[data-theme="dark"] .tenant-field {
@@ -218,9 +218,20 @@ html[data-theme="dark"] .tenant-field {
   opacity: 0.4;
   cursor: not-allowed;
 }
-.tenant-status {
-  font-size: 0.6875rem;
-  color: var(--cp-success);
+.tenant-field.valid {
+  border-color: #059669;
+}
+.tenant-field.invalid {
+  border-color: #dc2626;
+}
+.tenant-hint {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--cp-text-muted);
+  line-height: 1.5;
+}
+.tenant-hint.applied {
+  color: #059669;
   font-weight: 600;
 }
 
@@ -669,11 +680,13 @@ html[data-theme="dark"] .tenant-field {
 
   <div class="tenant-section">
     <div class="tenant-row">
-      <span class="tenant-label">Microsoft Entra Tenant ID:</span>
-      <input type="text" class="tenant-field" id="tenantInput" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" maxlength="36">
-      <button class="btn-tenant" id="tenantBtn" disabled onclick="applyTenant()">Apply</button>
-      <span class="tenant-status" id="tenantStatus"></span>
+      <span class="tenant-label">Tenant ID</span>
+      <input type="text" class="tenant-field" id="tenantInput" placeholder="e.g. a1b2c3d4-e5f6-7890-abcd-ef1234567890" maxlength="36" oninput="validateInputs()">
+      <span class="tenant-label" style="margin-left:8px">Quick Access App ID</span>
+      <input type="text" class="tenant-field" id="appIdInput" placeholder="e.g. b2c3d4e5-f6a7-8901-bcde-f12345678901" maxlength="36" oninput="validateInputs()">
+      <button class="btn-tenant" id="tenantBtn" disabled onclick="applyIds()">Apply</button>
     </div>
+    <div class="tenant-hint" id="tenantHint">Both fields accept a GUID (e.g. a1b2c3d4-e5f6-7890-abcd-ef1234567890) &nbsp;|&nbsp; <strong>Tenant ID</strong> — Scenarios 1, 2, 3, 4 &nbsp;|&nbsp; <strong>Quick Access App ID</strong> — Scenarios 1, 2 &nbsp;|&nbsp; Scenarios 3 and 4 do not require Quick Access App ID.</div>
   </div>
 
   <div class="section-title">Choose your coexistence scenario</div>
@@ -703,23 +716,39 @@ html[data-theme="dark"] .tenant-field {
 </main>
 
 <footer class="disclaimer-footer">
-  <p class="version-line">Version 1.1</p>
+  <p class="version-line">Version 1.2</p>
   <p>Microsoft®, Microsoft Entra™, and Global Secure Access™ are trademarks or registered trademarks of Microsoft Corporation. Cisco®, Cisco Secure Access™, Cisco Secure Client™, and Cisco Umbrella™ are trademarks or registered trademarks of Cisco Systems, Inc. This guide is provided for informational and interoperability purposes only. It is not endorsed by, affiliated with, or sponsored by Cisco Systems, Inc. All product names, logos, and brands are property of their respective owners.</p>
 </footer>
 
 <script>
 const GUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 let tenantId = '';
+let appId = '';
 
-document.getElementById('tenantInput').addEventListener('input', function() {
-  document.getElementById('tenantBtn').disabled = !GUID_RE.test(this.value.trim());
-});
+function validateInputs() {
+  const tf = document.getElementById('tenantInput');
+  const af = document.getElementById('appIdInput');
+  const btn = document.getElementById('tenantBtn');
+  const tv = tf.value.trim(), av = af.value.trim();
+  tf.classList.toggle('valid', tv && GUID_RE.test(tv));
+  tf.classList.toggle('invalid', tv && !GUID_RE.test(tv));
+  af.classList.toggle('valid', av && GUID_RE.test(av));
+  af.classList.toggle('invalid', av && !GUID_RE.test(av));
+  btn.disabled = !((tv && GUID_RE.test(tv)) || (av && GUID_RE.test(av)));
+}
 
-function applyTenant() {
-  const val = document.getElementById('tenantInput').value.trim();
-  if (!GUID_RE.test(val)) return;
-  tenantId = val;
-  document.getElementById('tenantStatus').textContent = `\u2713 Tenant ID applied: ${val}`;
+function applyIds() {
+  const tf = document.getElementById('tenantInput');
+  const af = document.getElementById('appIdInput');
+  const hint = document.getElementById('tenantHint');
+  const tv = tf.value.trim(), av = af.value.trim();
+  if (tv && GUID_RE.test(tv)) tenantId = tv;
+  if (av && GUID_RE.test(av)) appId = av;
+  const parts = [];
+  if (tenantId) parts.push(`Tenant ID: ${tenantId}`);
+  if (appId) parts.push(`App ID: ${appId}`);
+  hint.textContent = `✓ Applied: ${parts.join(' | ')}`;
+  hint.classList.add('applied');
   if (active) renderSteps();
 }
 
@@ -1426,7 +1455,11 @@ function renderSteps() {
     let tenantBadge = '';
     if (st.cfg) {
       const tCount = st.cfg.code.split('\n').filter(l => l.includes('<tenantid>') && l.includes('.client.globalsecureaccess')).length;
-      if (tCount > 0) tenantBadge = `<span class="step-tenant-badge">Tenanted Endpoints: ${tCount}</span>`;
+      const aCount = (st.cfg.code.match(/<quickaccessapplicationid>/gi) || []).length;
+      const badges = [];
+      if (tCount > 0) badges.push(`Tenanted Endpoints: ${tCount}`);
+      if (aCount > 0) badges.push(`Quick Access App ID: ${aCount}`);
+      if (badges.length > 0) tenantBadge = badges.map(b => `<span class="step-tenant-badge">${b}</span>`).join('');
     }
     html += `<div class="step-row ${isDone ? 'done' : ''}" id="sr-${i}">
       <div class="step-row-header" onclick="toggle(${i})">
@@ -1459,13 +1492,21 @@ function escapeHtml(text) {
 function configHTML(cfg, idx) {
   const cid = `c-${active.id}-${idx}`;
   let code = cfg.code;
+  const hasTenanted = code.includes('<tenantid>');
+  const hasAppId = code.includes('<quickaccessapplicationid>');
   if (tenantId) {
     code = code.replace(/<tenantid>/g, tenantId);
   }
-  const hasTenanted = cfg.code.includes('<tenantid>');
-  const notice = (hasTenanted && !tenantId)
-    ? `<div class="config-tenant-notice">\u26a0 Enter your Tenant ID above to populate tenant-specific endpoints before copying.</div>` : '';
-  const btnLabel = (hasTenanted && !tenantId) ? '\ud83d\udd12 Copy' : 'Copy';
+  if (appId) {
+    code = code.replace(/<quickaccessapplicationid>/g, appId);
+  }
+  const locked = (hasTenanted && !tenantId) || (hasAppId && !appId);
+  const notices = [];
+  if (hasTenanted && !tenantId) notices.push('Tenant ID');
+  if (hasAppId && !appId) notices.push('Quick Access App ID');
+  const notice = locked
+    ? `<div class="config-tenant-notice">\u26a0 Enter your ${notices.join(' and ')} above to populate endpoints before copying.</div>` : '';
+  const btnLabel = locked ? '\ud83d\udd12 Copy' : 'Copy';
   return `<div class="config-panel">
     <div class="config-panel-top">
       <span class="config-panel-label">${cfg.label}</span>
@@ -1503,9 +1544,12 @@ function updateDoneBtn(stepIdx) {
 function doCopy(id, e) {
   e.stopPropagation();
   const txt = document.getElementById(id).textContent;
-  if (txt.includes('<tenantid>') && !tenantId) {
+  const missing = [];
+  if (txt.includes('<tenantid>') && !tenantId) missing.push('Tenant ID');
+  if (txt.includes('<quickaccessapplicationid>') && !appId) missing.push('App ID');
+  if (missing.length > 0) {
     const btn = document.getElementById(`cb-${id}`);
-    btn.textContent = '\u26a0 Enter Tenant ID first';
+    btn.textContent = `\u26a0 Enter ${missing.join(' & ')} first`;
     btn.classList.add('warn');
     setTimeout(() => { btn.textContent = '\ud83d\udd12 Copy'; btn.classList.remove('warn'); }, 3000);
     return;
