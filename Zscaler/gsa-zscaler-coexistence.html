@@ -1020,7 +1020,11 @@ function renderSteps() {
     let tenantBadge = '';
     if (st.cfg) {
       const tCount = st.cfg.code.split('\n').filter(l => l.includes('<tenantid>') && l.includes('.client.globalsecureaccess')).length;
-      if (tCount > 0) tenantBadge = `<span class="step-tenant-badge">Tenanted Endpoints: ${tCount}</span>`;
+      const aCount = (st.cfg.code.match(/<quickaccessapplicationid>/gi) || []).length;
+      const badges = [];
+      if (tCount > 0) badges.push(`Tenanted Endpoints: ${tCount}`);
+      if (aCount > 0) badges.push(`Quick Access App ID: ${aCount}`);
+      if (badges.length > 0) tenantBadge = badges.map(b => `<span class="step-tenant-badge">${b}</span>`).join('');
     }
     html += `<div class="step-row ${isDone ? 'done' : ''}" id="sr-${i}">
       <div class="step-row-header" onclick="toggle(${i})">
