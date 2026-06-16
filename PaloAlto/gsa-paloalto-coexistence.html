@@ -615,7 +615,7 @@ code, pre { font-family: Consolas, "Courier New", Courier, monospace; }
 </main>
 
 <footer class="disclaimer-footer">
-  <p class="version-line">Version 1.0</p>
+  <p class="version-line">Version 1.1</p>
   <p>Microsoft®, Microsoft Entra™, and Global Secure Access™ are trademarks or registered trademarks of Microsoft Corporation. Palo Alto Networks®, Prisma Access™, and GlobalProtect™ are trademarks or registered trademarks of Palo Alto Networks, Inc. This guide is provided for informational and interoperability purposes only. It is not endorsed by, affiliated with, or sponsored by Palo Alto Networks, Inc. All product names, logos, and brands are property of their respective owners.</p>
 </footer>
 
@@ -1213,14 +1213,14 @@ function getDiagram(id) {
         <text x="755" y="232" text-anchor="middle" class="hud-node-title">Internet</text>
         <text x="755" y="248" text-anchor="middle" class="hud-node-sub">salesforce.com and web traffic</text>
       </g>
-      <path d="M185 138 L275 90" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha1b)"/>
-      <path d="M185 176 L275 230" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha1p)"/>
-      <path d="M524 88 L645 92" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha1b)"/>
-      <path d="M524 230 L645 240" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha1p)"/>
-      <text x="206" y="96" class="hud-arrow-label" fill="#38bdf8">Private access</text>
-      <text x="206" y="208" class="hud-arrow-label" fill="#10b981">Internet only</text>
-      <text x="568" y="78" class="hud-arrow-label" fill="#38bdf8">Private apps</text>
-      <text x="568" y="222" class="hud-arrow-label" fill="#10b981">Web traffic</text>
+      <path d="M185 138 H225 V90 H275" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha1b)"/>
+      <path d="M185 176 H225 V230 H275" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha1p)"/>
+      <path d="M524 88 H570 V92 H645" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha1b)"/>
+      <path d="M524 230 H570 V240 H645" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha1p)"/>
+      <text x="206" y="114" class="hud-arrow-label" fill="#38bdf8">Private access</text>
+      <text x="206" y="203" class="hud-arrow-label" fill="#10b981">Internet only</text>
+      <text x="568" y="90" class="hud-arrow-label" fill="#38bdf8">Private apps</text>
+      <text x="568" y="235" class="hud-arrow-label" fill="#10b981">Web traffic</text>
     </svg>`),
 
     2: hudWrap(`<svg class="hud-svg" viewBox="0 0 930 340" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1268,16 +1268,16 @@ function getDiagram(id) {
         <text x="760" y="258" text-anchor="middle" class="hud-node-title">Private Apps (PA)</text>
         <text x="760" y="274" text-anchor="middle" class="hud-node-sub">RDP and Service Connection apps</text>
       </g>
-      <path d="M185 146 L275 88" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha2b)"/>
-      <path d="M185 186 L275 258" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha2p)"/>
-      <path d="M524 76 L645 60" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha2b)"/>
-      <path d="M524 258 L645 162" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha2p)"/>
-      <path d="M524 272 L645 264" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha2p)"/>
-      <text x="206" y="98" class="hud-arrow-label" fill="#38bdf8">GSA private apps</text>
-      <text x="206" y="238" class="hud-arrow-label" fill="#10b981">Internet + PA private</text>
-      <text x="568" y="56" class="hud-arrow-label" fill="#38bdf8">Quick Access</text>
-      <text x="564" y="148" class="hud-arrow-label" fill="#10b981">Internet</text>
-      <text x="564" y="248" class="hud-arrow-label" fill="#10b981">ZTNA / Service Connection</text>
+      <path d="M185 146 H225 V88 H275" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha2b)"/>
+      <path d="M185 186 H225 V258 H275" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha2p)"/>
+      <path d="M524 76 H545 V60 H645" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha2b)"/>
+      <path d="M524 258 H570 V162 H645" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha2p)"/>
+      <path d="M524 272 H595 V264 H645" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha2p)"/>
+      <text x="206" y="117" class="hud-arrow-label" fill="#38bdf8">GSA private apps</text>
+      <text x="206" y="222" class="hud-arrow-label" fill="#10b981">Internet + PA private</text>
+      <text x="568" y="68" class="hud-arrow-label" fill="#38bdf8">Quick Access</text>
+      <text x="564" y="210" class="hud-arrow-label" fill="#10b981">Internet</text>
+      <text x="564" y="274" class="hud-arrow-label" fill="#10b981"><tspan x="564" dy="0">ZTNA /</tspan><tspan x="564" dy="13">Service Connection</tspan></text>
     </svg>`),
 
     3: hudWrap(`<svg class="hud-svg" viewBox="0 0 930 340" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1325,16 +1325,16 @@ function getDiagram(id) {
         <text x="760" y="258" text-anchor="middle" class="hud-node-title">Private Apps</text>
         <text x="760" y="274" text-anchor="middle" class="hud-node-sub">RDP and internal applications</text>
       </g>
-      <path d="M185 146 L275 88" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha3b)"/>
-      <path d="M185 186 L275 258" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha3p)"/>
-      <path d="M524 76 L645 60" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha3b)"/>
-      <path d="M524 258 L645 162" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha3p)"/>
-      <path d="M524 272 L645 264" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha3p)"/>
-      <text x="206" y="98" class="hud-arrow-label" fill="#38bdf8">M365 only</text>
-      <text x="206" y="238" class="hud-arrow-label" fill="#10b981">Internet + private</text>
-      <text x="568" y="56" class="hud-arrow-label" fill="#38bdf8">Microsoft 365</text>
-      <text x="564" y="148" class="hud-arrow-label" fill="#10b981">Internet</text>
-      <text x="564" y="248" class="hud-arrow-label" fill="#10b981">Private apps</text>
+      <path d="M185 146 H225 V88 H275" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha3b)"/>
+      <path d="M185 186 H225 V258 H275" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha3p)"/>
+      <path d="M524 76 H545 V60 H645" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha3b)"/>
+      <path d="M524 258 H570 V162 H645" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha3p)"/>
+      <path d="M524 272 H595 V264 H645" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha3p)"/>
+      <text x="206" y="117" class="hud-arrow-label" fill="#38bdf8">M365 only</text>
+      <text x="206" y="222" class="hud-arrow-label" fill="#10b981">Internet + private</text>
+      <text x="568" y="68" class="hud-arrow-label" fill="#38bdf8">Microsoft 365</text>
+      <text x="564" y="210" class="hud-arrow-label" fill="#10b981">Internet</text>
+      <text x="564" y="268" class="hud-arrow-label" fill="#10b981">Private apps</text>
     </svg>`),
 
     4: hudWrap(`<svg class="hud-svg" viewBox="0 0 930 340" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1382,15 +1382,15 @@ function getDiagram(id) {
         <text x="760" y="258" text-anchor="middle" class="hud-node-title">Private Apps</text>
         <text x="760" y="274" text-anchor="middle" class="hud-node-sub">RDP and internal applications</text>
       </g>
-      <path d="M185 146 L275 76" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha4b)"/>
-      <path d="M185 186 L275 258" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha4p)"/>
-      <path d="M524 60 L645 55" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha4b)"/>
-      <path d="M524 90 L645 155" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha4b)"/>
+      <path d="M185 146 H225 V76 H275" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha4b)"/>
+      <path d="M185 186 H225 V258 H275" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha4p)"/>
+      <path d="M524 60 H555 V55 H645" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha4b)"/>
+      <path d="M524 90 H590 V155 H645" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha4b)"/>
       <path d="M524 264 L645 264" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha4p)"/>
-      <text x="206" y="96" class="hud-arrow-label" fill="#38bdf8">Internet + M365</text>
-      <text x="206" y="238" class="hud-arrow-label" fill="#10b981">Private apps only</text>
-      <text x="572" y="46" class="hud-arrow-label" fill="#38bdf8">Internet</text>
-      <text x="568" y="148" class="hud-arrow-label" fill="#38bdf8">Microsoft 365</text>
+      <text x="206" y="111" class="hud-arrow-label" fill="#38bdf8">Internet + M365</text>
+      <text x="206" y="222" class="hud-arrow-label" fill="#10b981">Private apps only</text>
+      <text x="572" y="58" class="hud-arrow-label" fill="#38bdf8">Internet</text>
+      <text x="568" y="123" class="hud-arrow-label" fill="#38bdf8">Microsoft 365</text>
       <text x="572" y="254" class="hud-arrow-label" fill="#10b981">Private apps</text>
     </svg>`)
   };

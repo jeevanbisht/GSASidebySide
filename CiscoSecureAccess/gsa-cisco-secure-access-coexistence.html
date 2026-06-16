@@ -703,7 +703,7 @@ html[data-theme="dark"] .tenant-field {
 </main>
 
 <footer class="disclaimer-footer">
-  <p class="version-line">Version 1.0</p>
+  <p class="version-line">Version 1.1</p>
   <p>Microsoft®, Microsoft Entra™, and Global Secure Access™ are trademarks or registered trademarks of Microsoft Corporation. Cisco®, Cisco Secure Access™, Cisco Secure Client™, and Cisco Umbrella™ are trademarks or registered trademarks of Cisco Systems, Inc. This guide is provided for informational and interoperability purposes only. It is not endorsed by, affiliated with, or sponsored by Cisco Systems, Inc. All product names, logos, and brands are property of their respective owners.</p>
 </footer>
 
@@ -1617,14 +1617,14 @@ function getDiagram(id) {
         <text x="760" y="236" text-anchor="middle" class="hud-node-title">Internet + M365</text>
         <text x="760" y="252" text-anchor="middle" class="hud-node-sub">Web, SaaS, Outlook, Teams</text>
       </g>
-      <path d="M185 132 L275 76" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha1b)"/>
-      <path d="M185 176 L275 252" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha1c)"/>
+      <path d="M185 132 H225 V76 H275" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha1b)"/>
+      <path d="M185 176 H225 V252 H275" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha1c)"/>
       <path d="M524 68 L645 68" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha1b)"/>
-      <path d="M524 248 L645 242" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha1c)"/>
-      <text x="206" y="86" class="hud-arrow-label" fill="#38bdf8">Private traffic</text>
-      <text x="206" y="236" class="hud-arrow-label" fill="#10b981">Web + DNS</text>
+      <path d="M524 248 H570 V242 H645" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha1c)"/>
+      <text x="206" y="104" class="hud-arrow-label" fill="#38bdf8">Private traffic</text>
+      <text x="206" y="214" class="hud-arrow-label" fill="#10b981">Web + DNS</text>
       <text x="568" y="56" class="hud-arrow-label" fill="#38bdf8">Private apps</text>
-      <text x="568" y="232" class="hud-arrow-label" fill="#10b981">Internet + M365</text>
+      <text x="568" y="245" class="hud-arrow-label" fill="#10b981">Internet + M365</text>
     </svg>`),
 
     2: hudWrap(`<svg class="hud-svg" viewBox="0 0 930 380" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1672,16 +1672,16 @@ function getDiagram(id) {
         <text x="760" y="302" text-anchor="middle" class="hud-node-title">Cisco Private Apps</text>
         <text x="760" y="318" text-anchor="middle" class="hud-node-sub">RDP, Cisco-managed resources</text>
       </g>
-      <path d="M185 148 L275 70" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha2b)"/>
-      <path d="M185 196 L275 256" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha2c)"/>
+      <path d="M185 148 H225 V70 H275" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha2b)"/>
+      <path d="M185 196 H225 V256 H275" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha2c)"/>
       <path d="M524 60 L645 60" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha2b)"/>
-      <path d="M524 240 L645 184" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha2c)"/>
-      <path d="M524 272 L645 308" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha2c)"/>
-      <text x="206" y="90" class="hud-arrow-label" fill="#38bdf8">Private traffic</text>
-      <text x="206" y="244" class="hud-arrow-label" fill="#10b981">Web + private</text>
+      <path d="M524 240 H555 V184 H645" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha2c)"/>
+      <path d="M524 272 H590 V308 H645" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha2c)"/>
+      <text x="206" y="109" class="hud-arrow-label" fill="#38bdf8">Private traffic</text>
+      <text x="206" y="226" class="hud-arrow-label" fill="#10b981">Web + private</text>
       <text x="568" y="46" class="hud-arrow-label" fill="#38bdf8">Entra apps</text>
-      <text x="568" y="168" class="hud-arrow-label" fill="#10b981">Internet</text>
-      <text x="568" y="296" class="hud-arrow-label" fill="#10b981">Cisco apps</text>
+      <text x="568" y="212" class="hud-arrow-label" fill="#10b981">Internet</text>
+      <text x="568" y="290" class="hud-arrow-label" fill="#10b981">Cisco apps</text>
     </svg>`),
 
     3: hudWrap(`<svg class="hud-svg" viewBox="0 0 930 380" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1728,16 +1728,16 @@ function getDiagram(id) {
         <text x="760" y="302" text-anchor="middle" class="hud-node-title">Cisco Private Apps</text>
         <text x="760" y="318" text-anchor="middle" class="hud-node-sub">RDP, Cisco-managed resources</text>
       </g>
-      <path d="M185 148 L275 72" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha3b)"/>
-      <path d="M185 196 L275 256" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha3c)"/>
-      <path d="M524 72 L645 68" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha3b)"/>
-      <path d="M524 240 L645 184" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha3c)"/>
-      <path d="M524 272 L645 308" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha3c)"/>
-      <text x="206" y="90" class="hud-arrow-label" fill="#38bdf8">M365 traffic</text>
-      <text x="206" y="244" class="hud-arrow-label" fill="#10b981">Web + private</text>
-      <text x="568" y="50" class="hud-arrow-label" fill="#38bdf8">Microsoft 365</text>
-      <text x="568" y="168" class="hud-arrow-label" fill="#10b981">Internet</text>
-      <text x="568" y="296" class="hud-arrow-label" fill="#10b981">Cisco apps</text>
+      <path d="M185 148 H225 V72 H275" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha3b)"/>
+      <path d="M185 196 H225 V256 H275" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha3c)"/>
+      <path d="M524 72 H545 V68 H645" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha3b)"/>
+      <path d="M524 240 H570 V184 H645" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha3c)"/>
+      <path d="M524 272 H595 V308 H645" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha3c)"/>
+      <text x="206" y="110" class="hud-arrow-label" fill="#38bdf8">M365 traffic</text>
+      <text x="206" y="226" class="hud-arrow-label" fill="#10b981">Web + private</text>
+      <text x="568" y="70" class="hud-arrow-label" fill="#38bdf8">Microsoft 365</text>
+      <text x="568" y="212" class="hud-arrow-label" fill="#10b981">Internet</text>
+      <text x="568" y="290" class="hud-arrow-label" fill="#10b981">Cisco apps</text>
     </svg>`),
 
     4: hudWrap(`<svg class="hud-svg" viewBox="0 0 930 340" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1785,16 +1785,16 @@ function getDiagram(id) {
         <text x="760" y="256" text-anchor="middle" class="hud-node-title">Cisco Private Apps</text>
         <text x="760" y="272" text-anchor="middle" class="hud-node-sub">RDP, Cisco-managed resources</text>
       </g>
-      <path d="M185 130 L275 76" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha4b)"/>
-      <path d="M185 176 L275 252" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha4c)"/>
-      <path d="M524 60 L645 52" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha4b)"/>
-      <path d="M524 86 L645 128" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha4b)"/>
-      <path d="M524 260 L645 262" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha4c)"/>
-      <text x="206" y="84" class="hud-arrow-label" fill="#38bdf8">Web + M365</text>
-      <text x="206" y="240" class="hud-arrow-label" fill="#10b981">Private traffic</text>
-      <text x="568" y="40" class="hud-arrow-label" fill="#38bdf8">Internet</text>
-      <text x="568" y="112" class="hud-arrow-label" fill="#38bdf8">M365</text>
-      <text x="568" y="248" class="hud-arrow-label" fill="#10b981">Cisco apps</text>
+      <path d="M185 130 H225 V76 H275" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha4b)"/>
+      <path d="M185 176 H225 V252 H275" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha4c)"/>
+      <path d="M524 60 H555 V52 H645" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha4b)"/>
+      <path d="M524 86 H590 V128 H645" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha4b)"/>
+      <path d="M524 260 H570 V262 H645" stroke="#10b981" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha4c)"/>
+      <text x="206" y="103" class="hud-arrow-label" fill="#38bdf8">Web + M365</text>
+      <text x="206" y="214" class="hud-arrow-label" fill="#10b981">Private traffic</text>
+      <text x="568" y="56" class="hud-arrow-label" fill="#38bdf8">Internet</text>
+      <text x="568" y="107" class="hud-arrow-label" fill="#38bdf8">M365</text>
+      <text x="568" y="261" class="hud-arrow-label" fill="#10b981">Cisco apps</text>
     </svg>`)
   };
   return diagrams[id] || '';

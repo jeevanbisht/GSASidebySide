@@ -615,7 +615,7 @@ code, pre { font-family: Consolas, "Courier New", Courier, monospace; }
 </main>
 
 <footer class="disclaimer-footer">
-  <p class="version-line">Version 1.0</p>
+  <p class="version-line">Version 1.1</p>
   <p>Microsoft®, Microsoft Entra™, and Global Secure Access™ are trademarks or registered trademarks of Microsoft Corporation. Cisco®, Cisco Umbrella™, and Cisco Secure Client™ are trademarks or registered trademarks of Cisco Systems, Inc. This guide is provided for informational and interoperability purposes only. It is not endorsed by, affiliated with, or sponsored by Cisco Systems, Inc. All product names, logos, and brands are property of their respective owners.</p>
 </footer>
 
@@ -1126,16 +1126,16 @@ function getDiagram(id) {
         <text x="760" y="242" text-anchor="middle" class="hud-node-title">DNS Resolution</text>
         <text x="760" y="258" text-anchor="middle" class="hud-node-sub">Umbrella policy + logging</text>
       </g>
-      <path d="M185 122 L275 76" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha1b)"/>
-      <path d="M185 166 L275 244" stroke="#22c55e" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha1c)"/>
-      <path d="M524 62 L645 56" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha1b)"/>
-      <path d="M524 88 L645 134" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha1b)"/>
-      <path d="M524 244 L645 248" stroke="#22c55e" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha1c)"/>
-      <text x="206" y="78" class="hud-arrow-label" fill="#38bdf8">Web sessions</text>
-      <text x="206" y="228" class="hud-arrow-label" fill="#22c55e">DNS queries</text>
-      <text x="568" y="46" class="hud-arrow-label" fill="#38bdf8">Internet</text>
-      <text x="568" y="118" class="hud-arrow-label" fill="#38bdf8">M365</text>
-      <text x="568" y="234" class="hud-arrow-label" fill="#22c55e">DNS only</text>
+      <path d="M185 122 H225 V76 H275" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha1b)"/>
+      <path d="M185 166 H225 V244 H275" stroke="#22c55e" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha1c)"/>
+      <path d="M524 62 H590 V56 H645" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha1b)"/>
+      <path d="M524 88 H555 V134 H645" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha1b)"/>
+      <path d="M524 244 H570 V248 H645" stroke="#22c55e" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha1c)"/>
+      <text x="206" y="99" class="hud-arrow-label" fill="#38bdf8">Web sessions</text>
+      <text x="206" y="205" class="hud-arrow-label" fill="#22c55e">DNS queries</text>
+      <text x="568" y="59" class="hud-arrow-label" fill="#38bdf8">Internet</text>
+      <text x="568" y="111" class="hud-arrow-label" fill="#38bdf8">M365</text>
+      <text x="568" y="246" class="hud-arrow-label" fill="#22c55e">DNS only</text>
     </svg>`),
 
     2: hudWrap(`<svg class="hud-svg" viewBox="0 0 930 360" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1187,18 +1187,18 @@ function getDiagram(id) {
         <text x="760" y="268" text-anchor="middle" class="hud-node-title">DNS Resolution</text>
         <text x="760" y="284" text-anchor="middle" class="hud-node-sub">Umbrella policy + logging</text>
       </g>
-      <path d="M185 142 L275 74" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha2b)"/>
-      <path d="M185 186 L275 276" stroke="#22c55e" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha2c)"/>
-      <path d="M524 52 L645 46" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha2b)"/>
-      <path d="M524 74 L645 120" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha2b)"/>
-      <path d="M524 96 L645 196" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha2b)"/>
-      <path d="M524 276 L645 273" stroke="#22c55e" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha2c)"/>
-      <text x="206" y="86" class="hud-arrow-label" fill="#38bdf8">Web + private sessions</text>
-      <text x="206" y="262" class="hud-arrow-label" fill="#22c55e">DNS queries</text>
-      <text x="568" y="36" class="hud-arrow-label" fill="#38bdf8">Internet</text>
-      <text x="568" y="108" class="hud-arrow-label" fill="#38bdf8">M365</text>
-      <text x="568" y="182" class="hud-arrow-label" fill="#38bdf8">Private access</text>
-      <text x="568" y="260" class="hud-arrow-label" fill="#22c55e">DNS only</text>
+      <path d="M185 142 H225 V74 H275" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha2b)"/>
+      <path d="M185 186 H225 V276 H275" stroke="#22c55e" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha2c)"/>
+      <path d="M524 52 H595 V46 H645" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha2b)"/>
+      <path d="M524 74 H570 V120 H645" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha2b)"/>
+      <path d="M524 96 H545 V196 H645" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha2b)"/>
+      <path d="M524 276 H570 V273 H645" stroke="#22c55e" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha2c)"/>
+      <text x="206" y="108" class="hud-arrow-label" fill="#38bdf8">Web + private sessions</text>
+      <text x="206" y="231" class="hud-arrow-label" fill="#22c55e">DNS queries</text>
+      <text x="568" y="49" class="hud-arrow-label" fill="#38bdf8">Internet</text>
+      <text x="568" y="97" class="hud-arrow-label" fill="#38bdf8">M365</text>
+      <text x="568" y="146" class="hud-arrow-label" fill="#38bdf8">Private access</text>
+      <text x="568" y="275" class="hud-arrow-label" fill="#22c55e">DNS only</text>
     </svg>`)
   };
   return diagrams[id] || '';
