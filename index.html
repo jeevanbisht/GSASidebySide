@@ -251,6 +251,28 @@ body {
   color: var(--cp-accent);
 }
 
+.card-versions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  font-size: 0.625rem;
+  color: var(--cp-text-soft);
+  border-top: 1px solid var(--cp-border);
+  padding-top: 8px;
+}
+.card-versions span {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.card-versions .dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.dot--fresh { background: var(--cp-success); }
+.dot--stale { background: var(--cp-warning); }
+
 /* Docs section */
 .docs-section {
   margin-top: 48px;
@@ -278,6 +300,57 @@ body {
 .docs-list a:hover {
   text-decoration: underline;
 }
+
+.docs-list .doc-meta {
+  font-size: 0.6875rem;
+  color: var(--cp-text-soft);
+  margin-left: 8px;
+}
+
+/* Health summary */
+.health-summary {
+  margin-top: 48px;
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 8px;
+  padding: 20px 24px;
+  box-shadow: var(--cp-shadow);
+}
+.health-summary h3 {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.health-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+}
+.health-table th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--cp-text-muted);
+  padding: 6px 12px 6px 0;
+  border-bottom: 1px solid var(--cp-border);
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.health-table td {
+  padding: 8px 12px 8px 0;
+  border-bottom: 1px solid var(--cp-border);
+  vertical-align: middle;
+}
+.health-table tr:last-child td { border-bottom: none; }
+.health-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 500;
+}
+.health-status .dot { width: 7px; height: 7px; border-radius: 50%; }
+.health-status .dot--current { background: var(--cp-success); }
+.health-status .dot--behind { background: var(--cp-warning); }
 
 /* Footer */
 footer {
@@ -346,6 +419,10 @@ footer a:hover { text-decoration: underline; }
         <span class="badge">4 Scenarios</span>
         <span class="card-arrow">→</span>
       </div>
+      <div class="card-versions">
+        <span>Guide v1.0 · Built Jun 15, 2026</span>
+        <span><span class="dot dot--fresh"></span>Source: May 28, 2026</span>
+      </div>
     </a>
 
     <a class="guide-card" href="CiscoUmbrella/gsa-cisco-coexistence.html">
@@ -357,6 +434,10 @@ footer a:hover { text-decoration: underline; }
       <div class="card-meta">
         <span class="badge">2 Scenarios</span>
         <span class="card-arrow">→</span>
+      </div>
+      <div class="card-versions">
+        <span>Guide v1.0 · Built Jun 15, 2026</span>
+        <span><span class="dot dot--fresh"></span>Source: May 28, 2026</span>
       </div>
     </a>
 
@@ -370,6 +451,10 @@ footer a:hover { text-decoration: underline; }
         <span class="badge">4 Scenarios</span>
         <span class="card-arrow">→</span>
       </div>
+      <div class="card-versions">
+        <span>Guide v1.0 · Built Jun 15, 2026</span>
+        <span><span class="dot dot--fresh"></span>Source: May 28, 2026</span>
+      </div>
     </a>
 
     <a class="guide-card" href="Netskope/gsa-netskope-coexistence.html">
@@ -381,6 +466,10 @@ footer a:hover { text-decoration: underline; }
       <div class="card-meta">
         <span class="badge">4 Scenarios</span>
         <span class="card-arrow">→</span>
+      </div>
+      <div class="card-versions">
+        <span>Guide v1.0 · Built Jun 16, 2026</span>
+        <span><span class="dot dot--fresh"></span>Source: May 1, 2026</span>
       </div>
     </a>
 
@@ -394,6 +483,10 @@ footer a:hover { text-decoration: underline; }
         <span class="badge">4 Scenarios</span>
         <span class="card-arrow">→</span>
       </div>
+      <div class="card-versions">
+        <span>Guide v1.0 · Built Jun 16, 2026</span>
+        <span><span class="dot dot--fresh"></span>Source: Mar 25, 2026</span>
+      </div>
     </a>
 
     <a class="guide-card" href="CiscoVPN/gsa-cisco-vpn-coexistence.html">
@@ -406,6 +499,10 @@ footer a:hover { text-decoration: underline; }
         <span class="badge">4 Scenarios</span>
         <span class="card-arrow">→</span>
       </div>
+      <div class="card-versions">
+        <span>Guide v1.0 · Built Jun 16, 2026</span>
+        <span><span class="dot dot--fresh"></span>Source: May 28, 2026</span>
+      </div>
     </a>
 
   </div>
@@ -413,13 +510,73 @@ footer a:hover { text-decoration: underline; }
   <div class="docs-section">
     <div class="section-label">Reference Documentation</div>
     <ul class="docs-list">
-      <li><a href="https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-zscaler-coexistence" target="_blank">Microsoft Learn — GSA + Zscaler Coexistence</a></li>
-      <li><a href="https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-cisco-coexistence" target="_blank">Microsoft Learn — GSA + Cisco Umbrella Coexistence</a></li>
-      <li><a href="https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-palo-alto-coexistence" target="_blank">Microsoft Learn — GSA + Palo Alto Coexistence</a></li>
-      <li><a href="https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-netskope-coexistence" target="_blank">Microsoft Learn — GSA + Netskope Coexistence</a></li>
-      <li><a href="https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-cisco-secure-access-coexistence" target="_blank">Microsoft Learn — GSA + Cisco Secure Access Coexistence</a></li>
-      <li><a href="https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-cisco-vpn-coexistence" target="_blank">Microsoft Learn — GSA + Cisco VPN Coexistence</a></li>
+      <li><a href="https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-zscaler-coexistence" target="_blank">Microsoft Learn — GSA + Zscaler Coexistence</a><span class="doc-meta">Updated May 28, 2026</span></li>
+      <li><a href="https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-cisco-coexistence" target="_blank">Microsoft Learn — GSA + Cisco Umbrella Coexistence</a><span class="doc-meta">Updated May 28, 2026</span></li>
+      <li><a href="https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-palo-alto-coexistence" target="_blank">Microsoft Learn — GSA + Palo Alto Coexistence</a><span class="doc-meta">Updated May 28, 2026</span></li>
+      <li><a href="https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-netskope-coexistence" target="_blank">Microsoft Learn — GSA + Netskope Coexistence</a><span class="doc-meta">Updated May 1, 2026</span></li>
+      <li><a href="https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-cisco-secure-access-coexistence" target="_blank">Microsoft Learn — GSA + Cisco Secure Access Coexistence</a><span class="doc-meta">Updated Mar 25, 2026</span></li>
+      <li><a href="https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-cisco-vpn-coexistence" target="_blank">Microsoft Learn — GSA + Cisco VPN Coexistence</a><span class="doc-meta">Updated May 28, 2026</span></li>
     </ul>
+  </div>
+
+  <div class="health-summary">
+    <h3>📋 Source Health Check</h3>
+    <table class="health-table">
+      <thead>
+        <tr>
+          <th>Vendor</th>
+          <th>Guide Version</th>
+          <th>Guide Built</th>
+          <th>Source Updated</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Zscaler</td>
+          <td>v1.0</td>
+          <td>Jun 15, 2026</td>
+          <td>May 28, 2026</td>
+          <td><span class="health-status"><span class="dot dot--current"></span>Current</span></td>
+        </tr>
+        <tr>
+          <td>Cisco Umbrella</td>
+          <td>v1.0</td>
+          <td>Jun 15, 2026</td>
+          <td>May 28, 2026</td>
+          <td><span class="health-status"><span class="dot dot--current"></span>Current</span></td>
+        </tr>
+        <tr>
+          <td>Palo Alto</td>
+          <td>v1.0</td>
+          <td>Jun 15, 2026</td>
+          <td>May 28, 2026</td>
+          <td><span class="health-status"><span class="dot dot--current"></span>Current</span></td>
+        </tr>
+        <tr>
+          <td>Netskope</td>
+          <td>v1.0</td>
+          <td>Jun 16, 2026</td>
+          <td>May 1, 2026</td>
+          <td><span class="health-status"><span class="dot dot--current"></span>Current</span></td>
+        </tr>
+        <tr>
+          <td>Cisco Secure Access</td>
+          <td>v1.0</td>
+          <td>Jun 16, 2026</td>
+          <td>Mar 25, 2026</td>
+          <td><span class="health-status"><span class="dot dot--current"></span>Current</span></td>
+        </tr>
+        <tr>
+          <td>Cisco VPN</td>
+          <td>v1.0</td>
+          <td>Jun 16, 2026</td>
+          <td>May 28, 2026</td>
+          <td><span class="health-status"><span class="dot dot--current"></span>Current</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="font-size:0.6875rem; color:var(--cp-text-soft); margin-top:12px;">Last health check: Jun 16, 2026. Green = guide built after latest source update.</p>
   </div>
 </div>
 
