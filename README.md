@@ -14,6 +14,7 @@ Source: [index.html](index.html)
 |--------|-------|-----------|
 | Zscaler | [Source](Zscaler/gsa-zscaler-coexistence.html) | [🔗 Open Guide](https://jeevanbisht.github.io/GSASidebySide/Zscaler/gsa-zscaler-coexistence.html) |
 | Cisco Umbrella | [Source](CiscoUmbrella/gsa-cisco-coexistence.html) | [🔗 Open Guide](https://jeevanbisht.github.io/GSASidebySide/CiscoUmbrella/gsa-cisco-coexistence.html) |
+| Cisco Secure Access | [Source](CiscoSecureAccess/gsa-cisco-secure-access-coexistence.html) | [🔗 Open Guide](https://jeevanbisht.github.io/GSASidebySide/CiscoSecureAccess/gsa-cisco-secure-access-coexistence.html) |
 | Palo Alto Prisma Access | [Source](PaloAlto/gsa-paloalto-coexistence.html) | [🔗 Open Guide](https://jeevanbisht.github.io/GSASidebySide/PaloAlto/gsa-paloalto-coexistence.html) |
 | Netskope | [Source](Netskope/gsa-netskope-coexistence.html) | [🔗 Open Guide](https://jeevanbisht.github.io/GSASidebySide/Netskope/gsa-netskope-coexistence.html) |
 
@@ -29,5 +30,6 @@ Source: [index.html](index.html)
 
 - [Microsoft: GSA + Zscaler Coexistence](https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-zscaler-coexistence)
 - [Microsoft: GSA + Cisco Coexistence](https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-cisco-coexistence)
+- [Microsoft: GSA + Cisco Secure Access Coexistence](https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-cisco-secure-access-coexistence)
 - [Microsoft: GSA + Palo Alto Coexistence](https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-palo-alto-coexistence)
 - [Microsoft: GSA + Netskope Coexistence](https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-netskope-coexistence)

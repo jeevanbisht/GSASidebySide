@@ -1,0 +1,1807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Global Secure Access + Cisco Secure Access Coexistence Scenarios and Configuration</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme =
+      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f5f5f5;
+  --cp-bg-elevated: #fafafa;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f9f9f9;
+  --cp-border: #e0e0e0;
+  --cp-border-strong: #bdbdbd;
+  --cp-text: #212121;
+  --cp-text-muted: #616161;
+  --cp-text-soft: #757575;
+  --cp-accent: #0f6cbd;
+  --cp-accent-hover: #0a5496;
+  --cp-accent-soft: rgba(15, 108, 189, 0.05);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #107c10;
+  --cp-danger: #d13438;
+  --cp-warning: #f7630c;
+  --cp-link: #0f6cbd;
+  --cp-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  --cp-shadow-lg: 0 4px 12px rgba(0,0,0,0.1);
+  --cp-overlay: rgba(255,255,255,0.8);
+  --cp-panel: rgba(255,255,255,0.86);
+  --cp-panel-strong: rgba(255,255,255,0.96);
+  --cp-sheen: rgba(255,255,255,0.55);
+  --cp-highlight: rgba(15,108,189,0.06);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #1a1a1a;
+  --cp-bg-elevated: #222222;
+  --cp-surface: #2a2a2a;
+  --cp-surface-soft: #313131;
+  --cp-border: #3d3d3d;
+  --cp-border-strong: #555555;
+  --cp-text: #e4e4e4;
+  --cp-text-muted: #9e9e9e;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #5ba7e6;
+  --cp-accent-hover: #7dbcf0;
+  --cp-accent-soft: rgba(91,167,230,0.08);
+  --cp-accent-fg: #111111;
+  --cp-success: #4caf50;
+  --cp-danger: #ef5350;
+  --cp-warning: #ffa726;
+  --cp-link: #5ba7e6;
+  --cp-shadow: 0 1px 3px rgba(0,0,0,0.24);
+  --cp-shadow-lg: 0 4px 12px rgba(0,0,0,0.4);
+  --cp-overlay: rgba(26,26,26,0.9);
+  --cp-panel: rgba(42,42,42,0.86);
+  --cp-panel-strong: rgba(42,42,42,0.96);
+  --cp-sheen: rgba(255,255,255,0.03);
+  --cp-highlight: rgba(91,167,230,0.08);
+}
+:root {
+  --cp-gsa: var(--cp-link);
+  --cp-gsa-soft: var(--cp-highlight);
+  --cp-vendor: #049fd9;
+  --cp-vendor-soft: rgba(4, 159, 217, 0.1);
+  --cp-verify: var(--cp-success);
+  --cp-verify-soft: rgba(22, 163, 74, 0.1);
+  --cp-card-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+}
+html[data-theme="dark"] {
+  --cp-vendor: #1bccf0;
+  --cp-vendor-soft: rgba(27, 204, 240, 0.16);
+  --cp-verify-soft: rgba(74, 222, 128, 0.16);
+  --cp-card-shadow: 0 0 2px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.36);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+code, pre { font-family: Consolas, "Courier New", Courier, monospace; }
+
+.topbar {
+  background: var(--cp-surface);
+  border-bottom: 1px solid var(--cp-border);
+  padding: 0 32px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.topbar-left, .topbar-logo, .topbar-right {
+  display: flex;
+  align-items: center;
+}
+.topbar-left { gap: 10px; }
+.topbar-logo { gap: 8px; }
+.topbar-logo svg { width: 16px; height: 16px; flex-shrink: 0; }
+.topbar-title { font-size: 0.8125rem; font-weight: 600; color: var(--cp-text); }
+.topbar-sep { color: var(--cp-border-strong); font-weight: 300; }
+.topbar-sub { font-size: 0.8125rem; color: var(--cp-text-muted); }
+.topbar-right { gap: 12px; }
+.topbar-link {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--cp-link);
+  text-decoration: none;
+}
+.topbar-link:hover { text-decoration: underline; }
+.topbar-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--cp-border);
+  border-radius: 0.625rem;
+  background: var(--cp-surface);
+  color: var(--cp-text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+}
+.topbar-btn:hover { background: var(--cp-surface-soft); }
+
+.main { max-width: 1200px; margin: 0 auto; padding: 36px 32px 64px; }
+.page-heading { margin-bottom: 36px; }
+.page-heading h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+}
+.page-heading p {
+  font-size: 0.8125rem;
+  color: var(--cp-text-muted);
+  max-width: 720px;
+  line-height: 1.6;
+}
+.section-title {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--cp-text-muted);
+  margin-bottom: 14px;
+}
+
+/* Tenant ID Input */
+.tenant-section {
+  background: var(--cp-surface);
+  border: 1.5px solid var(--cp-border-strong);
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
+}
+.tenant-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.tenant-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--cp-text);
+  white-space: nowrap;
+}
+.tenant-field {
+  border: 1.5px solid var(--cp-border-strong);
+  background: #ffffff;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  font-family: Consolas, monospace;
+  width: 320px;
+  max-width: 100%;
+  color: var(--cp-text);
+}
+html[data-theme="dark"] .tenant-field {
+  background: var(--cp-bg-elevated);
+}
+.tenant-field:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+.btn-tenant {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border: 1px solid var(--cp-accent);
+  border-radius: 6px;
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  cursor: pointer;
+}
+.btn-tenant:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.tenant-status {
+  font-size: 0.6875rem;
+  color: var(--cp-success);
+  font-weight: 600;
+}
+
+.scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 48px;
+}
+.scenario-tile {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 8px;
+  padding: 20px;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.scenario-tile:hover {
+  border-color: var(--cp-border-strong);
+  box-shadow: var(--cp-shadow);
+}
+.scenario-tile.selected {
+  border-color: var(--cp-accent);
+  box-shadow: 0 0 0 1px var(--cp-accent), var(--cp-shadow);
+}
+.tile-scenario-label {
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--cp-accent);
+}
+.tile-title { font-size: 0.875rem; font-weight: 600; color: var(--cp-text); line-height: 1.3; }
+.tile-desc { font-size: 0.75rem; color: var(--cp-text-muted); line-height: 1.55; }
+.tile-ownership {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 4px;
+}
+.ownership-col h4 {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--cp-text);
+  margin-bottom: 4px;
+}
+.ownership-col ul { list-style: none; padding: 0; }
+.ownership-col ul li {
+  font-size: 0.6875rem;
+  color: var(--cp-text-muted);
+  line-height: 1.6;
+  padding-left: 10px;
+  position: relative;
+}
+.ownership-col ul li::before {
+  content: "\2022";
+  position: absolute;
+  left: 0;
+  color: var(--cp-text-soft);
+}
+
+.collapsible-section {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 16px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  box-shadow: var(--cp-card-shadow);
+}
+.collapsible-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.1s;
+}
+.collapsible-header:hover { background: var(--cp-surface-soft); }
+.collapsible-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.collapsible-title { font-size: 0.875rem; font-weight: 600; color: var(--cp-text); }
+.collapsible-chevron {
+  color: var(--cp-text-muted);
+  font-size: 0.75rem;
+  transition: transform 0.2s;
+}
+.collapsible-chevron.collapsed { transform: rotate(-90deg); }
+.collapsible-body { display: none; border-top: 1px solid var(--cp-border); }
+.collapsible-body.open { display: block; }
+
+.diagram-section { padding: 20px; }
+.diagram-container {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* === Futuristic HUD Diagram === */
+.hud-canvas {
+  position: relative;
+  background: linear-gradient(135deg, #0a0e1a 0%, #111827 40%, #0c1222 100%);
+  border-radius: 12px;
+  border: 1px solid rgba(56, 189, 248, 0.15);
+  padding: 32px 24px;
+  overflow: hidden;
+  width: 100%;
+  box-shadow: 0 0 40px rgba(56, 189, 248, 0.05), inset 0 0 60px rgba(0,0,0,0.3);
+}
+.hud-canvas::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 50%, rgba(56, 189, 248, 0.03) 0%, transparent 70%),
+    repeating-linear-gradient(0deg, transparent, transparent 49px, rgba(56, 189, 248, 0.02) 50px);
+  pointer-events: none;
+}
+.hud-canvas::after {
+  content: '';
+  position: absolute;
+  top: 8px; left: 8px; right: 8px; bottom: 8px;
+  border: 1px solid rgba(56, 189, 248, 0.06);
+  border-radius: 8px;
+  pointer-events: none;
+}
+.hud-particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.hud-particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: rgba(56, 189, 248, 0.6);
+  border-radius: 50%;
+  animation: particleFloat 8s linear infinite;
+  box-shadow: 0 0 4px rgba(56, 189, 248, 0.4);
+}
+@keyframes particleFloat {
+  0% { transform: translateY(100%) translateX(0); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(-100%) translateX(20px); opacity: 0; }
+}
+.hud-corner {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+}
+.hud-corner--tl { top: 12px; left: 12px; border-top: 2px solid rgba(56, 189, 248, 0.4); border-left: 2px solid rgba(56, 189, 248, 0.4); }
+.hud-corner--tr { top: 12px; right: 12px; border-top: 2px solid rgba(56, 189, 248, 0.4); border-right: 2px solid rgba(56, 189, 248, 0.4); }
+.hud-corner--bl { bottom: 12px; left: 12px; border-bottom: 2px solid rgba(56, 189, 248, 0.4); border-left: 2px solid rgba(56, 189, 248, 0.4); }
+.hud-corner--br { bottom: 12px; right: 12px; border-bottom: 2px solid rgba(56, 189, 248, 0.4); border-right: 2px solid rgba(56, 189, 248, 0.4); }
+.hud-svg {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.hud-svg text {
+  font-family: "Segoe UI", Aptos, Calibri, sans-serif;
+}
+@keyframes hudFlowBlue {
+  to { stroke-dashoffset: -18; }
+}
+@keyframes hudFlowCisco {
+  to { stroke-dashoffset: -16; }
+}
+@keyframes hudPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+.diagram-svg { display: none; }
+
+.steps-panel { display: none; }
+.steps-panel.show { display: block; animation: slideUp 0.2s ease; }
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.steps-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--cp-border);
+}
+.steps-panel-title { font-size: 1rem; font-weight: 600; }
+.steps-panel-meta { font-size: 0.75rem; color: var(--cp-text-muted); }
+
+.phase-divider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 20px 0 12px;
+}
+.phase-divider-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.phase-divider-label.gsa { color: var(--cp-gsa); }
+.phase-divider-label.cisco { color: var(--cp-vendor); }
+.phase-divider-label.verify { color: var(--cp-verify); }
+.phase-divider-line { flex: 1; height: 1px; background: var(--cp-border); }
+
+.step-row {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 0.625rem;
+  margin-bottom: 6px;
+  overflow: hidden;
+  transition: border-color 0.15s;
+  box-shadow: var(--cp-card-shadow);
+}
+.step-row.open { border-color: var(--cp-accent); }
+.step-row.done { opacity: 0.74; }
+.step-row-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+}
+.step-row-header:hover { background: var(--cp-surface-soft); }
+.step-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid var(--cp-border-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: var(--cp-text-muted);
+  flex-shrink: 0;
+}
+.step-row.done .step-num {
+  background: var(--cp-success);
+  border-color: var(--cp-success);
+  color: var(--cp-accent-fg);
+}
+.step-row-title { flex: 1; font-size: 0.8125rem; font-weight: 500; color: var(--cp-text); }
+.step-row.done .step-row-title { text-decoration: line-through; color: var(--cp-text-muted); }
+.step-tag {
+  font-size: 0.625rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.step-tag.gsa { background: var(--cp-gsa-soft); color: var(--cp-gsa); }
+.step-tag.cisco { background: var(--cp-vendor-soft); color: var(--cp-vendor); }
+.step-tag.verify { background: var(--cp-verify-soft); color: var(--cp-verify); }
+.step-tenant-badge {
+  font-size: 0.625rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 3px;
+  background: rgba(37, 99, 235, 0.08);
+  color: #2563eb;
+  margin-left: auto;
+}
+.step-arrow {
+  color: var(--cp-text-soft);
+  font-size: 0.5rem;
+  transition: transform 0.15s;
+}
+.step-row.open .step-arrow { transform: rotate(180deg); }
+
+.step-detail { display: none; padding: 0 16px 16px 50px; }
+.step-row.open .step-detail { display: block; }
+.step-detail ol { padding-left: 16px; margin-bottom: 12px; }
+.step-detail ol li {
+  font-size: 0.8125rem;
+  color: var(--cp-text);
+  line-height: 1.7;
+  margin-bottom: 4px;
+}
+.step-detail ol li code {
+  font-size: 0.75rem;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  padding: 1px 4px;
+  border-radius: 0.625rem;
+}
+
+.config-panel {
+  border: 1px solid var(--cp-border);
+  border-radius: 0.625rem;
+  margin: 10px 0;
+  overflow: hidden;
+}
+.config-panel-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--cp-surface-soft);
+  border-bottom: 1px solid var(--cp-border);
+}
+.config-panel-label { font-size: 0.6875rem; font-weight: 600; color: var(--cp-text-muted); }
+.btn-copy {
+  margin-left: auto;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--cp-link);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 0.625rem;
+}
+.btn-copy:hover { background: var(--cp-highlight); }
+.btn-copy.ok { color: var(--cp-success); }
+.btn-copy.warn { color: #dc2626; font-size: 0.6rem; }
+.config-tenant-notice {
+  padding: 6px 12px;
+  font-size: 11px;
+  color: #b45309;
+  background: rgba(245, 158, 11, 0.08);
+  border-bottom: 1px solid rgba(245, 158, 11, 0.2);
+}
+.config-panel-code {
+  padding: 10px 12px;
+  font-size: 0.7rem;
+  line-height: 1.7;
+  color: var(--cp-text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: var(--cp-bg-elevated);
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.check-list { list-style: none; padding: 0; margin: 8px 0; }
+.check-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: var(--cp-text);
+  padding: 5px 0;
+}
+.check-list li input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--cp-success);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.check-list li label { cursor: pointer; }
+.check-list li.checked label {
+  text-decoration: line-through;
+  color: var(--cp-text-muted);
+}
+.btn-done {
+  margin-top: 10px;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 5px 12px;
+  border: 1px solid var(--cp-border);
+  border-radius: 0.625rem;
+  background: var(--cp-surface);
+  color: var(--cp-text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-done:hover { border-color: var(--cp-accent); color: var(--cp-accent); }
+.btn-done:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: var(--cp-border);
+  color: var(--cp-text-muted);
+}
+.btn-done:disabled:hover { border-color: var(--cp-border); color: var(--cp-text-muted); }
+
+.disclaimer-footer {
+  max-width: 1200px;
+  margin: 48px auto 0;
+  padding: 20px 24px;
+  border-top: 1px solid var(--cp-border);
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--cp-text-muted);
+  text-align: center;
+}
+.disclaimer-footer p { margin: 0 0 6px 0; }
+.disclaimer-footer p:last-child { margin-bottom: 0; }
+.version-line {
+  font-weight: 600;
+  color: var(--cp-text-soft);
+  margin-bottom: 10px !important;
+}
+
+@media (max-width: 960px) {
+  .scenario-grid { grid-template-columns: repeat(2, 1fr); }
+  .steps-panel-header { flex-direction: column; align-items: flex-start; gap: 6px; }
+}
+@media (max-width: 560px) {
+  .topbar { padding: 0 16px; }
+  .main { padding: 24px 16px; }
+  .step-detail { padding-left: 16px; }
+  .tile-ownership { grid-template-columns: 1fr; }
+  .scenario-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-logo">
+      <svg viewBox="0 0 23 23" fill="none"><rect x="1" y="1" width="10" height="10" fill="#f25022"/><rect x="12" y="1" width="10" height="10" fill="#7fba00"/><rect x="1" y="12" width="10" height="10" fill="#00a4ef"/><rect x="12" y="12" width="10" height="10" fill="#ffb900"/></svg>
+      <span class="topbar-title">Microsoft Entra</span>
+    </div>
+    <span class="topbar-sep">|</span>
+    <span class="topbar-sub">Global Secure Access</span>
+  </div>
+  <div class="topbar-right">
+    <a href="https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-cisco-secure-access-coexistence" target="_blank" class="topbar-link">Official Docs ↗</a>
+    <button class="topbar-btn" onclick="toggleTheme()" title="Toggle theme">◐</button>
+  </div>
+</header>
+
+<main class="main">
+  <div class="page-heading">
+    <h1>Global Secure Access + Cisco Secure Access Coexistence Scenarios and Configuration</h1>
+    <p>Configure Microsoft Global Secure Access alongside Cisco Secure Access (Secure Internet Access + Secure Private Access). Select a scenario below to view the traffic flow, bypass requirements, and step-by-step implementation guidance.</p>
+  </div>
+
+  <div class="tenant-section">
+    <div class="tenant-row">
+      <span class="tenant-label">Microsoft Entra Tenant ID:</span>
+      <input type="text" class="tenant-field" id="tenantInput" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" maxlength="36">
+      <button class="btn-tenant" id="tenantBtn" disabled onclick="applyTenant()">Apply</button>
+      <span class="tenant-status" id="tenantStatus"></span>
+    </div>
+  </div>
+
+  <div class="section-title">Choose your coexistence scenario</div>
+  <div class="scenario-grid" id="grid"></div>
+
+  <div class="steps-panel" id="stepsPanel">
+    <div class="steps-panel-header">
+      <div class="steps-panel-title" id="panelTitle"></div>
+      <div class="steps-panel-meta" id="panelMeta"></div>
+    </div>
+
+    <div class="collapsible-section" id="diagramCollapsible">
+      <div class="collapsible-header" onclick="toggleDiagram()">
+        <div class="collapsible-header-left">
+          <span class="collapsible-title">Traffic Flow Diagram</span>
+        </div>
+        <span class="collapsible-chevron" id="diagramChevron">▾</span>
+      </div>
+      <div class="collapsible-body open" id="diagramBody">
+        <div class="diagram-section" id="diagramSection"></div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top: 32px;">Implementation Guide</div>
+    <div id="stepsBody"></div>
+  </div>
+</main>
+
+<footer class="disclaimer-footer">
+  <p class="version-line">Version 1.0</p>
+  <p>Microsoft®, Microsoft Entra™, and Global Secure Access™ are trademarks or registered trademarks of Microsoft Corporation. Cisco®, Cisco Secure Access™, Cisco Secure Client™, and Cisco Umbrella™ are trademarks or registered trademarks of Cisco Systems, Inc. This guide is provided for informational and interoperability purposes only. It is not endorsed by, affiliated with, or sponsored by Cisco Systems, Inc. All product names, logos, and brands are property of their respective owners.</p>
+</footer>
+
+<script>
+const GUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+let tenantId = '';
+
+document.getElementById('tenantInput').addEventListener('input', function() {
+  document.getElementById('tenantBtn').disabled = !GUID_RE.test(this.value.trim());
+});
+
+function applyTenant() {
+  const val = document.getElementById('tenantInput').value.trim();
+  if (!GUID_RE.test(val)) return;
+  tenantId = val;
+  document.getElementById('tenantStatus').textContent = `\u2713 Tenant ID applied: ${val}`;
+  if (active) renderSteps();
+}
+
+const DATA = [
+  {
+    id: 1,
+    scenario: "Scenario 1",
+    title: "GSA Private Access with Cisco Secure Internet Access",
+    desc: "Global Secure Access handles private application traffic. Cisco Secure Internet Access provides DNS security and SWG capabilities for web traffic.",
+    gsaOwns: ["Private Access", "Quick Access", "Private DNS"],
+    ciscoOwns: ["Internet Access (SWG)", "DNS security", "Web filtering"],
+    steps: [
+      {
+        t: "Enable Private Access forwarding profile",
+        b: "gsa",
+        inst: [
+          "Sign in to the <strong>Microsoft Entra admin center</strong>.",
+          "Navigate to <strong>Global Secure Access \u2192 Connect \u2192 Traffic forwarding</strong>.",
+          "Toggle <strong>Private access profile</strong> to Enabled."
+        ]
+      },
+      {
+        t: "Install private network connector",
+        b: "gsa",
+        inst: [
+          "Download and install the <strong>Private Network Connector</strong> on a server with line-of-sight to your private apps.",
+          "Configure <strong>Quick Access</strong> and <strong>Private DNS</strong>.",
+          "Add the DNS suffixes that your private applications require."
+        ]
+      },
+      {
+        t: "Install Global Secure Access client",
+        b: "gsa",
+        inst: [
+          "Download the <strong>Global Secure Access client</strong> from the admin center.",
+          "Install the client on end-user devices running <strong>Windows or macOS</strong>.",
+          "Verify the client connects successfully and shows <strong>Connected</strong> status."
+        ]
+      },
+      {
+        t: "Configure Cisco Secure Access bypasses for GSA",
+        b: "cisco",
+        inst: [
+          "In the <strong>Cisco Secure Access portal</strong>, go to <strong>Connect \u2192 End User Connectivity \u2192 Internet Security</strong>.",
+          "In the <strong>Traffic Steering</strong> section, select <strong>Add Destination \u2192 Bypass Secure Access</strong>.",
+          "Add the GSA FQDNs shown below and save.",
+          "Add the Quick Access FQDN: <code>&lt;quickaccessapplicationid&gt;.globalsecureaccess.local</code>.",
+          "Add DNS suffixes defined in your Private DNS or Enterprise App segments.",
+          "In the Traffic Steering section, select <strong>Add Destination \u2192 Bypass web proxy only</strong>, add the GSA IPs shown below, and save.",
+          "Restart Cisco Secure Client services or restart the machine."
+        ],
+        cfg: {
+          label: "Cisco Secure Access bypass FQDNs and IPs",
+          code: `# Bypass Secure Access - FQDNs
+<tenantid>.internet.client.globalsecureaccess.microsoft.com
+<tenantid>.m365.client.globalsecureaccess.microsoft.com
+<tenantid>.private.client.globalsecureaccess.microsoft.com
+<tenantid>.auth.client.globalsecureaccess.microsoft.com
+<tenantid>.private-backup.client.globalsecureaccess.microsoft.com
+<tenantid>.internet-backup.client.globalsecureaccess.microsoft.com
+<tenantid>.m365-backup.client.globalsecureaccess.microsoft.com
+<tenantid>.auth-backup.client.globalsecureaccess.microsoft.com
+globalsecureaccess.microsoft.com
+
+# Bypass web proxy only - IPs
+150.171.19.0/24
+150.171.20.0/24
+13.107.232.0/24
+13.107.233.0/24
+150.171.15.0/24
+150.171.18.0/24
+151.206.0.0/16
+6.6.0.0/16`
+        }
+      },
+      {
+        t: "Bypass Cisco Secure Access IPs in GSA",
+        b: "gsa",
+        inst: [
+          "In the <strong>Microsoft Entra admin center</strong>, go to <strong>Global Secure Access \u2192 Connect \u2192 Traffic forwarding \u2192 Internet access profile</strong>.",
+          "Under <strong>Internet access policies</strong>, select <strong>View</strong>.",
+          "Expand <strong>Custom Bypass</strong> and select <strong>Add rule</strong>.",
+          "Enter the Cisco IPs shown below.",
+          "Add a rule for the destination: <code>*.zpc.sse.cisco.com</code>.",
+          "Select <strong>Save</strong>."
+        ],
+        cfg: {
+          label: "Cisco Secure Access IP bypasses in GSA",
+          code: `208.67.222.222
+208.67.220.220
+67.215.64.0/19
+146.112.0.0/16
+155.190.0.0/16
+185.60.84.0/22
+204.194.232.0/21
+208.67.216.0/21
+208.69.32.0/21
+*.zpc.sse.cisco.com`
+        }
+      },
+      {
+        t: "Install and configure Cisco Secure Client",
+        b: "cisco",
+        inst: [
+          "Install <strong>Cisco Secure Client (CSC)</strong> version <strong>5.1.10.x or later</strong> with the <strong>Umbrella module</strong>.",
+          "Run the coexistence fix commands shown below as Administrator.",
+          "Restart the required services."
+        ],
+        cfg: {
+          label: "CSC coexistence commands (run as Administrator)",
+          code: `"%ProgramFiles(x86)%\\Cisco\\Cisco Secure Client\\acsocktool.exe" -slwm 10
+net stop csc_vpnagent && net stop acsock && net start csc_vpnagent`
+        }
+      },
+      {
+        t: "Validate coexistence",
+        b: "verify",
+        inst: [
+          "Confirm both clients are enabled and the Umbrella profile is <strong>Active</strong>.",
+          "Use <strong>Advanced Diagnostics</strong> in the GSA client to verify rules are applied and health checks pass.",
+          "Access <code>bing.com</code> and <code>salesforce.com</code> \u2014 verify GSA client <strong>is NOT</strong> capturing traffic for these sites.",
+          "In the Cisco Secure Access portal, validate traffic to these sites <strong>IS</strong> captured.",
+          "Access private applications via GSA (e.g., SMB file share) \u2014 verify GSA captures traffic and Cisco does not.",
+          "Stop collecting traffic and confirm correct traffic handling."
+        ],
+        chk: [
+          "Both clients report connected/active status",
+          "Advanced Diagnostics health checks pass",
+          "bing.com/salesforce.com traffic is captured by Cisco, NOT GSA",
+          "Private app traffic is captured by GSA, NOT Cisco",
+          "Traffic logs confirm correct routing"
+        ]
+      }
+    ]
+  },
+  {
+    id: 2,
+    scenario: "Scenario 2",
+    title: "GSA Private Access with Cisco Secure Internet + Private Access",
+    desc: "Both clients handle separate private applications. GSA owns Entra Private Access apps, Cisco Zero Trust Access handles Cisco private apps. Web and DNS protected by Cisco.",
+    gsaOwns: ["Private Access (Entra apps)", "Quick Access", "Private DNS"],
+    ciscoOwns: ["Internet Access (SWG)", "Private Access (Cisco apps)", "DNS security"],
+    steps: [
+      {
+        t: "Enable Private Access forwarding profile",
+        b: "gsa",
+        inst: [
+          "Sign in to the <strong>Microsoft Entra admin center</strong>.",
+          "Navigate to <strong>Global Secure Access \u2192 Connect \u2192 Traffic forwarding</strong>.",
+          "Toggle <strong>Private access profile</strong> to Enabled."
+        ]
+      },
+      {
+        t: "Install private network connector",
+        b: "gsa",
+        inst: [
+          "Download and install the <strong>Private Network Connector</strong>.",
+          "Configure <strong>Quick Access</strong> and <strong>Private DNS</strong>.",
+          "Add the DNS suffixes that your private applications require."
+        ]
+      },
+      {
+        t: "Install Global Secure Access client",
+        b: "gsa",
+        inst: [
+          "Download the <strong>Global Secure Access client</strong> from the admin center.",
+          "Install the client on end-user devices running <strong>Windows or macOS</strong>.",
+          "Verify the client connects successfully and shows <strong>Connected</strong> status."
+        ]
+      },
+      {
+        t: "Configure Cisco Secure Access bypasses for GSA",
+        b: "cisco",
+        inst: [
+          "In the <strong>Cisco Secure Access portal</strong>, go to <strong>Connect \u2192 End User Connectivity \u2192 Internet Security</strong>.",
+          "In the <strong>Traffic Steering</strong> section, select <strong>Add Destination \u2192 Bypass Secure Access</strong>.",
+          "Add the GSA FQDNs shown below and save.",
+          "Add the Quick Access FQDN: <code>&lt;quickaccessapplicationid&gt;.globalsecureaccess.local</code>.",
+          "Add DNS suffixes defined in your Private DNS or Enterprise App segments.",
+          "In the Traffic Steering section, select <strong>Add Destination \u2192 Bypass web proxy only</strong>, add the GSA IPs shown below, and save.",
+          "Restart Cisco Secure Client services or restart the machine."
+        ],
+        cfg: {
+          label: "Cisco Secure Access bypass FQDNs and IPs",
+          code: `# Bypass Secure Access - FQDNs
+<tenantid>.internet.client.globalsecureaccess.microsoft.com
+<tenantid>.m365.client.globalsecureaccess.microsoft.com
+<tenantid>.private.client.globalsecureaccess.microsoft.com
+<tenantid>.auth.client.globalsecureaccess.microsoft.com
+<tenantid>.private-backup.client.globalsecureaccess.microsoft.com
+<tenantid>.internet-backup.client.globalsecureaccess.microsoft.com
+<tenantid>.m365-backup.client.globalsecureaccess.microsoft.com
+<tenantid>.auth-backup.client.globalsecureaccess.microsoft.com
+globalsecureaccess.microsoft.com
+
+# Bypass web proxy only - IPs
+150.171.19.0/24
+150.171.20.0/24
+13.107.232.0/24
+13.107.233.0/24
+150.171.15.0/24
+150.171.18.0/24
+151.206.0.0/16
+6.6.0.0/16`
+        }
+      },
+      {
+        t: "Bypass Cisco Secure Access IPs in GSA",
+        b: "gsa",
+        inst: [
+          "In the <strong>Microsoft Entra admin center</strong>, go to <strong>Global Secure Access \u2192 Connect \u2192 Traffic forwarding \u2192 Internet access profile</strong>.",
+          "Under <strong>Internet access policies</strong>, select <strong>View</strong>.",
+          "Expand <strong>Custom Bypass</strong> and select <strong>Add rule</strong>.",
+          "Enter the Cisco IPs shown below.",
+          "Add a rule for the destination: <code>*.zpc.sse.cisco.com</code>.",
+          "Select <strong>Save</strong>."
+        ],
+        cfg: {
+          label: "Cisco Secure Access IP bypasses in GSA",
+          code: `208.67.222.222
+208.67.220.220
+67.215.64.0/19
+146.112.0.0/16
+155.190.0.0/16
+185.60.84.0/22
+204.194.232.0/21
+208.67.216.0/21
+208.69.32.0/21
+*.zpc.sse.cisco.com`
+        }
+      },
+      {
+        t: "Deploy Cisco Secure Client with Zero Trust Access and Umbrella modules",
+        b: "cisco",
+        inst: [
+          "Install <strong>Cisco Secure Client (CSC)</strong> version <strong>5.1.10.x or later</strong> with <strong>Zero Trust Access</strong> and <strong>Umbrella</strong> modules.",
+          "Add private resources and create access policies in the Cisco Secure Access portal.",
+          "Run the coexistence fix commands shown below as Administrator.",
+          "Restart the required services."
+        ],
+        cfg: {
+          label: "CSC coexistence commands (run as Administrator)",
+          code: `"%ProgramFiles(x86)%\\Cisco\\Cisco Secure Client\\acsocktool.exe" -slwm 10
+net stop csc_vpnagent && net stop acsock && net start csc_vpnagent`
+        }
+      },
+      {
+        t: "Validate coexistence",
+        b: "verify",
+        inst: [
+          "Confirm both clients are enabled and the Umbrella profile is <strong>Active</strong>.",
+          "Use <strong>Advanced Diagnostics</strong> in the GSA client to verify rules are applied and health checks pass.",
+          "Access <code>bing.com</code> and <code>salesforce.com</code> \u2014 verify GSA client <strong>is NOT</strong> capturing traffic.",
+          "In the Cisco Secure Access portal, validate traffic to these sites <strong>IS</strong> captured.",
+          "Access private applications via GSA (e.g., SMB file share) \u2014 verify GSA captures traffic.",
+          "Access private resources via Cisco Secure Private Access (e.g., RDP session) \u2014 verify Cisco captures traffic.",
+          "Confirm GSA and Cisco private traffic is isolated correctly."
+        ],
+        chk: [
+          "Both clients report connected/active status",
+          "Advanced Diagnostics health checks pass",
+          "Internet traffic is captured by Cisco, NOT GSA",
+          "GSA private app traffic is captured by GSA, NOT Cisco",
+          "Cisco private app traffic is captured by Cisco, NOT GSA",
+          "Traffic logs confirm correct routing"
+        ]
+      }
+    ]
+  },
+  {
+    id: 3,
+    scenario: "Scenario 3",
+    title: "GSA Microsoft Access with Cisco Secure Internet + Private Access",
+    desc: "Global Secure Access manages all Microsoft 365 traffic. Cisco Zero Trust Access handles private apps. Web and DNS traffic protected by Cisco Secure Internet Access.",
+    gsaOwns: ["Microsoft 365 traffic", "Exchange", "SharePoint", "Teams"],
+    ciscoOwns: ["Internet Access (SWG)", "Private Access (Cisco apps)", "DNS security"],
+    steps: [
+      {
+        t: "Enable Microsoft Access forwarding profile",
+        b: "gsa",
+        inst: [
+          "Sign in to the <strong>Microsoft Entra admin center</strong>.",
+          "Navigate to <strong>Global Secure Access \u2192 Connect \u2192 Traffic forwarding</strong>.",
+          "Toggle <strong>Microsoft traffic profile</strong> to Enabled."
+        ]
+      },
+      {
+        t: "Install Global Secure Access client",
+        b: "gsa",
+        inst: [
+          "Download the <strong>Global Secure Access client</strong> from the admin center.",
+          "Install the client on end-user devices running <strong>Windows or macOS</strong>.",
+          "Verify the client connects successfully and shows <strong>Connected</strong> status."
+        ]
+      },
+      {
+        t: "Configure Cisco Secure Access bypasses for GSA (including M365)",
+        b: "cisco",
+        inst: [
+          "In the <strong>Cisco Secure Access portal</strong>, go to <strong>Connect \u2192 End User Connectivity \u2192 Internet Security</strong>.",
+          "In the <strong>Traffic Steering</strong> section, select <strong>Add Destination \u2192 Bypass Secure Access</strong>.",
+          "Add the GSA FQDNs <strong>and</strong> Microsoft 365 FQDNs shown below, then save.",
+          "In the Traffic Steering section, select <strong>Add Destination \u2192 Bypass web proxy only</strong>, add the GSA IPs and Microsoft 365 IPs shown below, and save.",
+          "Restart Cisco Secure Client services or restart the machine."
+        ],
+        cfg: {
+          label: "Cisco Secure Access bypass FQDNs and IPs (including M365)",
+          code: `# Bypass Secure Access - GSA FQDNs
+<tenantid>.internet.client.globalsecureaccess.microsoft.com
+<tenantid>.m365.client.globalsecureaccess.microsoft.com
+<tenantid>.private.client.globalsecureaccess.microsoft.com
+<tenantid>.auth.client.globalsecureaccess.microsoft.com
+<tenantid>.private-backup.client.globalsecureaccess.microsoft.com
+<tenantid>.internet-backup.client.globalsecureaccess.microsoft.com
+<tenantid>.m365-backup.client.globalsecureaccess.microsoft.com
+<tenantid>.auth-backup.client.globalsecureaccess.microsoft.com
+globalsecureaccess.microsoft.com
+
+# Bypass Secure Access - Microsoft 365 FQDNs
+auth.microsoft.com
+msftidentity.com
+msidentity.com
+onmicrosoft.com
+outlook.com
+protection.outlook.com
+sharepoint.com
+sharepointonline.com
+svc.ms
+wns.windows.com
+account.activedirectory.windowsazure.com
+accounts.accesscontrol.windows.net
+admin.onedrive.com
+adminwebservice.microsoftonline.com
+api.passwordreset.microsoftonline.com
+autologon.microsoftazuread-sso.com
+becws.microsoftonline.com
+ccs.login.microsoftonline.com
+clientconfig.microsoftonline-p.net
+companymanager.microsoftonline.com
+device.login.microsoftonline.com
+g.live.com
+graph.microsoft.com
+graph.windows.net
+login-us.microsoftonline.com
+login.microsoft.com
+login.microsoftonline-p.com
+login.microsoftonline.com
+login.windows.net
+logincert.microsoftonline.com
+loginex.microsoftonline.com
+nexus.microsoftonline-p.com
+officeclient.microsoft.com
+oneclient.sfx.ms
+outlook.cloud.microsoft
+outlook.office.com
+outlook.office365.com
+passwordreset.microsoftonline.com
+provisioningapi.microsoftonline.com
+spoprod-a.akamaihd.net
+
+# Bypass web proxy only - GSA IPs
+150.171.19.0/24
+150.171.20.0/24
+13.107.232.0/24
+13.107.233.0/24
+150.171.15.0/24
+150.171.18.0/24
+151.206.0.0/16
+6.6.0.0/16
+
+# Bypass web proxy only - Microsoft 365 IPs
+132.245.0.0/16
+204.79.197.215/32
+150.171.32.0/22
+131.253.33.215/32
+23.103.160.0/20
+40.96.0.0/13
+52.96.0.0/14
+40.104.0.0/15
+13.107.128.0/22
+13.107.18.10/31
+13.107.6.152/31
+52.238.78.88/32
+104.47.0.0/17
+52.100.0.0/14
+40.107.0.0/16
+40.92.0.0/15
+150.171.40.0/22
+52.104.0.0/14
+104.146.128.0/17
+40.108.128.0/17
+13.107.136.0/22
+40.126.0.0/18
+20.231.128.0/19
+20.190.128.0/18
+20.20.32.0/19`
+        }
+      },
+      {
+        t: "Bypass Cisco Secure Access IPs in GSA",
+        b: "gsa",
+        inst: [
+          "In the <strong>Microsoft Entra admin center</strong>, go to <strong>Global Secure Access \u2192 Connect \u2192 Traffic forwarding \u2192 Internet access profile</strong>.",
+          "Under <strong>Internet access policies</strong>, select <strong>View</strong>.",
+          "Expand <strong>Custom Bypass</strong> and select <strong>Add rule</strong>.",
+          "Enter the Cisco IPs shown below.",
+          "Add a rule for the destination: <code>*.zpc.sse.cisco.com</code>.",
+          "Select <strong>Save</strong>."
+        ],
+        cfg: {
+          label: "Cisco Secure Access IP bypasses in GSA",
+          code: `208.67.222.222
+208.67.220.220
+67.215.64.0/19
+146.112.0.0/16
+155.190.0.0/16
+185.60.84.0/22
+204.194.232.0/21
+208.67.216.0/21
+208.69.32.0/21
+*.zpc.sse.cisco.com`
+        }
+      },
+      {
+        t: "Deploy Cisco Secure Client with Zero Trust Access and Umbrella modules",
+        b: "cisco",
+        inst: [
+          "Install <strong>Cisco Secure Client (CSC)</strong> version <strong>5.1.10.x or later</strong> with <strong>Zero Trust Access</strong> and <strong>Umbrella</strong> modules.",
+          "Add private resources and create access policies in the Cisco Secure Access portal.",
+          "Run the coexistence fix commands shown below as Administrator.",
+          "Restart the required services."
+        ],
+        cfg: {
+          label: "CSC coexistence commands (run as Administrator)",
+          code: `"%ProgramFiles(x86)%\\Cisco\\Cisco Secure Client\\acsocktool.exe" -slwm 10
+net stop csc_vpnagent && net stop acsock && net start csc_vpnagent`
+        }
+      },
+      {
+        t: "Validate coexistence",
+        b: "verify",
+        inst: [
+          "Confirm both clients are enabled and the Umbrella profile is <strong>Active</strong>.",
+          "Use <strong>Advanced Diagnostics</strong> in the GSA client to verify rules are applied and health checks pass.",
+          "Access <code>bing.com</code> and <code>salesforce.com</code> \u2014 verify GSA client <strong>is NOT</strong> capturing traffic.",
+          "In the Cisco Secure Access portal, validate internet traffic <strong>IS</strong> captured.",
+          "Access <code>outlook.office365.com</code> and <code>&lt;yourtenantdomain&gt;.sharepoint.com</code> \u2014 verify GSA <strong>IS</strong> capturing Microsoft traffic.",
+          "Access private resources via Cisco Secure Private Access \u2014 verify Cisco captures traffic.",
+          "Confirm traffic logs in both portals."
+        ],
+        chk: [
+          "Both clients report connected/active status",
+          "Advanced Diagnostics health checks pass",
+          "Internet traffic is captured by Cisco, NOT GSA",
+          "Microsoft 365 traffic is captured by GSA, NOT Cisco",
+          "Cisco private app traffic is captured by Cisco, NOT GSA",
+          "Traffic logs confirm correct routing"
+        ]
+      }
+    ]
+  },
+  {
+    id: 4,
+    scenario: "Scenario 4",
+    title: "GSA Internet + Microsoft Access with Cisco Secure Private Access",
+    desc: "Global Secure Access manages internet and Microsoft 365 traffic. Cisco Secure Access handles only Private Access with the Zero Trust Access module. Umbrella module not installed.",
+    gsaOwns: ["Internet Access", "Microsoft 365 traffic", "Web filtering"],
+    ciscoOwns: ["Private Access only (ZTA)", "No SWG/DNS"],
+    steps: [
+      {
+        t: "Enable Internet and Microsoft Access forwarding profiles",
+        b: "gsa",
+        inst: [
+          "Sign in to the <strong>Microsoft Entra admin center</strong>.",
+          "Navigate to <strong>Global Secure Access \u2192 Connect \u2192 Traffic forwarding</strong>.",
+          "Toggle <strong>Internet access profile</strong> to Enabled.",
+          "Toggle <strong>Microsoft traffic profile</strong> to Enabled."
+        ]
+      },
+      {
+        t: "Install Global Secure Access client",
+        b: "gsa",
+        inst: [
+          "Download the <strong>Global Secure Access client</strong> from the admin center.",
+          "Install the client on end-user devices running <strong>Windows or macOS</strong>.",
+          "Verify the client connects successfully and shows <strong>Connected</strong> status."
+        ]
+      },
+      {
+        t: "Add custom bypass for Cisco Secure Access in GSA",
+        b: "gsa",
+        inst: [
+          "In the <strong>Microsoft Entra admin center</strong>, go to <strong>Global Secure Access \u2192 Connect \u2192 Traffic forwarding \u2192 Internet access profile</strong>.",
+          "Under <strong>Internet access policies</strong>, select <strong>View</strong>.",
+          "Expand <strong>Custom Bypass</strong> and select <strong>Add rule</strong>.",
+          "Add a rule for the destination: <code>*.zpc.sse.cisco.com</code>.",
+          "Enter the Cisco IPs shown below.",
+          "Select <strong>Save</strong>."
+        ],
+        cfg: {
+          label: "Cisco Secure Access IP bypasses in GSA",
+          code: `208.67.222.222
+208.67.220.220
+67.215.64.0/19
+146.112.0.0/16
+155.190.0.0/16
+185.60.84.0/22
+204.194.232.0/21
+208.67.216.0/21
+208.69.32.0/21
+*.zpc.sse.cisco.com`
+        }
+      },
+      {
+        t: "Configure Cisco Secure Access bypasses for GSA (including M365)",
+        b: "cisco",
+        inst: [
+          "In the <strong>Cisco Secure Access portal</strong>, go to <strong>Connect \u2192 End User Connectivity \u2192 Internet Security</strong>.",
+          "In the <strong>Traffic Steering</strong> section, select <strong>Add Destination \u2192 Bypass Secure Access</strong>.",
+          "Add the GSA FQDNs <strong>and</strong> Microsoft 365 FQDNs shown below, then save.",
+          "In the Traffic Steering section, select <strong>Add Destination \u2192 Bypass web proxy only</strong>, add the GSA IPs and Microsoft 365 IPs shown below, and save."
+        ],
+        cfg: {
+          label: "Cisco Secure Access bypass FQDNs and IPs (including M365)",
+          code: `# Bypass Secure Access - GSA FQDNs
+<tenantid>.internet.client.globalsecureaccess.microsoft.com
+<tenantid>.m365.client.globalsecureaccess.microsoft.com
+<tenantid>.private.client.globalsecureaccess.microsoft.com
+<tenantid>.auth.client.globalsecureaccess.microsoft.com
+<tenantid>.private-backup.client.globalsecureaccess.microsoft.com
+<tenantid>.internet-backup.client.globalsecureaccess.microsoft.com
+<tenantid>.m365-backup.client.globalsecureaccess.microsoft.com
+<tenantid>.auth-backup.client.globalsecureaccess.microsoft.com
+globalsecureaccess.microsoft.com
+
+# Bypass Secure Access - Microsoft 365 FQDNs
+auth.microsoft.com
+msftidentity.com
+msidentity.com
+onmicrosoft.com
+outlook.com
+protection.outlook.com
+sharepoint.com
+sharepointonline.com
+svc.ms
+wns.windows.com
+account.activedirectory.windowsazure.com
+accounts.accesscontrol.windows.net
+admin.onedrive.com
+adminwebservice.microsoftonline.com
+api.passwordreset.microsoftonline.com
+autologon.microsoftazuread-sso.com
+becws.microsoftonline.com
+ccs.login.microsoftonline.com
+clientconfig.microsoftonline-p.net
+companymanager.microsoftonline.com
+device.login.microsoftonline.com
+g.live.com
+graph.microsoft.com
+graph.windows.net
+login-us.microsoftonline.com
+login.microsoft.com
+login.microsoftonline-p.com
+login.microsoftonline.com
+login.windows.net
+logincert.microsoftonline.com
+loginex.microsoftonline.com
+nexus.microsoftonline-p.com
+officeclient.microsoft.com
+oneclient.sfx.ms
+outlook.cloud.microsoft
+outlook.office.com
+outlook.office365.com
+passwordreset.microsoftonline.com
+provisioningapi.microsoftonline.com
+spoprod-a.akamaihd.net
+
+# Bypass web proxy only - GSA IPs
+150.171.19.0/24
+150.171.20.0/24
+13.107.232.0/24
+13.107.233.0/24
+150.171.15.0/24
+150.171.18.0/24
+151.206.0.0/16
+6.6.0.0/16
+
+# Bypass web proxy only - Microsoft 365 IPs
+132.245.0.0/16
+204.79.197.215/32
+150.171.32.0/22
+131.253.33.215/32
+23.103.160.0/20
+40.96.0.0/13
+52.96.0.0/14
+40.104.0.0/15
+13.107.128.0/22
+13.107.18.10/31
+13.107.6.152/31
+52.238.78.88/32
+104.47.0.0/17
+52.100.0.0/14
+40.107.0.0/16
+40.92.0.0/15
+150.171.40.0/22
+52.104.0.0/14
+104.146.128.0/17
+40.108.128.0/17
+13.107.136.0/22
+40.126.0.0/18
+20.231.128.0/19
+20.190.128.0/18
+20.20.32.0/19`
+        }
+      },
+      {
+        t: "Deploy Cisco Secure Client with Zero Trust Access module only",
+        b: "cisco",
+        inst: [
+          "Install <strong>Cisco Secure Client (CSC)</strong> version <strong>5.1.10.x or later</strong> with <strong>Zero Trust Access module only</strong> (Umbrella module is NOT installed).",
+          "Add private resources and create access policies in the Cisco Secure Access portal.",
+          "Run the coexistence fix commands shown below as Administrator.",
+          "Restart the required services."
+        ],
+        cfg: {
+          label: "CSC coexistence commands (run as Administrator)",
+          code: `"%ProgramFiles(x86)%\\Cisco\\Cisco Secure Client\\acsocktool.exe" -slwm 10
+net stop csc_vpnagent && net stop acsock && net start csc_vpnagent`
+        }
+      },
+      {
+        t: "Validate coexistence",
+        b: "verify",
+        inst: [
+          "Confirm both clients are enabled.",
+          "Use <strong>Advanced Diagnostics</strong> in the GSA client to verify rules are applied and health checks pass.",
+          "Access <code>bing.com</code>, <code>salesforce.com</code>, <code>outlook.office365.com</code> \u2014 verify GSA client <strong>IS</strong> capturing traffic for all these sites.",
+          "In the Cisco Secure Access portal, validate traffic to these sites <strong>is NOT</strong> captured.",
+          "Access private resources via Cisco Secure Private Access \u2014 verify Cisco captures traffic.",
+          "Confirm GSA did <strong>NOT</strong> handle private application traffic."
+        ],
+        chk: [
+          "Both clients report connected/active status",
+          "Advanced Diagnostics health checks pass",
+          "Internet + M365 traffic is captured by GSA",
+          "Cisco portal shows no internet/M365 traffic capture",
+          "Cisco private app traffic is captured by Cisco",
+          "GSA did not handle private application traffic"
+        ]
+      }
+    ]
+  }
+];
+
+let active = null;
+let doneMap = {};
+
+function renderGrid() {
+  document.getElementById('grid').innerHTML = DATA.map(d => `
+    <div class="scenario-tile" id="tile-${d.id}" onclick="pick(${d.id})">
+      <div class="tile-scenario-label">${d.scenario}</div>
+      <div class="tile-title">${d.title}</div>
+      <div class="tile-desc">${d.desc}</div>
+      <div class="tile-ownership">
+        <div class="ownership-col">
+          <h4>GSA owns</h4>
+          <ul>${d.gsaOwns.map(x => `<li>${x}</li>`).join('')}</ul>
+        </div>
+        <div class="ownership-col">
+          <h4>Cisco owns</h4>
+          <ul>${d.ciscoOwns.map(x => `<li>${x}</li>`).join('')}</ul>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function pick(id) {
+  active = DATA.find(d => d.id === id);
+  if (!doneMap[id]) doneMap[id] = new Set();
+  document.querySelectorAll('.scenario-tile').forEach(t => t.classList.remove('selected'));
+  document.getElementById(`tile-${id}`).classList.add('selected');
+  renderSteps();
+  const panel = document.getElementById('stepsPanel');
+  panel.classList.add('show');
+  setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+}
+
+function renderSteps() {
+  const s = active;
+  const done = doneMap[s.id];
+  document.getElementById('panelTitle').textContent = s.title;
+  document.getElementById('panelMeta').textContent = `${done.size} of ${s.steps.length} steps completed`;
+  document.getElementById('diagramSection').innerHTML = `<div class="diagram-container">${getDiagram(s.id)}</div>`;
+
+  let html = '';
+  let curBadge = '';
+  s.steps.forEach((st, i) => {
+    if (st.b !== curBadge) {
+      curBadge = st.b;
+      const lbl = curBadge === 'gsa' ? 'Microsoft Global Secure Access' : curBadge === 'cisco' ? 'Cisco Secure Access' : 'Verification';
+      html += `<div class="phase-divider"><span class="phase-divider-label ${curBadge}">${lbl}</span><span class="phase-divider-line"></span></div>`;
+    }
+    const isDone = done.has(i);
+    let tenantBadge = '';
+    if (st.cfg) {
+      const tCount = st.cfg.code.split('\n').filter(l => l.includes('<tenantid>') && l.includes('.client.globalsecureaccess')).length;
+      if (tCount > 0) tenantBadge = `<span class="step-tenant-badge">Tenanted Endpoints: ${tCount}</span>`;
+    }
+    html += `<div class="step-row ${isDone ? 'done' : ''}" id="sr-${i}">
+      <div class="step-row-header" onclick="toggle(${i})">
+        <div class="step-num">${isDone ? '\u2713' : i + 1}</div>
+        <div class="step-row-title">${st.t}</div>
+        ${tenantBadge}
+        <span class="step-tag ${st.b}">${st.b === 'gsa' ? 'GSA' : st.b === 'cisco' ? 'CSA' : 'Verify'}</span>
+        <span class="step-arrow">\u25be</span>
+      </div>
+      <div class="step-detail">
+        <ol>${st.inst.map(x => `<li>${x}</li>`).join('')}</ol>
+        ${st.cfg ? configHTML(st.cfg, i) : ''}
+        ${st.chk ? checkHTML(st.chk, i) : ''}
+        <button class="btn-done ${st.chk ? 'has-checklist' : ''}" id="done-${i}" onclick="markDone(${i},event)" ${st.chk ? 'disabled' : ''}>${isDone ? 'Mark incomplete' : 'Mark complete'}</button>
+      </div>
+    </div>`;
+  });
+  document.getElementById('stepsBody').innerHTML = html;
+}
+
+function escapeHtml(text) {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function configHTML(cfg, idx) {
+  const cid = `c-${active.id}-${idx}`;
+  let code = cfg.code;
+  if (tenantId) {
+    code = code.replace(/<tenantid>/g, tenantId);
+  }
+  const hasTenanted = cfg.code.includes('<tenantid>');
+  const notice = (hasTenanted && !tenantId)
+    ? `<div class="config-tenant-notice">\u26a0 Enter your Tenant ID above to populate tenant-specific endpoints before copying.</div>` : '';
+  const btnLabel = (hasTenanted && !tenantId) ? '\ud83d\udd12 Copy' : 'Copy';
+  return `<div class="config-panel">
+    <div class="config-panel-top">
+      <span class="config-panel-label">${cfg.label}</span>
+      <button class="btn-copy" id="cb-${cid}" onclick="doCopy('${cid}', event)">${btnLabel}</button>
+    </div>
+    ${notice}
+    <div class="config-panel-code" id="${cid}">${escapeHtml(code)}</div>
+  </div>`;
+}
+
+function checkHTML(items, stepIdx) {
+  return `<ul class="check-list" id="cl-${stepIdx}">${items.map((x, i) => `<li><input type="checkbox" id="chk-${active.id}-${stepIdx}-${i}" onchange="this.parentElement.classList.toggle('checked', this.checked); updateDoneBtn(${stepIdx})"><label for="chk-${active.id}-${stepIdx}-${i}">${x}</label></li>`).join('')}</ul>`;
+}
+
+function toggle(i) {
+  document.getElementById(`sr-${i}`).classList.toggle('open');
+}
+
+function markDone(i, e) {
+  e.stopPropagation();
+  const done = doneMap[active.id];
+  done.has(i) ? done.delete(i) : done.add(i);
+  renderSteps();
+}
+
+function updateDoneBtn(stepIdx) {
+  const cl = document.getElementById(`cl-${stepIdx}`);
+  if (!cl) return;
+  const boxes = cl.querySelectorAll('input[type="checkbox"]');
+  const allChecked = [...boxes].every(cb => cb.checked);
+  const btn = document.getElementById(`done-${stepIdx}`);
+  if (btn) btn.disabled = !allChecked;
+}
+
+function doCopy(id, e) {
+  e.stopPropagation();
+  const txt = document.getElementById(id).textContent;
+  if (txt.includes('<tenantid>') && !tenantId) {
+    const btn = document.getElementById(`cb-${id}`);
+    btn.textContent = '\u26a0 Enter Tenant ID first';
+    btn.classList.add('warn');
+    setTimeout(() => { btn.textContent = '\ud83d\udd12 Copy'; btn.classList.remove('warn'); }, 3000);
+    return;
+  }
+  navigator.clipboard.writeText(txt).then(() => {
+    const btn = document.getElementById(`cb-${id}`);
+    btn.textContent = 'Copied \u2713';
+    btn.classList.add('ok');
+    setTimeout(() => {
+      btn.textContent = 'Copy';
+      btn.classList.remove('ok');
+    }, 2000);
+  });
+}
+
+function toggleTheme() {
+  const t = document.documentElement.getAttribute('data-theme');
+  document.documentElement.setAttribute('data-theme', t === 'dark' ? 'light' : 'dark');
+}
+
+function toggleDiagram() {
+  const body = document.getElementById('diagramBody');
+  const chev = document.getElementById('diagramChevron');
+  body.classList.toggle('open');
+  chev.classList.toggle('collapsed');
+}
+
+function getDiagram(id) {
+  function particles(count) {
+    let p = '';
+    for (let i = 0; i < count; i++) {
+      const left = Math.random() * 100;
+      const delay = Math.random() * 8;
+      const size = 1.5 + Math.random() * 1.5;
+      const opacity = 0.3 + Math.random() * 0.4;
+      p += `<div class="hud-particle" style="left:${left}%;animation-delay:${delay}s;width:${size}px;height:${size}px;opacity:${opacity}"></div>`;
+    }
+    return p;
+  }
+
+  function hudWrap(svgContent) {
+    return `<div class="hud-canvas">
+      <div class="hud-particles">${particles(18)}</div>
+      <div class="hud-corner hud-corner--tl"></div>
+      <div class="hud-corner hud-corner--tr"></div>
+      <div class="hud-corner hud-corner--bl"></div>
+      <div class="hud-corner hud-corner--br"></div>
+      ${svgContent}
+    </div>`;
+  }
+
+  const hudStyles = `
+    .hud-node-title { font-size: 12px; font-weight: 600; fill: #e2e8f0; }
+    .hud-node-sub { font-size: 10px; fill: #94a3b8; }
+    .hud-node-sub2 { font-size: 9.5px; fill: #64748b; }
+    .hud-arrow-label { font-size: 11px; font-weight: 700; paint-order: stroke; stroke: rgba(10,14,26,0.92); stroke-width: 4px; stroke-linecap: round; stroke-linejoin: round; }
+    .hud-gsa-flow { stroke-dasharray: 8 4; animation: hudFlowBlue 0.8s linear infinite; stroke-linecap: round; filter: drop-shadow(0 0 3px rgba(56,189,248,0.6)); }
+    .hud-vendor-flow { stroke-dasharray: 6 3; animation: hudFlowCisco 0.7s linear infinite; stroke-linecap: round; filter: drop-shadow(0 0 3px rgba(4,159,217,0.6)); }
+    .hud-box-gsa { filter: drop-shadow(0 0 6px rgba(56,189,248,0.3)); }
+    .hud-box-vendor { filter: drop-shadow(0 0 6px rgba(4,159,217,0.3)); }
+    .hud-box-neutral { filter: drop-shadow(0 0 4px rgba(148,163,184,0.15)); }
+  `;
+
+  const gsaIcon = `<svg x="{X}" y="{Y}" width="22" height="22" viewBox="0 0 18 18"><defs><linearGradient id="gsa-h1-{ID}" x1="0" y1="9" x2="12" y2="9" gradientUnits="userSpaceOnUse"><stop offset=".4" stop-color="#38bdf8"/><stop offset="1" stop-color="#1e40af"/></linearGradient><linearGradient id="gsa-h2-{ID}" x1="9" y1="18" x2="9" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#1e3a5f"/><stop offset="1" stop-color="#0ea5e9"/></linearGradient><linearGradient id="gsa-h3-{ID}" x1="13.5" y1="18" x2="13.5" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#1e3a5f"/><stop offset=".5" stop-color="#0ea5e9"/><stop offset="1" stop-color="#7dd3fc"/></linearGradient></defs><circle cx="9" cy="9" r="9" fill="url(#gsa-h1-{ID})"/><path d="m9,0C13.971,0,18,4.029,18,9s-4.029,9-9,9S0,13.971,0,9,4.029,0,9,0Zm2.645,13.049h-5.289c.587,2.172,1.607,3.601,2.645,3.601s2.058-1.429,2.645-3.601Zm-6.687,0h-2.45c.862,1.379,2.152,2.464,3.684,3.069-.47-.738-.858-1.661-1.143-2.714l-.091-.355Zm10.534,0h-2.45c-.291,1.2-.712,2.249-1.235,3.069,1.437-.567,2.661-1.556,3.519-2.814l.167-.255ZM4.585,7.2H1.563l-.004.016c-.137.573-.209,1.17-.209,1.785,0,.95.173,1.86.49,2.7h2.855c-.128-.854-.196-1.762-.196-2.7,0-.616.029-1.218.085-1.8Zm7.472,0h-6.114c-.061.576-.094,1.179-.094,1.8,0,.953.078,1.863.216,2.7h5.87c.138-.837.216-1.746.216-2.7,0-.621-.033-1.224-.094-1.8Zm4.38,0h-3.022c.056.583.085,1.186.085,1.801,0,.938-.068,1.845-.196,2.699h2.855c.317-.839.49-1.749.49-2.699,0-.62-.074-1.223-.213-1.801ZM6.193,1.881l-.021.008c-1.842.733-3.332,2.161-4.147,3.961h2.743c.282-1.577.774-2.95,1.424-3.969Zm2.807-.532l-.104.005c-1.139.104-2.239,1.906-2.75,4.496h5.707c-.51-2.583-1.605-4.381-2.74-4.495l-.114-.006Zm2.808.532l.096.157c.602,1.001,1.059,2.315,1.327,3.813h2.743c-.778-1.72-2.174-3.101-3.904-3.86l-.262-.109Z" fill="url(#gsa-h2-{ID})"/><path d="m9,0c.691,2.022,1.495,5.137,1.495,9s-.804,6.978-1.495,9c4.937,0,9-4.063,9-9C18,4.029,13.971,0,9,0Z" fill="url(#gsa-h3-{ID})"/></svg>`;
+
+  const ciscoIcon = `<svg x="{X}" y="{Y}" width="22" height="22" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#049fd9"/><text x="10" y="14.5" text-anchor="middle" font-size="12" font-weight="700" font-family="Segoe UI, sans-serif" fill="white">CS</text></svg>`;
+
+  function gsa(x, y, diagId) { return gsaIcon.replace(/\{X\}/g, x).replace(/\{Y\}/g, y).replace(/\{ID\}/g, diagId); }
+  function cisco(x, y) { return ciscoIcon.replace('{X}', x).replace('{Y}', y); }
+
+  const diagrams = {
+    1: hudWrap(`<svg class="hud-svg" viewBox="0 0 930 340" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <style>${hudStyles}</style>
+      <defs>
+        <marker id="ha1b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#38bdf8"/></marker>
+        <marker id="ha1c" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#049fd9"/></marker>
+      </defs>
+      <g class="hud-box-neutral">
+        <rect x="30" y="120" width="155" height="70" rx="6" fill="rgba(15,23,42,0.8)" stroke="#475569" stroke-width="1"/>
+        <text x="108" y="146" text-anchor="middle" class="hud-node-title">End-User Device</text>
+        <text x="108" y="162" text-anchor="middle" class="hud-node-sub">GSA Client + CSC</text>
+        <text x="108" y="176" text-anchor="middle" class="hud-node-sub2">Umbrella + ZTA modules</text>
+      </g>
+      <g class="hud-box-gsa">
+        <rect x="280" y="36" width="240" height="82" rx="6" fill="rgba(15,23,42,0.9)" stroke="#38bdf8" stroke-width="1.5"/>
+        <rect x="280" y="36" width="240" height="82" rx="6" fill="rgba(56,189,248,0.05)"/>
+        ${gsa(288, 48, 'hc1')}
+        <text x="418" y="64" text-anchor="middle" class="hud-node-title" fill="#38bdf8">Global Secure Access</text>
+        <text x="418" y="80" text-anchor="middle" class="hud-node-sub">Private Access profile</text>
+        <text x="418" y="94" text-anchor="middle" class="hud-node-sub">Quick Access + Private DNS</text>
+        <text x="418" y="108" text-anchor="middle" class="hud-node-sub2">Owns private app routing</text>
+      </g>
+      <g class="hud-box-vendor">
+        <rect x="280" y="210" width="240" height="82" rx="6" fill="rgba(15,23,42,0.9)" stroke="#049fd9" stroke-width="1.5"/>
+        <rect x="280" y="210" width="240" height="82" rx="6" fill="rgba(4,159,217,0.05)"/>
+        ${cisco(288, 222)}
+        <text x="418" y="238" text-anchor="middle" class="hud-node-title" fill="#049fd9">Cisco Secure Access</text>
+        <text x="418" y="254" text-anchor="middle" class="hud-node-sub">Secure Internet Access</text>
+        <text x="418" y="268" text-anchor="middle" class="hud-node-sub">DNS + SWG</text>
+        <text x="418" y="282" text-anchor="middle" class="hud-node-sub2">Owns web traffic routing</text>
+      </g>
+      <g class="hud-box-neutral">
+        <rect x="650" y="36" width="220" height="64" rx="6" fill="rgba(15,23,42,0.7)" stroke="#475569" stroke-width="1"/>
+        <text x="760" y="62" text-anchor="middle" class="hud-node-title">Private Apps</text>
+        <text x="760" y="78" text-anchor="middle" class="hud-node-sub">SMB, internal web apps</text>
+      </g>
+      <g class="hud-box-neutral">
+        <rect x="650" y="210" width="220" height="64" rx="6" fill="rgba(15,23,42,0.7)" stroke="#475569" stroke-width="1"/>
+        <text x="760" y="236" text-anchor="middle" class="hud-node-title">Internet + M365</text>
+        <text x="760" y="252" text-anchor="middle" class="hud-node-sub">Web, SaaS, Outlook, Teams</text>
+      </g>
+      <path d="M185 132 L275 76" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha1b)"/>
+      <path d="M185 176 L275 252" stroke="#049fd9" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha1c)"/>
+      <path d="M524 68 L645 68" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha1b)"/>
+      <path d="M524 248 L645 242" stroke="#049fd9" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha1c)"/>
+      <text x="206" y="86" class="hud-arrow-label" fill="#38bdf8">Private traffic</text>
+      <text x="206" y="236" class="hud-arrow-label" fill="#049fd9">Web + DNS</text>
+      <text x="568" y="56" class="hud-arrow-label" fill="#38bdf8">Private apps</text>
+      <text x="568" y="232" class="hud-arrow-label" fill="#049fd9">Internet + M365</text>
+    </svg>`),
+
+    2: hudWrap(`<svg class="hud-svg" viewBox="0 0 930 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <style>${hudStyles}</style>
+      <defs>
+        <marker id="ha2b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#38bdf8"/></marker>
+        <marker id="ha2c" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#049fd9"/></marker>
+      </defs>
+      <g class="hud-box-neutral">
+        <rect x="30" y="140" width="155" height="70" rx="6" fill="rgba(15,23,42,0.8)" stroke="#475569" stroke-width="1"/>
+        <text x="108" y="166" text-anchor="middle" class="hud-node-title">End-User Device</text>
+        <text x="108" y="182" text-anchor="middle" class="hud-node-sub">GSA Client + CSC</text>
+        <text x="108" y="196" text-anchor="middle" class="hud-node-sub2">ZTA + Umbrella modules</text>
+      </g>
+      <g class="hud-box-gsa">
+        <rect x="280" y="28" width="240" height="82" rx="6" fill="rgba(15,23,42,0.9)" stroke="#38bdf8" stroke-width="1.5"/>
+        <rect x="280" y="28" width="240" height="82" rx="6" fill="rgba(56,189,248,0.05)"/>
+        ${gsa(288, 40, 'hc2')}
+        <text x="418" y="56" text-anchor="middle" class="hud-node-title" fill="#38bdf8">Global Secure Access</text>
+        <text x="418" y="72" text-anchor="middle" class="hud-node-sub">Private Access profile</text>
+        <text x="418" y="86" text-anchor="middle" class="hud-node-sub">Quick Access + Private DNS</text>
+        <text x="418" y="100" text-anchor="middle" class="hud-node-sub2">Owns Entra private apps</text>
+      </g>
+      <g class="hud-box-vendor">
+        <rect x="280" y="210" width="240" height="92" rx="6" fill="rgba(15,23,42,0.9)" stroke="#049fd9" stroke-width="1.5"/>
+        <rect x="280" y="210" width="240" height="92" rx="6" fill="rgba(4,159,217,0.05)"/>
+        ${cisco(288, 222)}
+        <text x="418" y="238" text-anchor="middle" class="hud-node-title" fill="#049fd9">Cisco Secure Access</text>
+        <text x="418" y="254" text-anchor="middle" class="hud-node-sub">Internet + Private Access</text>
+        <text x="418" y="268" text-anchor="middle" class="hud-node-sub">ZTA + Umbrella modules</text>
+        <text x="418" y="282" text-anchor="middle" class="hud-node-sub2">Owns web + Cisco private apps</text>
+      </g>
+      <g class="hud-box-neutral">
+        <rect x="650" y="28" width="220" height="64" rx="6" fill="rgba(15,23,42,0.7)" stroke="#475569" stroke-width="1"/>
+        <text x="760" y="54" text-anchor="middle" class="hud-node-title">Entra Private Apps</text>
+        <text x="760" y="70" text-anchor="middle" class="hud-node-sub">SMB, internal web apps</text>
+      </g>
+      <g class="hud-box-neutral">
+        <rect x="650" y="152" width="220" height="64" rx="6" fill="rgba(15,23,42,0.7)" stroke="#475569" stroke-width="1"/>
+        <text x="760" y="178" text-anchor="middle" class="hud-node-title">Internet</text>
+        <text x="760" y="194" text-anchor="middle" class="hud-node-sub">Web + SaaS + M365</text>
+      </g>
+      <g class="hud-box-neutral">
+        <rect x="650" y="276" width="220" height="64" rx="6" fill="rgba(15,23,42,0.7)" stroke="#475569" stroke-width="1"/>
+        <text x="760" y="302" text-anchor="middle" class="hud-node-title">Cisco Private Apps</text>
+        <text x="760" y="318" text-anchor="middle" class="hud-node-sub">RDP, Cisco-managed resources</text>
+      </g>
+      <path d="M185 148 L275 70" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha2b)"/>
+      <path d="M185 196 L275 256" stroke="#049fd9" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha2c)"/>
+      <path d="M524 60 L645 60" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha2b)"/>
+      <path d="M524 240 L645 184" stroke="#049fd9" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha2c)"/>
+      <path d="M524 272 L645 308" stroke="#049fd9" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha2c)"/>
+      <text x="206" y="90" class="hud-arrow-label" fill="#38bdf8">Private traffic</text>
+      <text x="206" y="244" class="hud-arrow-label" fill="#049fd9">Web + private</text>
+      <text x="568" y="46" class="hud-arrow-label" fill="#38bdf8">Entra apps</text>
+      <text x="568" y="168" class="hud-arrow-label" fill="#049fd9">Internet</text>
+      <text x="568" y="296" class="hud-arrow-label" fill="#049fd9">Cisco apps</text>
+    </svg>`),
+
+    3: hudWrap(`<svg class="hud-svg" viewBox="0 0 930 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <style>${hudStyles}</style>
+      <defs>
+        <marker id="ha3b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#38bdf8"/></marker>
+        <marker id="ha3c" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#049fd9"/></marker>
+      </defs>
+      <g class="hud-box-neutral">
+        <rect x="30" y="140" width="155" height="70" rx="6" fill="rgba(15,23,42,0.8)" stroke="#475569" stroke-width="1"/>
+        <text x="108" y="166" text-anchor="middle" class="hud-node-title">End-User Device</text>
+        <text x="108" y="182" text-anchor="middle" class="hud-node-sub">GSA Client + CSC</text>
+        <text x="108" y="196" text-anchor="middle" class="hud-node-sub2">ZTA + Umbrella modules</text>
+      </g>
+      <g class="hud-box-gsa">
+        <rect x="280" y="36" width="240" height="72" rx="6" fill="rgba(15,23,42,0.9)" stroke="#38bdf8" stroke-width="1.5"/>
+        <rect x="280" y="36" width="240" height="72" rx="6" fill="rgba(56,189,248,0.05)"/>
+        ${gsa(288, 46, 'hc3')}
+        <text x="418" y="64" text-anchor="middle" class="hud-node-title" fill="#38bdf8">Global Secure Access</text>
+        <text x="418" y="80" text-anchor="middle" class="hud-node-sub">Microsoft Access profile</text>
+        <text x="418" y="94" text-anchor="middle" class="hud-node-sub2">Owns M365 traffic routing</text>
+      </g>
+      <g class="hud-box-vendor">
+        <rect x="280" y="210" width="240" height="92" rx="6" fill="rgba(15,23,42,0.9)" stroke="#049fd9" stroke-width="1.5"/>
+        <rect x="280" y="210" width="240" height="92" rx="6" fill="rgba(4,159,217,0.05)"/>
+        ${cisco(288, 222)}
+        <text x="418" y="238" text-anchor="middle" class="hud-node-title" fill="#049fd9">Cisco Secure Access</text>
+        <text x="418" y="254" text-anchor="middle" class="hud-node-sub">Internet + Private Access</text>
+        <text x="418" y="268" text-anchor="middle" class="hud-node-sub">ZTA + Umbrella modules</text>
+        <text x="418" y="282" text-anchor="middle" class="hud-node-sub2">Owns web + private routing</text>
+      </g>
+      <g class="hud-box-neutral">
+        <rect x="650" y="36" width="220" height="64" rx="6" fill="rgba(15,23,42,0.7)" stroke="#475569" stroke-width="1"/>
+        <text x="760" y="62" text-anchor="middle" class="hud-node-title">Microsoft 365</text>
+        <text x="760" y="78" text-anchor="middle" class="hud-node-sub">Outlook, SharePoint, Teams</text>
+      </g>
+      <g class="hud-box-neutral">
+        <rect x="650" y="152" width="220" height="64" rx="6" fill="rgba(15,23,42,0.7)" stroke="#475569" stroke-width="1"/>
+        <text x="760" y="178" text-anchor="middle" class="hud-node-title">Internet</text>
+        <text x="760" y="194" text-anchor="middle" class="hud-node-sub">Web + SaaS traffic</text>
+      </g>
+      <g class="hud-box-neutral">
+        <rect x="650" y="276" width="220" height="64" rx="6" fill="rgba(15,23,42,0.7)" stroke="#475569" stroke-width="1"/>
+        <text x="760" y="302" text-anchor="middle" class="hud-node-title">Cisco Private Apps</text>
+        <text x="760" y="318" text-anchor="middle" class="hud-node-sub">RDP, Cisco-managed resources</text>
+      </g>
+      <path d="M185 148 L275 72" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha3b)"/>
+      <path d="M185 196 L275 256" stroke="#049fd9" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha3c)"/>
+      <path d="M524 72 L645 68" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha3b)"/>
+      <path d="M524 240 L645 184" stroke="#049fd9" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha3c)"/>
+      <path d="M524 272 L645 308" stroke="#049fd9" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha3c)"/>
+      <text x="206" y="90" class="hud-arrow-label" fill="#38bdf8">M365 traffic</text>
+      <text x="206" y="244" class="hud-arrow-label" fill="#049fd9">Web + private</text>
+      <text x="568" y="50" class="hud-arrow-label" fill="#38bdf8">Microsoft 365</text>
+      <text x="568" y="168" class="hud-arrow-label" fill="#049fd9">Internet</text>
+      <text x="568" y="296" class="hud-arrow-label" fill="#049fd9">Cisco apps</text>
+    </svg>`),
+
+    4: hudWrap(`<svg class="hud-svg" viewBox="0 0 930 340" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <style>${hudStyles}</style>
+      <defs>
+        <marker id="ha4b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#38bdf8"/></marker>
+        <marker id="ha4c" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#049fd9"/></marker>
+      </defs>
+      <g class="hud-box-neutral">
+        <rect x="30" y="120" width="155" height="70" rx="6" fill="rgba(15,23,42,0.8)" stroke="#475569" stroke-width="1"/>
+        <text x="108" y="146" text-anchor="middle" class="hud-node-title">End-User Device</text>
+        <text x="108" y="162" text-anchor="middle" class="hud-node-sub">GSA Client + CSC</text>
+        <text x="108" y="176" text-anchor="middle" class="hud-node-sub2">ZTA module only</text>
+      </g>
+      <g class="hud-box-gsa">
+        <rect x="280" y="36" width="240" height="82" rx="6" fill="rgba(15,23,42,0.9)" stroke="#38bdf8" stroke-width="1.5"/>
+        <rect x="280" y="36" width="240" height="82" rx="6" fill="rgba(56,189,248,0.05)"/>
+        ${gsa(288, 48, 'hc4')}
+        <text x="418" y="64" text-anchor="middle" class="hud-node-title" fill="#38bdf8">Global Secure Access</text>
+        <text x="418" y="80" text-anchor="middle" class="hud-node-sub">Internet + Microsoft Access</text>
+        <text x="418" y="94" text-anchor="middle" class="hud-node-sub">Web filtering enabled</text>
+        <text x="418" y="108" text-anchor="middle" class="hud-node-sub2">Owns web + M365 routing</text>
+      </g>
+      <g class="hud-box-vendor">
+        <rect x="280" y="210" width="240" height="82" rx="6" fill="rgba(15,23,42,0.9)" stroke="#049fd9" stroke-width="1.5"/>
+        <rect x="280" y="210" width="240" height="82" rx="6" fill="rgba(4,159,217,0.05)"/>
+        ${cisco(288, 222)}
+        <text x="418" y="238" text-anchor="middle" class="hud-node-title" fill="#049fd9">Cisco Secure Access</text>
+        <text x="418" y="254" text-anchor="middle" class="hud-node-sub">Private Access only (ZTA)</text>
+        <text x="418" y="268" text-anchor="middle" class="hud-node-sub">No Umbrella module</text>
+        <text x="418" y="282" text-anchor="middle" class="hud-node-sub2">Owns private app routing</text>
+      </g>
+      <g class="hud-box-neutral">
+        <rect x="650" y="24" width="220" height="58" rx="6" fill="rgba(15,23,42,0.7)" stroke="#475569" stroke-width="1"/>
+        <text x="760" y="48" text-anchor="middle" class="hud-node-title">Internet</text>
+        <text x="760" y="64" text-anchor="middle" class="hud-node-sub">Web + SaaS traffic</text>
+      </g>
+      <g class="hud-box-neutral">
+        <rect x="650" y="100" width="220" height="58" rx="6" fill="rgba(15,23,42,0.7)" stroke="#475569" stroke-width="1"/>
+        <text x="760" y="124" text-anchor="middle" class="hud-node-title">Microsoft 365</text>
+        <text x="760" y="140" text-anchor="middle" class="hud-node-sub">Outlook, SharePoint, Teams</text>
+      </g>
+      <g class="hud-box-neutral">
+        <rect x="650" y="230" width="220" height="64" rx="6" fill="rgba(15,23,42,0.7)" stroke="#475569" stroke-width="1"/>
+        <text x="760" y="256" text-anchor="middle" class="hud-node-title">Cisco Private Apps</text>
+        <text x="760" y="272" text-anchor="middle" class="hud-node-sub">RDP, Cisco-managed resources</text>
+      </g>
+      <path d="M185 130 L275 76" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha4b)"/>
+      <path d="M185 176 L275 252" stroke="#049fd9" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha4c)"/>
+      <path d="M524 60 L645 52" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha4b)"/>
+      <path d="M524 86 L645 128" stroke="#38bdf8" stroke-width="2" class="hud-gsa-flow" marker-end="url(#ha4b)"/>
+      <path d="M524 260 L645 262" stroke="#049fd9" stroke-width="2" class="hud-vendor-flow" marker-end="url(#ha4c)"/>
+      <text x="206" y="84" class="hud-arrow-label" fill="#38bdf8">Web + M365</text>
+      <text x="206" y="240" class="hud-arrow-label" fill="#049fd9">Private traffic</text>
+      <text x="568" y="40" class="hud-arrow-label" fill="#38bdf8">Internet</text>
+      <text x="568" y="112" class="hud-arrow-label" fill="#38bdf8">M365</text>
+      <text x="568" y="248" class="hud-arrow-label" fill="#049fd9">Cisco apps</text>
+    </svg>`)
+  };
+  return diagrams[id] || '';
+}
+
+renderGrid();
+pick(1);
+</script>
+</body>
+</html>
