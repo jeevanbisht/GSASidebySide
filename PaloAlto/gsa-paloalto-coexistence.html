@@ -163,6 +163,27 @@ code, pre { font-family: Consolas, "Courier New", Courier, monospace; }
   margin-bottom: 14px;
 }
 
+.no-config-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgba(37, 99, 235, 0.06);
+  border: 1px solid rgba(37, 99, 235, 0.25);
+  border-left: 4px solid #2563eb;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 28px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--cp-text);
+}
+.no-config-note .nc-icon {
+  flex: 0 0 auto;
+  font-size: 1.05rem;
+  line-height: 1.4;
+}
+.no-config-note strong { color: #1d4ed8; }
+
 .scenario-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -588,6 +609,11 @@ code, pre { font-family: Consolas, "Courier New", Courier, monospace; }
     <p>Configure Microsoft Global Secure Access alongside Palo Alto Prisma Access and GlobalProtect. Select a scenario below to review the traffic flow, split tunneling requirements, and step-by-step implementation guidance.</p>
   </div>
 
+  <div class="no-config-note">
+    <span class="nc-icon">ℹ️</span>
+    <span><strong>No Tenant ID or Quick Access App ID required.</strong> This guide does not need you to configure a Microsoft Entra Tenant ID or a Quick Access Application ID — none of the scenarios below contain tenant-specific endpoints or Quick Access placeholders. Just pick a scenario and follow the steps.</span>
+  </div>
+
   <div class="section-title">Choose your coexistence scenario</div>
   <div class="scenario-grid" id="grid"></div>
 
@@ -615,7 +641,7 @@ code, pre { font-family: Consolas, "Courier New", Courier, monospace; }
 </main>
 
 <footer class="disclaimer-footer">
-  <p class="version-line">Version 1.1</p>
+  <p class="version-line">Version 1.2</p>
   <p>Microsoft®, Microsoft Entra™, and Global Secure Access™ are trademarks or registered trademarks of Microsoft Corporation. Palo Alto Networks®, Prisma Access™, and GlobalProtect™ are trademarks or registered trademarks of Palo Alto Networks, Inc. This guide is provided for informational and interoperability purposes only. It is not endorsed by, affiliated with, or sponsored by Palo Alto Networks, Inc. All product names, logos, and brands are property of their respective owners.</p>
 </footer>
 
