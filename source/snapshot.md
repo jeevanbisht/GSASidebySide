@@ -1,6 +1,6 @@
 # Source Snapshot
 
-Last captured: 2026-06-18
+Last captured: 2026-06-20
 
 This file records the last-known state of each Microsoft Learn source page used to build
 the coexistence guides. Agents use this to detect when upstream docs have changed.

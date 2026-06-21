@@ -168,6 +168,26 @@ body {
   margin-bottom: 14px;
 }
 
+.no-config-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgba(37, 99, 235, 0.06);
+  border: 1px solid rgba(37, 99, 235, 0.25);
+  border-left: 4px solid #2563eb;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--cp-text);
+}
+.no-config-note .nc-icon {
+  flex: 0 0 auto;
+  font-size: 1.05rem;
+  line-height: 1.4;
+}
+.no-config-note strong { color: #1d4ed8; }
 .tenant-input-container {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -777,14 +797,10 @@ html[data-theme="dark"] .step-tag.verify { color: #b39ddb; }
 
   <div class="section-title">Choose your coexistence scenario</div>
 
-  <!-- Tenant ID Input -->
-  <div class="tenant-input-container" id="tenantInput">
-    <div class="tenant-input-row">
-      <label class="tenant-label" for="tenantIdField">Tenant ID</label>
-      <input type="text" id="tenantIdField" class="tenant-field" placeholder="e.g. a1b2c3d4-e5f6-7890-abcd-ef1234567890" pattern="[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}" oninput="validateTenantId()"/>
-      <button class="btn-apply-tenant" id="btnApplyTenant" onclick="applyTenantId()" disabled>Apply</button>
-    </div>
-    <div class="tenant-hint" id="tenantHint">Accepts a GUID (e.g. a1b2c3d4-e5f6-7890-abcd-ef1234567890) &nbsp;|&nbsp; <strong>Tenant ID</strong> — Required for Scenarios 1, 2, 3, and 4</div>
+  <!-- No GUID required note -->
+  <div class="no-config-note">
+    <span class="nc-icon">ℹ️</span>
+    <span><strong>No Tenant ID or Quick Access App ID required.</strong> This guide does not need you to configure a Microsoft Entra Tenant ID or a Quick Access Application ID — Netskope coexistence is configured entirely with fixed Microsoft SSE / Microsoft 365 IP ranges and FQDN bypasses, so none of the scenarios below contain tenant-specific endpoints or Quick Access placeholders. Just pick a scenario and follow the steps.</span>
   </div>
 
   <div class="scenario-grid" id="grid"></div>
@@ -815,7 +831,7 @@ html[data-theme="dark"] .step-tag.verify { color: #b39ddb; }
 </main>
 
 <footer class="disclaimer-footer">
-  <p class="version-line">Version 1.2</p>
+  <p class="version-line">Version 1.3</p>
   <p>Microsoft®, Microsoft Entra™, and Global Secure Access™ are trademarks or registered trademarks of Microsoft Corporation. Netskope® is a trademark or registered trademark of Netskope, Inc. This guide is provided for informational and interoperability purposes only. It is not endorsed by, affiliated with, or sponsored by Netskope, Inc. All product names, logos, and brands are property of their respective owners.</p>
 </footer>
 
@@ -1053,35 +1069,6 @@ function toggleDiagram() {
 // Tenant ID logic
 let tenantId = '';
 const GUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-function validateTenantId() {
-  const field = document.getElementById('tenantIdField');
-  const btn = document.getElementById('btnApplyTenant');
-  const val = field.value.trim();
-  if (val === '') {
-    field.classList.remove('valid', 'invalid');
-    btn.disabled = true;
-  } else if (GUID_RE.test(val)) {
-    field.classList.add('valid');
-    field.classList.remove('invalid');
-    btn.disabled = false;
-  } else {
-    field.classList.add('invalid');
-    field.classList.remove('valid');
-    btn.disabled = true;
-  }
-}
-
-function applyTenantId() {
-  const field = document.getElementById('tenantIdField');
-  const hint = document.getElementById('tenantHint');
-  const val = field.value.trim();
-  if (!GUID_RE.test(val)) return;
-  tenantId = val;
-  hint.textContent = `✓ Tenant ID applied: ${tenantId}`;
-  hint.classList.add('applied');
-  if (active) renderSteps();
-}
 
 function getDiagram(id) {
   function particles(count) {
