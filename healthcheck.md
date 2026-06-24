@@ -15,12 +15,33 @@ our guides become stale. This healthcheck system detects drift early.
 
 ## Source Registry
 
+> ⚠️ **There are SIX (6) tracked guides — check ALL of them, every time.**
+> The authoritative registry is [`source/snapshot.md`](source/snapshot.md), **not** the
+> `agents.md` "Source Change Detection" table (which only lists 4 vendors and is incomplete).
+> Always iterate over every row in `source/snapshot.md`. If a count of guides is ever < 6,
+> something was skipped — stop and recount.
+
+**The 6 guides that MUST be checked on every healthcheck:**
+
+| # | Vendor | Guide HTML | Source slug |
+|---|--------|-----------|-------------|
+| 1 | Zscaler | `Zscaler/gsa-zscaler-coexistence.html` | `how-to-zscaler-coexistence` |
+| 2 | Cisco Umbrella | `CiscoUmbrella/gsa-cisco-coexistence.html` | `how-to-cisco-coexistence` |
+| 3 | Cisco Secure Access | `CiscoSecureAccess/gsa-cisco-secure-access-coexistence.html` | `how-to-cisco-secure-access-coexistence` |
+| 4 | Cisco VPN | `CiscoVPN/gsa-cisco-vpn-coexistence.html` | `how-to-cisco-vpn-coexistence` |
+| 5 | Palo Alto | `PaloAlto/gsa-paloalto-coexistence.html` | `how-to-palo-alto-coexistence` |
+| 6 | Netskope | `Netskope/gsa-netskope-coexistence.html` | `how-to-netskope-coexistence` |
+
 All tracked sources are recorded in [`source/snapshot.md`](source/snapshot.md) with:
 
 - **Source URL** — the canonical Microsoft Learn page
 - **ms.date** — the `ms.date` metadata field at time of last capture
 - **git_commit_id** — the `gitcommit` hash at time of last capture
 - **word_count** — approximate word count for quick diff detection
+
+> 🔁 **Self-check before reporting:** confirm your results table has exactly 6 rows,
+> one per guide above. Discover the file list dynamically too —
+> `Get-ChildItem -Recurse -Filter "*coexistence*.html"` should return 6 files.
 
 ---
 
@@ -30,10 +51,10 @@ All tracked sources are recorded in [`source/snapshot.md`](source/snapshot.md) w
 
 Per the `agents.md` "Source Change Detection" section, agents **must**:
 
-1. Fetch each source URL listed in `source/snapshot.md`
+1. Fetch **every** source URL listed in `source/snapshot.md` (all 6 — do not stop at 4)
 2. Extract the `ms.date`, `git_commit_id`, and `word_count` from the page metadata
 3. Compare against the values in `source/snapshot.md`
-4. Report any differences to the user
+4. Report any differences to the user, with a results table containing **all 6 guides**
 
 ### Change Indicators (any one triggers a notification)
 
